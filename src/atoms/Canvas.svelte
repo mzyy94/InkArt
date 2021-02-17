@@ -4,12 +4,21 @@
 
   let canvas: HTMLCanvasElement;
 
-  img.onload = () => {
+  function drawImage() {
+    if (!img.src) {
+      return;
+    }
     const ctx = canvas.getContext("2d");
     if (mode == "fill") {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
-  };
+  }
+
+  img.onload = drawImage;
+  $: {
+    mode;
+    drawImage();
+  }
 </script>
 
 <canvas bind:this={canvas} width={800} height={600} />
