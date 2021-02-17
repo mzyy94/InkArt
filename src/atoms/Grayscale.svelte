@@ -1,5 +1,4 @@
 <script context="module" lang="ts">
-  import type { DrawImageEvent, ResizeImageEvent } from "./Canvas.svelte";
   const vertShader = `
   attribute vec2 position;
   uniform mat3 matrix;
@@ -96,6 +95,18 @@
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
   }
+</script>
+
+<script lang="ts">
+  import { onMount } from "svelte";
+
+  export let img: HTMLImageElement;
+  export let mode = "fill";
+
+  export let offsetX = 0;
+  export let offsetY = 0;
+  export let active = false;
+  export let algorithm = "default";
 
   const resized: HTMLCanvasElement = document.createElement("canvas");
 
@@ -142,47 +153,28 @@
     }
 
     ctx.drawImage(img, x, y, width, height);
+
+    drawImage(offsetX, offsetY);
   }
 
-  const canvas = document.createElement("canvas");
-  let gl;
-  let program;
-  let texture;
+  let canvas: HTMLCanvasElement;
+  let gl: WebGLRenderingContext;
+  let program: WebGLProgram;
+  let texture: WebGLTexture;
 
-  export function grayscale(node: HTMLCanvasElement, algorithm = "default") {
-    canvas.width = node.width;
-    canvas.height = node.height;
+  onMount(() => {
     resized.width = canvas.width;
     resized.height = canvas.height;
     gl = canvas.getContext("webgl");
     program = createProgram(gl, vertShader, fragShader);
     texture = gl.createTexture();
+  });
 
-    node.addEventListener(
-      "resizeimage",
-      ({ detail: { mode, image } }: ResizeImageEvent) => {
-        resizeImage(mode, image);
-      }
-    );
+  function drawImage(x: number, y: number) {
+    if (!gl) {
+      return;
+    }
 
-    node.addEventListener("drawimage", ({ target, detail }: DrawImageEvent) => {
-      drawImage(
-        resized,
-        detail.x,
-        detail.y,
-        target as HTMLCanvasElement,
-        algorithm
-      );
-    });
-  }
-
-  function drawImage(
-    image: TexImageSource,
-    x: number,
-    y: number,
-    targetCanvas: HTMLCanvasElement,
-    algorithm: string
-  ) {
     if (algorithm != "default") {
       return;
     }
@@ -191,7 +183,7 @@
     gl.clearColor(1, 1, 1, 1);
     gl.clearDepth(1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    setTexture(gl, texture, image);
+    setTexture(gl, texture, resized);
 
     const matrixLocation = gl.getUniformLocation(program, "matrix");
     const xx = (x / gl.canvas.width) * 2 - 1;
@@ -203,8 +195,22 @@
     ]);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-    const ctx = targetCanvas.getContext("2d");
-    ctx.drawImage(canvas, 0, 0);
   }
+
+  img.onload = () => {
+    resizeImage(mode, img);
+    active = true;
+  };
+
+  $: resizeImage(mode, img);
+  $: drawImage(offsetX, offsetY);
 </script>
+
+<canvas bind:this={canvas} width={800} height={600} />
+
+<style>
+  canvas {
+    background: gray;
+    max-width: 100%;
+  }
+</style>

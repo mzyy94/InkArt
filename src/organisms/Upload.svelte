@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Select } from "smelte";
   import ImageLoader from "../atoms/ImageLoader.svelte";
-  import Canvas from "../atoms/Canvas.svelte";
+  import Grayscale from "../atoms/Grayscale.svelte";
   import Move from "../atoms/Move.svelte";
 
   const modes = [
@@ -21,5 +21,5 @@
 <ImageLoader {img} />
 <Select {label} items={modes} bind:value={mode} />
 <Move let:offsetX let:offsetY reset={mode} {active}>
-  <Canvas {img} {mode} {offsetX} {offsetY} bind:active />
+  <Grayscale {img} {mode} {offsetX} {offsetY} bind:active />
 </Move>
