@@ -1,8 +1,11 @@
 <script lang="ts">
+  import Container from "../templates/Container.svelte";
   import Menu from "../organisms/Menu.svelte";
 </script>
 
 <main>
-  <h1 class="text-center md:text-4xl text-2xl">Welcome monophoto6</h1>
-  <Menu />
+  <Container>
+    <span slot="title">Welcome monophoto6</span>
+    <Menu />
+  </Container>
 </main>

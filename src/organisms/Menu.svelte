@@ -46,11 +46,11 @@
     push(menuItem.value);
   };
 
-  let clazz: string;
+  let clazz = "";
   export { clazz as class };
 </script>
 
-<section class="flex md:w-1/2 sm:w-auto m-auto {clazz || ''}">
+<section class={clazz}>
   <List on:change={selectListItem} items={menuItems} class="w-full" />
 </section>
 
