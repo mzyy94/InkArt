@@ -9,8 +9,33 @@
       return;
     }
     const ctx = canvas.getContext("2d");
-    if (mode == "fill") {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    switch (mode) {
+      case "fill": {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        break;
+      }
+      case "fit": {
+        let x = 0;
+        let y = 0;
+        let { width, height } = canvas;
+
+        const imageAspect = img.width / img.height;
+        const canvasAspect = canvas.width / canvas.height;
+        const scaleFactor = imageAspect / canvasAspect;
+
+        if (scaleFactor < 1) {
+          width = width * scaleFactor;
+          x = (canvas.width - width) / 2;
+        } else {
+          height = height / scaleFactor;
+          y = (canvas.height - height) / 2;
+        }
+
+        ctx.drawImage(img, x, y, width, height);
+        break;
+      }
     }
   }
 
