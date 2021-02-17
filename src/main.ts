@@ -1,10 +1,16 @@
-import App from "./App.svelte";
 import "smelte/src/tailwind.css";
+import Router from "svelte-spa-router";
 
-const app = new App({
+import App from "./App.svelte";
+
+const routes = {
+  "/:name?": App,
+};
+
+const app = new Router({
   target: document.body,
   props: {
-    name: "world",
+    routes,
   },
 });
 

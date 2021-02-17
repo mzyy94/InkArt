@@ -1,15 +1,21 @@
 <script lang="ts">
+  import { push } from "svelte-spa-router";
   import Button from "smelte/src/components/Button";
-  export let name: string;
+
+  const clickButton = () => {
+    push("/Smelte");
+  };
+
+  export let params: { name?: string } = {};
 </script>
 
 <main>
-  <h1>Hello {name}!</h1>
+  <h1>Hello {params.name}!</h1>
   <p>
     Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn
     how to build Svelte apps.
   </p>
-  <Button>Smelte</Button>
+  <Button on:click={clickButton}>Smelte</Button>
 </main>
 
 <style>
