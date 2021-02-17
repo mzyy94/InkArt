@@ -110,17 +110,17 @@
         return;
       }
       const targetCanvas = e.target as HTMLCanvasElement;
-      const { offsetX, offsetY } = e.detail;
+      const { image, x: xx, y: yy } = e.detail;
 
       gl.useProgram(program);
       gl.clearColor(1, 1, 1, 1);
       gl.clearDepth(1);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      setTexture(gl, texture, targetCanvas);
+      setTexture(gl, texture, image);
 
       const matrixLocation = gl.getUniformLocation(program, "matrix");
-      const x = (offsetX / gl.canvas.width) * 2 - 1;
-      const y = (offsetY / gl.canvas.height) * -2 + 1;
+      const x = (xx / gl.canvas.width) * 2 - 1;
+      const y = (yy / gl.canvas.height) * -2 + 1;
       gl.uniformMatrix3fv(matrixLocation, false, [
         ...[2, 0, 0],
         ...[0, -2, 0],

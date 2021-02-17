@@ -1,7 +1,8 @@
 <script context="module" lang="ts">
   export class DrawImageEvent extends CustomEvent<{
-    offsetX: number;
-    offsetY: number;
+    image: TexImageSource;
+    x: number;
+    y: number;
   }> {}
 </script>
 
@@ -16,12 +17,15 @@
   export let active = false;
 
   let canvas: HTMLCanvasElement;
+  const resized: HTMLCanvasElement = document.createElement("canvas");
 
-  function drawImage(mode: string, offsetX, offsetY) {
+  function resizeImage(mode: string) {
     if (!img.src) {
       return;
     }
-    const ctx = canvas.getContext("2d");
+    resized.width = canvas.width;
+    resized.height = canvas.height;
+    const ctx = resized.getContext("2d");
     let x = 0;
     let y = 0;
     let { width, height } = canvas;
@@ -59,22 +63,28 @@
     }
 
     ctx.drawImage(img, x, y, width, height);
-    canvas.dispatchEvent(
+  }
+
+  function drawImage(x: number, y: number) {
+    canvas?.dispatchEvent(
       new DrawImageEvent("drawimage", {
         detail: {
-          offsetX,
-          offsetY,
+          image: resized,
+          x,
+          y,
         },
       })
     );
   }
 
   img.onload = () => {
-    drawImage(mode, offsetX, offsetY);
+    resizeImage(mode);
+    drawImage(offsetX, offsetY);
     active = true;
   };
 
-  $: drawImage(mode, offsetX, offsetY);
+  $: resizeImage(mode);
+  $: drawImage(offsetX, offsetY);
 </script>
 
 <canvas bind:this={canvas} width={800} height={600} use:grayscale />
