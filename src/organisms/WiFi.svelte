@@ -11,6 +11,7 @@
   let password = "";
 
   let mode = "sta";
+  let processing = false;
 
   let snackbar = {
     show: false,
@@ -19,6 +20,7 @@
   };
 
   function connectWiFi(e: SubmitEvent) {
+    processing = true;
     const { ssid, password } = e.detail;
     fetch("/connect.json", {
       method: "POST",
@@ -32,6 +34,7 @@
         snackbar.color = "error";
       }
       snackbar.show = true;
+      processing = false;
     });
   }
 </script>
@@ -48,7 +51,13 @@
 >
   <div slot="content">
     <Tab id="sta" selected={mode}>
-      <WiFiInput {ssid} {password} button={"Connect"} on:submit={connectWiFi} />
+      <WiFiInput
+        {ssid}
+        {password}
+        pending={processing}
+        button={"Connect"}
+        on:submit={connectWiFi}
+      />
       <APList bind:ssid />
     </Tab>
     <Tab id="ap" selected={mode}>
