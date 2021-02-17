@@ -2,9 +2,11 @@ import "smelte/src/tailwind.css";
 import Router from "svelte-spa-router";
 
 import App from "./App.svelte";
+import Welcome from "./pages/Welcome.svelte";
 
 const routes = {
-  "/:name?": App,
+  "/": Welcome,
+  "/:name": App,
 };
 
 const app = new Router({
