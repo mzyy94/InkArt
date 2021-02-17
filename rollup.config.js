@@ -6,6 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
+import smelte from 'smelte/rollup-plugin-smelte';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -48,8 +49,28 @@ export default {
 		}),
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
-		css({ output: 'bundle.css' }),
+		css({ output: 'bundle.css', exclude: ['**/tailwind.css'] }),
 
+		smelte({ 
+			purge: production,
+			output: 'public/build/global.css', // it defaults to static/global.css which is probably what you expect in Sapper 
+			postcss: [], // Your PostCSS plugins
+			whitelist: [], // Array of classnames whitelisted from purging
+			whitelistPatterns: [], // Same as above, but list of regexes
+			tailwind: { 
+				colors: { 
+					primary: '#495464',
+					secondary: '#bbbfca',
+					error: '#f05454',
+					success: '#28abb9',
+					alert: '#bb2205',
+					blue: '#01c5c4',
+					dark: '#212121' 
+				}, // Object of colors to generate a palette from, and then all the utility classes
+				darkMode: true, 
+			}, 
+			// Any other props will be applied on top of default Smelte tailwind.config.js
+		}),
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
 		// some cases you'll need additional configuration -

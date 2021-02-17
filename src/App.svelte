@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Button from "smelte/src/components/Button";
   export let name: string;
 </script>
 
@@ -8,6 +9,7 @@
     Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn
     how to build Svelte apps.
   </p>
+  <Button>Smelte</Button>
 </main>
 
 <style>
