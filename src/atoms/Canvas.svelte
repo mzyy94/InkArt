@@ -1,8 +1,12 @@
 <script context="module" lang="ts">
   export class DrawImageEvent extends CustomEvent<{
-    image: TexImageSource;
     x: number;
     y: number;
+  }> {}
+
+  export class ResizeImageEvent extends CustomEvent<{
+    mode: string;
+    image: HTMLImageElement;
   }> {}
 </script>
 
@@ -17,59 +21,22 @@
   export let active = false;
 
   let canvas: HTMLCanvasElement;
-  const resized: HTMLCanvasElement = document.createElement("canvas");
 
   function resizeImage(mode: string) {
-    if (!img.src) {
-      return;
-    }
-    resized.width = canvas.width;
-    resized.height = canvas.height;
-    const ctx = resized.getContext("2d");
-    let x = 0;
-    let y = 0;
-    let { width, height } = canvas;
-
-    ctx.fillStyle = "white";
-    ctx.fillRect(x, y, width, height);
-
-    switch (mode) {
-      case "cover":
-      case "fit": {
-        const imageAspect = img.width / img.height;
-        const canvasAspect = canvas.width / canvas.height;
-        const scaleFactor = imageAspect / canvasAspect;
-        const threshold = mode == "cover" ? scaleFactor : 1 / scaleFactor;
-        if (threshold > 1) {
-          width = width * scaleFactor;
-          x = (canvas.width - width) / 2;
-        } else {
-          height = height / scaleFactor;
-          y = (canvas.height - height) / 2;
-        }
-        break;
-      }
-      case "none": {
-        x = (width - img.width) / 2;
-        y = (height - img.height) / 2;
-        width = img.width;
-        height = img.height;
-        break;
-      }
-      case "fill":
-      default: {
-        break;
-      }
-    }
-
-    ctx.drawImage(img, x, y, width, height);
+    canvas?.dispatchEvent(
+      new ResizeImageEvent("resizeimage", {
+        detail: {
+          mode,
+          image: img,
+        },
+      })
+    );
   }
 
   function drawImage(x: number, y: number) {
     canvas?.dispatchEvent(
       new DrawImageEvent("drawimage", {
         detail: {
-          image: resized,
           x,
           y,
         },
