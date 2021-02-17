@@ -6,9 +6,11 @@ import Router from "svelte-spa-router";
 
 import App from "./App.svelte";
 import Welcome from "./pages/Welcome.svelte";
+import WiFiSettings from "./pages/WiFiSettings.svelte";
 
 const routes = {
   "/": Welcome,
+  "/wifi": WiFiSettings,
   "/:name": App,
 };
 
