@@ -1,10 +1,8 @@
-<script context="module" lang="ts">
-  import type { SubmitEvent } from "../molecules/WiFiInput.svelte";
-</script>
-
 <script lang="ts">
+  import { onMount } from "svelte";
   import { Snackbar, Tabs, Tab } from "smelte";
   import WiFiInput from "../molecules/WiFiInput.svelte";
+  import type { SubmitEvent } from "../molecules/WiFiInput.svelte";
   import APList from "../molecules/APList.svelte";
 
   let ssid = "";
@@ -20,9 +18,11 @@
     color: "primary",
   };
 
-  fetch("/wifi.json")
-    .then((res) => res.json())
-    .then((wifi: { mode: Mode }) => (mode = wifi.mode));
+  onMount(() => {
+    fetch("/wifi.json")
+      .then((res) => res.json())
+      .then((wifi: { mode: Mode }) => (mode = wifi.mode));
+  });
 
   function setupWiFi(e: SubmitEvent) {
     let endpoint: string;

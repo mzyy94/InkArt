@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { List, ProgressLinear } from "smelte";
 
   let items = [];
   let loading = !false;
 
-  const fetchApList = () =>
-    new Promise((resolve) => {
+  function fetchApList() {
+    return new Promise((resolve) => {
       loading = true;
       resolve(true);
     })
@@ -24,13 +24,15 @@
       .then(() => {
         loading = false;
       });
+  }
 
-  let interval: number;
   onMount(() => {
     fetchApList();
-    interval = self.setInterval(fetchApList, 10_000);
+    const interval = self.setInterval(fetchApList, 10_000);
+    return () => {
+      self.clearInterval(interval);
+    };
   });
-  onDestroy(() => self.clearInterval(interval));
 
   export let ssid: string;
 </script>
