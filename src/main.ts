@@ -7,10 +7,12 @@ import Router from "svelte-spa-router";
 import App from "./App.svelte";
 import Welcome from "./pages/Welcome.svelte";
 import WiFiSettings from "./pages/WiFiSettings.svelte";
+import PhotoUpload from "./pages/PhotoUpload.svelte";
 
 const routes = {
   "/": Welcome,
   "/wifi": WiFiSettings,
+  "/upload": PhotoUpload,
   "/:name": App,
 };
 
