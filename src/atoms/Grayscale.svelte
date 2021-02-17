@@ -144,15 +144,19 @@
     ctx.drawImage(img, x, y, width, height);
   }
 
+  const canvas = document.createElement("canvas");
+  let gl;
+  let program;
+  let texture;
+
   export function grayscale(node: HTMLCanvasElement, algorithm = "default") {
-    const canvas = document.createElement("canvas");
     canvas.width = node.width;
     canvas.height = node.height;
     resized.width = canvas.width;
     resized.height = canvas.height;
-    const gl = canvas.getContext("webgl");
-    const program = createProgram(gl, vertShader, fragShader);
-    const texture = gl.createTexture();
+    gl = canvas.getContext("webgl");
+    program = createProgram(gl, vertShader, fragShader);
+    texture = gl.createTexture();
 
     node.addEventListener(
       "resizeimage",
@@ -170,37 +174,37 @@
         algorithm
       );
     });
+  }
 
-    function drawImage(
-      image: TexImageSource,
-      x: number,
-      y: number,
-      targetCanvas: HTMLCanvasElement,
-      algorithm: string
-    ) {
-      if (algorithm != "default") {
-        return;
-      }
-
-      gl.useProgram(program);
-      gl.clearColor(1, 1, 1, 1);
-      gl.clearDepth(1);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      setTexture(gl, texture, image);
-
-      const matrixLocation = gl.getUniformLocation(program, "matrix");
-      const xx = (x / gl.canvas.width) * 2 - 1;
-      const yy = (y / gl.canvas.height) * -2 + 1;
-      gl.uniformMatrix3fv(matrixLocation, false, [
-        ...[2, 0, 0],
-        ...[0, -2, 0],
-        ...[xx, yy, 1],
-      ]);
-
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-      const ctx = targetCanvas.getContext("2d");
-      ctx.drawImage(canvas, 0, 0);
+  function drawImage(
+    image: TexImageSource,
+    x: number,
+    y: number,
+    targetCanvas: HTMLCanvasElement,
+    algorithm: string
+  ) {
+    if (algorithm != "default") {
+      return;
     }
+
+    gl.useProgram(program);
+    gl.clearColor(1, 1, 1, 1);
+    gl.clearDepth(1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    setTexture(gl, texture, image);
+
+    const matrixLocation = gl.getUniformLocation(program, "matrix");
+    const xx = (x / gl.canvas.width) * 2 - 1;
+    const yy = (y / gl.canvas.height) * -2 + 1;
+    gl.uniformMatrix3fv(matrixLocation, false, [
+      ...[2, 0, 0],
+      ...[0, -2, 0],
+      ...[xx, yy, 1],
+    ]);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    const ctx = targetCanvas.getContext("2d");
+    ctx.drawImage(canvas, 0, 0);
   }
 </script>
