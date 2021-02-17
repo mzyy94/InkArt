@@ -108,12 +108,14 @@
   export let active = false;
   export let algorithm = "default";
 
-  const resized: HTMLCanvasElement = document.createElement("canvas");
-
   function resizeImage(mode: string, x = 0, y = 0) {
     if (!img.src) {
       return;
     }
+
+    const resized = document.createElement("canvas");
+    resized.width = canvas.width;
+    resized.height = canvas.height;
 
     const ctx = resized.getContext("2d");
     let { width, height } = ctx.canvas;
@@ -129,10 +131,10 @@
         const scaleFactor = imageAspect / canvasAspect;
         const threshold = mode == "cover" ? scaleFactor : 1 / scaleFactor;
         if (threshold > 1) {
-          width = width * scaleFactor;
+          width *= scaleFactor;
           x += (ctx.canvas.width - width) / 2;
         } else {
-          height = height / scaleFactor;
+          height /= scaleFactor;
           y += (ctx.canvas.height - height) / 2;
         }
         break;
@@ -151,6 +153,7 @@
     }
 
     ctx.drawImage(img, x, y, width, height);
+    setTexture(gl, texture, resized);
   }
 
   let canvas: HTMLCanvasElement;
@@ -159,8 +162,6 @@
   let texture: WebGLTexture;
 
   onMount(() => {
-    resized.width = canvas.width;
-    resized.height = canvas.height;
     gl = canvas.getContext("webgl");
     program = createProgram(gl, vertShader, fragShader);
     texture = gl.createTexture();
@@ -184,7 +185,6 @@
     gl.clearColor(1, 1, 1, 1);
     gl.clearDepth(1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    setTexture(gl, texture, resized);
 
     const matrixLocation = gl.getUniformLocation(program, "matrix");
     const xx = (x / gl.canvas.width) * 2 - 1;
