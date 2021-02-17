@@ -105,12 +105,26 @@
     const program = createProgram(gl, vertShader, fragShader);
     const texture = gl.createTexture();
 
-    node.addEventListener("drawimage", (e: DrawImageEvent) => {
+    node.addEventListener("drawimage", ({ target, detail }: DrawImageEvent) => {
+      drawImage(
+        detail.image,
+        detail.x,
+        detail.y,
+        target as HTMLCanvasElement,
+        algorithm
+      );
+    });
+
+    function drawImage(
+      image: TexImageSource,
+      x: number,
+      y: number,
+      targetCanvas: HTMLCanvasElement,
+      algorithm: string
+    ) {
       if (algorithm != "default") {
         return;
       }
-      const targetCanvas = e.target as HTMLCanvasElement;
-      const { image, x: xx, y: yy } = e.detail;
 
       gl.useProgram(program);
       gl.clearColor(1, 1, 1, 1);
@@ -119,18 +133,18 @@
       setTexture(gl, texture, image);
 
       const matrixLocation = gl.getUniformLocation(program, "matrix");
-      const x = (xx / gl.canvas.width) * 2 - 1;
-      const y = (yy / gl.canvas.height) * -2 + 1;
+      const xx = (x / gl.canvas.width) * 2 - 1;
+      const yy = (y / gl.canvas.height) * -2 + 1;
       gl.uniformMatrix3fv(matrixLocation, false, [
         ...[2, 0, 0],
         ...[0, -2, 0],
-        ...[x, y, 1],
+        ...[xx, yy, 1],
       ]);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
       const ctx = targetCanvas.getContext("2d");
       ctx.drawImage(canvas, 0, 0);
-    });
+    }
   }
 </script>
