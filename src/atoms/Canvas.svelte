@@ -48,6 +48,15 @@
         ctx.drawImage(img, x, y, width, height);
         break;
       }
+      case "none": {
+        x = (width - img.width) / 2;
+        y = (height - img.height) / 2;
+        width = img.width;
+        height = img.height;
+
+        ctx.drawImage(img, x, y, width, height);
+        break;
+      }
     }
   }
 
