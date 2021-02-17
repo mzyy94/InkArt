@@ -14,8 +14,16 @@
 
   function connectWiFi(e: SubmitEvent) {
     const { ssid, password } = e.detail;
-    // TODO: Connect or Setup Wi-Fi
-    console.log(mode, ssid, password);
+    if (mode == "sta") {
+      fetch("/connect.json", {
+        method: "POST",
+        body: JSON.stringify({ ssid, password }),
+      }).then((res) => {
+        console.log(res.ok);
+      });
+    } else {
+      // TODO: Setup Wi-Fi
+    }
   }
 </script>
 
