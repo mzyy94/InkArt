@@ -10,7 +10,8 @@
   let ssid = "";
   let password = "";
 
-  let mode = "sta";
+  type Mode = "sta" | "ap";
+  let mode: Mode | "" = "";
   let processing = false;
 
   let snackbar = {
@@ -18,6 +19,10 @@
     text: "",
     color: "primary",
   };
+
+  fetch("/wifi.json")
+    .then((res) => res.json())
+    .then((wifi: { mode: Mode }) => (mode = wifi.mode));
 
   function setupWiFi(e: SubmitEvent) {
     let endpoint: string;
@@ -50,6 +55,7 @@
   color="black"
   notSelectedColor="gray"
   indicator={false}
+  loading={mode == ""}
   items={[
     { id: "sta", text: "STA", icon: "tap_and_play" },
     { id: "ap", text: "AP", icon: "router" },

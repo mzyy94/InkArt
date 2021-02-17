@@ -41,6 +41,7 @@ export const handlers = [
     const { ssid, password } = JSON.parse(req.body);
 
     if (ssid.length == password.length) {
+      sessionStorage.setItem("wifi-mode", "sta");
       return res(
         ctx.delay(4000),
         ctx.status(200),
@@ -58,6 +59,7 @@ export const handlers = [
     const { ssid, password } = JSON.parse(req.body);
 
     if (ssid.length == password.length) {
+      sessionStorage.setItem("wifi-mode", "ap");
       return res(
         ctx.delay(4000),
         ctx.status(200),
@@ -70,5 +72,9 @@ export const handlers = [
         ctx.json({ status: "failed" })
       );
     }
+  }),
+  rest.get("/wifi.json", (_req, res, ctx) => {
+    const mode = sessionStorage.getItem("wifi-mode") ?? "ap";
+    return res(ctx.status(200), ctx.json({ mode }));
   }),
 ];
