@@ -4,10 +4,11 @@
 
   export let offsetX = 0;
   export let offsetY = 0;
+  export let active = false;
 
   let canvas: HTMLCanvasElement;
 
-  function drawImage(mode: string, offsetX = 0, offsetY = 0) {
+  function drawImage(mode: string, offsetX, offsetY) {
     if (!img.src) {
       return;
     }
@@ -52,7 +53,8 @@
   }
 
   img.onload = () => {
-    drawImage(mode);
+    drawImage(mode, offsetX, offsetY);
+    active = true;
   };
 
   $: drawImage(mode, offsetX, offsetY);

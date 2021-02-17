@@ -1,5 +1,6 @@
 <script lang="ts">
   export let reset: any;
+  export let active: boolean;
 
   let pointer = { x: 0, y: 0, moving: false };
   let offsetX = 0;
@@ -13,7 +14,7 @@
   function beginMove(event: PointerEvent) {
     pointer.x = event.x - offsetX;
     pointer.y = event.y - offsetY;
-    pointer.moving = true;
+    pointer.moving = active;
   }
 
   function endMove() {
@@ -29,7 +30,7 @@
 </script>
 
 <div
-  class="cursor-move"
+  class:cursor-move={active}
   on:pointerdown={beginMove}
   on:pointermove={move}
   on:pointerup={endMove}
