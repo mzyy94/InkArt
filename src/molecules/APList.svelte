@@ -1,11 +1,16 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
-  import { List } from "smelte";
+  import { List, ProgressLinear } from "smelte";
 
   let items = [];
+  let loading = !false;
 
   const fetchApList = () =>
-    fetch("/aplist.json")
+    new Promise((resolve) => {
+      loading = true;
+      resolve(true);
+    })
+      .then(() => fetch("/aplist.json"))
       .then((res) => res.json())
       .then((list: { ssid: string; auth: string; rssi: number }[]) => {
         items = list
@@ -15,6 +20,9 @@
             icon: item.auth == "open" ? "network_wifi" : "wifi_lock",
             subheading: `RSSI: ${item.rssi}dB`,
           }));
+      })
+      .then(() => {
+        loading = false;
       });
 
   let interval: number;
@@ -27,4 +35,9 @@
   export let ssid: string;
 </script>
 
-<List dense {items} class="w-full" bind:value={ssid} />
+<section class="mt-3">
+  {#if loading}
+    <ProgressLinear />
+  {/if}
+  <List dense {items} class="w-full" bind:value={ssid} />
+</section>
