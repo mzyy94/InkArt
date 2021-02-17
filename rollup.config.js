@@ -7,6 +7,7 @@ import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
 import smelte from 'smelte/rollup-plugin-smelte';
+import copy from 'rollup-plugin-copy'
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -50,6 +51,11 @@ export default {
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
 		css({ output: 'bundle.css', exclude: ['**/tailwind.css'] }),
+		copy({
+			targets: [
+				{ src: 'node_modules/material-icons/iconfont/MaterialIcons-Regular.woff2', dest: 'public/build/' },
+			]
+		}),
 
 		smelte({ 
 			purge: production,
