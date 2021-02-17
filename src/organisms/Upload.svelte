@@ -2,6 +2,7 @@
   import { Select } from "smelte";
   import ImageLoader from "../atoms/ImageLoader.svelte";
   import Canvas from "../atoms/Canvas.svelte";
+  import Move from "../atoms/Move.svelte";
 
   const modes = [
     { value: "fit", text: "Fit" },
@@ -18,4 +19,6 @@
 
 <ImageLoader {img} />
 <Select {label} items={modes} bind:value={mode} />
-<Canvas {img} {mode} />
+<Move let:offsetX let:offsetY reset={mode}>
+  <Canvas {img} {mode} {offsetX} {offsetY} />
+</Move>

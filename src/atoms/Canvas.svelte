@@ -2,9 +2,12 @@
   export let img: HTMLImageElement;
   export let mode = "fill";
 
+  export let offsetX = 0;
+  export let offsetY = 0;
+
   let canvas: HTMLCanvasElement;
 
-  function drawImage(offsetX = 0, offsetY = 0) {
+  function drawImage(mode: string, offsetX = 0, offsetY = 0) {
     if (!img.src) {
       return;
     }
@@ -48,52 +51,14 @@
     ctx.drawImage(img, x + offsetX, y + offsetY, width, height);
   }
 
-  let offsetX = 0;
-  let offsetY = 0;
-
   img.onload = () => {
-    offsetX = offsetY = 0;
-    drawImage();
+    drawImage(mode);
   };
 
-  $: {
-    mode;
-    offsetX = offsetY = 0;
-    drawImage();
-  }
-
-  let pointer = { x: 0, y: 0, moving: false };
-
-  function beginMove(event: PointerEvent) {
-    pointer.x = event.x - offsetX;
-    pointer.y = event.y - offsetY;
-    pointer.moving = true;
-  }
-
-  function endMove() {
-    pointer.moving = false;
-  }
-
-  function move(event: PointerEvent) {
-    if (pointer.moving) {
-      offsetX = event.x - pointer.x;
-      offsetY = event.y - pointer.y;
-      drawImage(offsetX, offsetY);
-    }
-  }
+  $: drawImage(mode, offsetX, offsetY);
 </script>
 
-<canvas
-  bind:this={canvas}
-  class="cursor-move"
-  on:pointerdown={beginMove}
-  on:pointermove={move}
-  on:pointerup={endMove}
-  on:pointerout={endMove}
-  on:pointercancel={endMove}
-  width={800}
-  height={600}
-/>
+<canvas bind:this={canvas} width={800} height={600} />
 
 <style>
   canvas {
