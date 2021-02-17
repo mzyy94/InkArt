@@ -54,4 +54,21 @@ export const handlers = [
       );
     }
   }),
+  rest.post("/ap.json", (req, res, ctx) => {
+    const { ssid, password } = JSON.parse(req.body);
+
+    if (ssid.length == password.length) {
+      return res(
+        ctx.delay(4000),
+        ctx.status(200),
+        ctx.json({ status: "created" })
+      );
+    } else {
+      return res(
+        ctx.delay(4000),
+        ctx.status(403),
+        ctx.json({ status: "failed" })
+      );
+    }
+  }),
 ];

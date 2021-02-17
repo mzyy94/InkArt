@@ -19,20 +19,26 @@
     color: "primary",
   };
 
-  function connectWiFi(e: SubmitEvent) {
+  function setupWiFi(e: SubmitEvent) {
+    let endpoint: string;
+    let operation: string;
+    if (mode == "sta") {
+      endpoint = "/connect.json";
+      operation = "Connection";
+    } else {
+      endpoint = "/ap.json";
+      operation = "Create AP";
+    }
+
     processing = true;
     const { ssid, password } = e.detail;
-    fetch("/connect.json", {
+
+    fetch(endpoint, {
       method: "POST",
       body: JSON.stringify({ ssid, password }),
     }).then((res) => {
-      if (res.ok) {
-        snackbar.text = "Connection succeeded";
-        snackbar.color = "primary";
-      } else {
-        snackbar.text = "Connection failed";
-        snackbar.color = "error";
-      }
+      snackbar.text = `${operation} ${res.ok ? "succeeded" : "failed"}`;
+      snackbar.color = res.ok ? "primary" : "error";
       snackbar.show = true;
       processing = false;
     });
@@ -56,12 +62,18 @@
         {password}
         pending={processing}
         button={"Connect"}
-        on:submit={connectWiFi}
+        on:submit={setupWiFi}
       />
       <APList bind:ssid />
     </Tab>
     <Tab id="ap" selected={mode}>
-      <WiFiInput {ssid} {password} button={"Setup"} />
+      <WiFiInput
+        {ssid}
+        {password}
+        pending={processing}
+        button={"Create"}
+        on:submit={setupWiFi}
+      />
     </Tab>
   </div>
 </Tabs>
