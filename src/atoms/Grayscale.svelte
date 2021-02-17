@@ -1,4 +1,5 @@
 <script context="module" lang="ts">
+  import type { DrawImageEvent } from "./Canvas.svelte";
   const vertShader = `
   attribute vec2 position;
   uniform mat3 matrix;
@@ -104,20 +105,26 @@
     const program = createProgram(gl, vertShader, fragShader);
     const texture = gl.createTexture();
 
-    node.addEventListener("drawimage", ({ target }: CustomEvent) => {
+    node.addEventListener("drawimage", (e: DrawImageEvent) => {
       if (algorithm != "default") {
         return;
       }
-      const targetCanvas = target as HTMLCanvasElement;
+      const targetCanvas = e.target as HTMLCanvasElement;
+      const { offsetX, offsetY } = e.detail;
 
       gl.useProgram(program);
+      gl.clearColor(1, 1, 1, 1);
+      gl.clearDepth(1);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       setTexture(gl, texture, targetCanvas);
 
       const matrixLocation = gl.getUniformLocation(program, "matrix");
+      const x = (offsetX / gl.canvas.width) * 2 - 1;
+      const y = (offsetY / gl.canvas.height) * -2 + 1;
       gl.uniformMatrix3fv(matrixLocation, false, [
         ...[2, 0, 0],
         ...[0, -2, 0],
-        ...[-1, 1, 1],
+        ...[x, y, 1],
       ]);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);

@@ -1,3 +1,10 @@
+<script context="module" lang="ts">
+  export class DrawImageEvent extends CustomEvent<{
+    offsetX: number;
+    offsetY: number;
+  }> {}
+</script>
+
 <script lang="ts">
   import { grayscale } from "./Grayscale.svelte";
 
@@ -51,8 +58,15 @@
       }
     }
 
-    ctx.drawImage(img, x + offsetX, y + offsetY, width, height);
-    canvas.dispatchEvent(new CustomEvent("drawimage"));
+    ctx.drawImage(img, x, y, width, height);
+    canvas.dispatchEvent(
+      new DrawImageEvent("drawimage", {
+        detail: {
+          offsetX,
+          offsetY,
+        },
+      })
+    );
   }
 
   img.onload = () => {
