@@ -36,6 +36,7 @@
   on:pointerup={endMove}
   on:pointerout={endMove}
   on:pointercancel={endMove}
+  on:touchmove|preventDefault
 >
   <slot {offsetX} {offsetY} />
 </div>
