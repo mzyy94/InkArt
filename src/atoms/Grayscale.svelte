@@ -110,18 +110,16 @@
 
   const resized: HTMLCanvasElement = document.createElement("canvas");
 
-  function resizeImage(mode: string, img: HTMLImageElement) {
+  function resizeImage(mode: string, x = 0, y = 0) {
     if (!img.src) {
       return;
     }
 
     const ctx = resized.getContext("2d");
-    let x = 0;
-    let y = 0;
     let { width, height } = ctx.canvas;
 
     ctx.fillStyle = "white";
-    ctx.fillRect(x, y, width, height);
+    ctx.fillRect(0, 0, width, height);
 
     switch (mode) {
       case "cover":
@@ -132,16 +130,16 @@
         const threshold = mode == "cover" ? scaleFactor : 1 / scaleFactor;
         if (threshold > 1) {
           width = width * scaleFactor;
-          x = (ctx.canvas.width - width) / 2;
+          x += (ctx.canvas.width - width) / 2;
         } else {
           height = height / scaleFactor;
-          y = (ctx.canvas.height - height) / 2;
+          y += (ctx.canvas.height - height) / 2;
         }
         break;
       }
       case "none": {
-        x = (width - img.width) / 2;
-        y = (height - img.height) / 2;
+        x += (width - img.width) / 2;
+        y += (height - img.height) / 2;
         width = img.width;
         height = img.height;
         break;
@@ -153,8 +151,6 @@
     }
 
     ctx.drawImage(img, x, y, width, height);
-
-    drawImage(offsetX, offsetY);
   }
 
   let canvas: HTMLCanvasElement;
@@ -173,6 +169,11 @@
   function drawImage(x: number, y: number) {
     if (!gl) {
       return;
+    }
+
+    if (mode == "cover" || mode == "none") {
+      resizeImage(mode, x, y);
+      x = y = 0;
     }
 
     if (algorithm != "default") {
@@ -198,11 +199,15 @@
   }
 
   img.onload = () => {
-    resizeImage(mode, img);
+    resizeImage(mode);
+    drawImage(offsetX, offsetY);
     active = true;
   };
 
-  $: resizeImage(mode, img);
+  $: {
+    resizeImage(mode);
+    drawImage(0, 0);
+  }
   $: drawImage(offsetX, offsetY);
 </script>
 
