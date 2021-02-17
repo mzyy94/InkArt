@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import { Tabs, Tab } from "smelte";
+  import { Snackbar, Tabs, Tab } from "smelte";
   import WiFiInput from "../molecules/WiFiInput.svelte";
   import APList from "../molecules/APList.svelte";
 
@@ -12,18 +12,27 @@
 
   let mode = "sta";
 
+  let snackbar = {
+    show: false,
+    text: "",
+    color: "primary",
+  };
+
   function connectWiFi(e: SubmitEvent) {
     const { ssid, password } = e.detail;
-    if (mode == "sta") {
-      fetch("/connect.json", {
-        method: "POST",
-        body: JSON.stringify({ ssid, password }),
-      }).then((res) => {
-        console.log(res.ok);
-      });
-    } else {
-      // TODO: Setup Wi-Fi
-    }
+    fetch("/connect.json", {
+      method: "POST",
+      body: JSON.stringify({ ssid, password }),
+    }).then((res) => {
+      if (res.ok) {
+        snackbar.text = "Connection succeeded";
+        snackbar.color = "primary";
+      } else {
+        snackbar.text = "Connection failed";
+        snackbar.color = "error";
+      }
+      snackbar.show = true;
+    });
   }
 </script>
 
@@ -47,3 +56,7 @@
     </Tab>
   </div>
 </Tabs>
+
+<Snackbar color={snackbar.color} bind:value={snackbar.show}>
+  <div>{snackbar.text}</div>
+</Snackbar>
