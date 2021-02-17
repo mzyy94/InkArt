@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { grayscale } from "./Grayscale.svelte";
+
   export let img: HTMLImageElement;
   export let mode = "fill";
 
@@ -50,6 +52,7 @@
     }
 
     ctx.drawImage(img, x + offsetX, y + offsetY, width, height);
+    canvas.dispatchEvent(new CustomEvent("drawimage"));
   }
 
   img.onload = () => {
@@ -60,7 +63,7 @@
   $: drawImage(mode, offsetX, offsetY);
 </script>
 
-<canvas bind:this={canvas} width={800} height={600} />
+<canvas bind:this={canvas} width={800} height={600} use:grayscale />
 
 <style>
   canvas {
