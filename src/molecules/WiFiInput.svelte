@@ -4,7 +4,8 @@
 
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { Button, ProgressCircular, TextField } from "smelte";
+  import { TextField } from "smelte";
+  import ProgressButton from "../atoms/ProgressButton.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -26,13 +27,8 @@
 <form class={clazz}>
   <TextField label="SSID" bind:value={ssid} />
   <TextField type="password" label="Password" bind:value={password} />
-  <Button class="w-full" on:click={submit} disabled={pending}>
-    {#if pending}
-      <span class="inline-block align-text-bottom">
-        <ProgressCircular size={16} width={2} color="secondary" />
-      </span> Processing...
-    {:else}
-      {button}
-    {/if}
-  </Button>
+  <ProgressButton on:click={submit} loading={pending}>
+    {button}
+    <span slot="loading">Processing...</span>
+  </ProgressButton>
 </form>

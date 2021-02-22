@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { Button, ProgressCircular, Select } from "smelte";
+  import { Select } from "smelte";
   import ImageLoader from "../atoms/ImageLoader.svelte";
   import Grayscale from "../atoms/Grayscale.svelte";
   import Move from "../atoms/Move.svelte";
+  import ProgressButton from "../atoms/ProgressButton.svelte";
 
   const modes = [
     { value: "fit", text: "Fit" },
@@ -44,12 +45,7 @@
   />
 </Move>
 
-<Button class="w-full" on:click={uploadImage}>
-  {#if uploading}
-    <span class="inline-block align-text-bottom">
-      <ProgressCircular size={16} width={2} color="secondary" />
-    </span> Uploading...
-  {:else}
-    Upload
-  {/if}
-</Button>
+<ProgressButton on:click={uploadImage} loading={uploading}>
+  Upload
+  <span slot="loading">Uploading...</span>
+</ProgressButton>
