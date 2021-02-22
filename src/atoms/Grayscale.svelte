@@ -213,6 +213,10 @@
     drawImage(0, 0);
   }
   $: drawImage(offsetX, offsetY);
+
+  export function getPngDataURL() {
+    return canvas.toDataURL("image/png");
+  }
 </script>
 
 <canvas bind:this={canvas} {width} {height} />
