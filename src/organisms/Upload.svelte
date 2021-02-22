@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Select } from "smelte";
+  import { Button, ProgressCircular, Select } from "smelte";
   import ImageLoader from "../atoms/ImageLoader.svelte";
   import Grayscale from "../atoms/Grayscale.svelte";
   import Move from "../atoms/Move.svelte";
@@ -16,10 +16,40 @@
 
   const img = new Image();
   let active = false;
+  let grayscale: Grayscale;
+  let uploading = false;
+
+  function uploadImage() {
+    uploading = true;
+    const png = grayscale.getPngDataURL();
+    fetch("/photos.json", { method: "POST", body: png })
+      .then((res) => res.json())
+      .then(console.log)
+      .finally(() => {
+        uploading = false;
+      });
+  }
 </script>
 
 <ImageLoader {img} />
 <Select {label} items={modes} bind:value={mode} />
 <Move let:offsetX let:offsetY reset={mode} {active}>
-  <Grayscale {img} {mode} {offsetX} {offsetY} bind:active />
+  <Grayscale
+    bind:this={grayscale}
+    {img}
+    {mode}
+    {offsetX}
+    {offsetY}
+    bind:active
+  />
 </Move>
+
+<Button class="w-full" on:click={uploadImage}>
+  {#if uploading}
+    <span class="inline-block align-text-bottom">
+      <ProgressCircular size={16} width={2} color="secondary" />
+    </span> Uploading...
+  {:else}
+    Upload
+  {/if}
+</Button>
