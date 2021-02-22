@@ -223,7 +223,8 @@
 
 <style>
   canvas {
-    background: gray;
     max-width: 100%;
+    margin: 1rem auto;
+    border: 2px solid gray;
   }
 </style>
