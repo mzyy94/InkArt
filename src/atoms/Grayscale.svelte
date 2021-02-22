@@ -120,7 +120,7 @@
     resized.width = canvas.width;
     resized.height = canvas.height;
 
-    const ctx = resized.getContext("2d");
+    const ctx = resized.getContext("2d")!;
     let { width, height } = ctx.canvas;
 
     ctx.fillStyle = "white";
@@ -165,9 +165,9 @@
   let texture: WebGLTexture;
 
   onMount(() => {
-    gl = canvas.getContext("webgl");
+    gl = canvas.getContext("webgl")!;
     program = createProgram(gl, vertShader, fragShader);
-    texture = gl.createTexture();
+    texture = gl.createTexture()!;
   });
 
   function drawImage(x: number, y: number) {

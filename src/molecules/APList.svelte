@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { List, ProgressLinear } from "smelte";
+  import type { ListItemProps } from "smelte";
 
-  let items = [];
+  let items: ListItemProps[] = [];
   let loading = !false;
 
-  function fetchApList() {
+  async function fetchApList() {
     return new Promise((resolve) => {
       loading = true;
       resolve(true);

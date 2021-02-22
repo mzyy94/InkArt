@@ -3,13 +3,13 @@
 
   function onChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    if (target.files.length != 1) {
+    if (target.files?.length != 1) {
       return;
     }
     const file = target.files[0];
     const reader = new FileReader();
     reader.onload = (event) => {
-      img.src = event.target.result as string;
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   }

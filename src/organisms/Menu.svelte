@@ -43,7 +43,9 @@
 
   const selectListItem = (e: { detail: string }) => {
     const menuItem = menuItems.find(({ id }) => id == e.detail);
-    push(menuItem.value);
+    if (menuItem) {
+      push(menuItem.value);
+    }
   };
 
   let clazz = "";
