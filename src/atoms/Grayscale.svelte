@@ -17,11 +17,12 @@
 
   // ITU-R Rec BT.601
   const vec3 filter = vec3(0.299, 0.587, 0.114);
+  const float depth = 8.0;
 
   void main() {
       vec4 color = texture2D(texture, vTexCoord);
       float gray = dot(color.rgb, filter);
-      gl_FragColor = vec4(vec3(gray), 1.0);
+      gl_FragColor = vec4(floor(gray * vec3(depth)) / vec3(depth), 1.0);
   }`;
 
   function createShader(
