@@ -18,6 +18,9 @@ const names = [
   "Mountain Lion",
 ];
 
+const databaseName = "photoplate";
+const storeName = "photos";
+
 export const handlers = [
   rest.get("/status.json", (_req, res, ctx) => {
     return res(
@@ -76,5 +79,40 @@ export const handlers = [
   rest.get("/wifi.json", (_req, res, ctx) => {
     const mode = sessionStorage.getItem("wifi-mode") ?? "ap";
     return res(ctx.status(200), ctx.json({ mode }));
+  }),
+  rest.post("/photos.json", (req, res, ctx) => {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(databaseName, 2);
+
+      request.onerror = function(event) {
+        reject(res(ctx.status(500), ctx.json({
+          status: "failed",
+          detail: /** @type {IDBOpenDBRequest} */(event.target).error
+        })))
+      };
+      request.onupgradeneeded = function(event) {
+        const db = /** @type {IDBOpenDBRequest} */(event.target).result;
+        const objectStore = db.createObjectStore(storeName, { keyPath: "filename" });
+        objectStore.createIndex("date", "date", { unique: false });
+      };
+      request.onsuccess = function(event) {
+        const filename = `image-${Date.now()}.png`;
+        const db = /** @type {IDBOpenDBRequest} */(event.target).result;
+        const transaction = db.transaction([storeName], "readwrite");
+        const store = transaction.objectStore(storeName);
+        store.add({filename, date: new Date(), data: req.body});
+        transaction.oncomplete = function() {
+          db.close();
+          resolve(res(ctx.delay(3000), ctx.status(200), ctx.json({ status: "succeeded", filename })))
+        }
+        transaction.onerror = function(event) {
+          db.close();
+          reject(res(ctx.status(500), ctx.json({
+            status: "failed",
+            detail: /** @type {IDBTransaction} */(event.target).error
+          })))
+        }
+      }
+    })
   }),
 ];
