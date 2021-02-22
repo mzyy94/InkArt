@@ -108,6 +108,9 @@
   export let active = false;
   export let algorithm = "default";
 
+  export let width = 800;
+  export let height = 600;
+
   function resizeImage(mode: string, x = 0, y = 0) {
     if (!img.src) {
       return;
@@ -211,7 +214,7 @@
   $: drawImage(offsetX, offsetY);
 </script>
 
-<canvas bind:this={canvas} width={800} height={600} />
+<canvas bind:this={canvas} {width} {height} />
 
 <style>
   canvas {
