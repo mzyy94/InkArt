@@ -1,6 +1,5 @@
 import "smelte/src/tailwind.css";
 import "material-icons/iconfont/material-icons.css";
-import { worker } from "./mocks/browser";
 
 import Router from "svelte-spa-router";
 
@@ -18,7 +17,10 @@ const routes = {
 
 // @ts-ignore
 if (process.env.NODE_ENV === "development") {
-  worker.start();
+  // @ts-ignore
+  import("./mocks/browser").then(({worker}) => {
+    worker.start();
+  });
 }
 
 const app = new Router({
