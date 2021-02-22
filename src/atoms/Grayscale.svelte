@@ -166,7 +166,7 @@
   let texture: WebGLTexture;
 
   onMount(() => {
-    gl = canvas.getContext("webgl")!;
+    gl = canvas.getContext("webgl", { preserveDrawingBuffer: true })!;
     program = createProgram(gl, vertShader, fragShader);
     texture = gl.createTexture()!;
   });
