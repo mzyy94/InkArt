@@ -21,6 +21,45 @@ const names = [
 const databaseName = "photoplate";
 const storeName = "photos";
 
+/**
+ * @template T
+ * @param {IDBRequest<T>} request
+ * @returns {Promise<{target: IDBRequest<T>}>}
+ */
+async function promisifyRequest(request) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = resolve;
+    request.onerror = reject;
+  });
+}
+
+/**
+ * @param {IDBTransactionMode} mode
+ * @returns {!Promise<IDBObjectStore>}
+ */
+async function openPhotoDatabase(mode) {
+  const request = indexedDB.open(databaseName, 2);
+
+  request.onupgradeneeded = function (event) {
+    const db = /** @type {IDBOpenDBRequest} */ (event.target).result;
+    const objectStore = db.createObjectStore(storeName, {
+      keyPath: "filename",
+    });
+    objectStore.createIndex("date", "date", { unique: false });
+  };
+
+  return promisifyRequest(request)
+    .then((event) => {
+      const db = event.target.result;
+      const transaction = db.transaction([storeName], mode);
+      const store = transaction.objectStore(storeName);
+      return store;
+    })
+    .catch((event) => {
+      return Promise.reject(event.target.error);
+    });
+}
+
 export const handlers = [
   rest.get("/status.json", (_req, res, ctx) => {
     return res(
@@ -81,71 +120,62 @@ export const handlers = [
     return res(ctx.status(200), ctx.json({ mode }));
   }),
   rest.post("/photos.json", (req, res, ctx) => {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(databaseName, 2);
-
-      request.onerror = function(event) {
-        reject(res(ctx.status(500), ctx.json({
-          status: "failed",
-          detail: /** @type {IDBOpenDBRequest} */(event.target).error
-        })))
-      };
-      request.onupgradeneeded = function(event) {
-        const db = /** @type {IDBOpenDBRequest} */(event.target).result;
-        const objectStore = db.createObjectStore(storeName, { keyPath: "filename" });
-        objectStore.createIndex("date", "date", { unique: false });
-      };
-      request.onsuccess = function(event) {
+    return openPhotoDatabase("readwrite")
+      .then((store) => {
         const filename = `image-${Date.now()}.png`;
-        const db = /** @type {IDBOpenDBRequest} */(event.target).result;
-        const transaction = db.transaction([storeName], "readwrite");
-        const store = transaction.objectStore(storeName);
-        store.add({filename, date: new Date(), data: req.body});
-        transaction.oncomplete = function() {
-          db.close();
-          resolve(res(ctx.delay(3000), ctx.status(200), ctx.json({ status: "succeeded", filename })))
-        }
-        transaction.onerror = function(event) {
-          db.close();
-          reject(res(ctx.status(500), ctx.json({
+        const request = store.add({
+          filename,
+          date: new Date(),
+          data: req.body,
+        });
+        return promisifyRequest(request)
+          .then(() =>
+            res(
+              ctx.delay(3000),
+              ctx.status(200),
+              ctx.json({ status: "succeeded", filename })
+            )
+          )
+          .catch((event) => Promise.reject(event.target.error))
+          .finally(() => {
+            store.transaction.db.close();
+          });
+      })
+      .catch((error) =>
+        res(
+          ctx.status(500),
+          ctx.json({
             status: "failed",
-            detail: /** @type {IDBTransaction} */(event.target).error
-          })))
-        }
-      }
-    })
+            detail: error,
+          })
+        )
+      );
   }),
   rest.get("/photos.json", (_req, res, ctx) => {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(databaseName, 2);
-
-      request.onerror = function(event) {
-        reject(res(ctx.status(500), ctx.json({
-          status: "failed",
-          detail: /** @type {IDBOpenDBRequest} */(event.target).error
-        })))
-      };
-      request.onupgradeneeded = function(event) {
-        const db = /** @type {IDBOpenDBRequest} */(event.target).result;
-        const objectStore = db.createObjectStore(storeName, { keyPath: "filename" });
-        objectStore.createIndex("date", "date", { unique: false });
-      };
-      request.onsuccess = function(event) {
-        const db = /** @type {IDBOpenDBRequest} */(event.target).result;
-        const transaction = db.transaction([storeName], "readonly");
-        const store = transaction.objectStore(storeName);
-        const result = store.getAll();
-        result.onsuccess = function(event) {
-          const data = /** @type {IDBRequest<any[]>} */(event.target).result;
-          if (data !== undefined) {
-            db.close();
-            resolve(res(ctx.delay(3000), ctx.status(200), ctx.json({ status: "ok", data })));
-          } else {
-            db.close();
-            resolve(res(ctx.delay(1000), ctx.status(200), ctx.json({ status: "ok", data: [] })));
-          }
-        };
-      }
-    })
+    return openPhotoDatabase("readonly")
+      .then((store) => {
+        const request = store.getAll();
+        return promisifyRequest(request)
+          .then(({ target: { result: data } }) =>
+            res(
+              ctx.delay(2000),
+              ctx.status(200),
+              ctx.json({ status: "ok", data: data ?? [] })
+            )
+          )
+          .catch((event) => Promise.reject(event.target.error))
+          .finally(() => {
+            store.transaction.db.close();
+          });
+      })
+      .catch((error) =>
+        res(
+          ctx.status(500),
+          ctx.json({
+            status: "failed",
+            detail: error,
+          })
+        )
+      );
   }),
 ];
