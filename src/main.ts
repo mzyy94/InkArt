@@ -7,11 +7,13 @@ import App from "./App.svelte";
 import Welcome from "./pages/Welcome.svelte";
 import WiFiSettings from "./pages/WiFiSettings.svelte";
 import PhotoUpload from "./pages/PhotoUpload.svelte";
+import FileManagement from "./pages/FileManagement.svelte";
 
 const routes = {
   "/": Welcome,
   "/wifi": WiFiSettings,
   "/upload": PhotoUpload,
+  "/files": FileManagement,
   "/:name": App,
 };
 
