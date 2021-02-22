@@ -1,4 +1,5 @@
 declare module 'smelte' {
+  import { SvelteTypedComponent } from 'svelte-typed-component';
   export { default as Button } from "smelte/src/components/Button";
   export { default as Card } from "smelte/src/components/Card";
   export { default as Chip } from "smelte/src/components/Chip";
@@ -17,7 +18,9 @@ declare module 'smelte' {
   export { default as ProgressCircular } from "smelte/src/components/ProgressCircular";
   export { default as Slider } from "smelte/src/components/Slider";
   export { default as Snackbar, notifier, Notifications } from "smelte/src/components/Snackbar";
-  export { TabButton, Tab, Tabs } from "smelte/src/components/Tabs";
+  export { TabButton, Tabs } from "smelte/src/components/Tabs";
+  import { TabEvents, TabSlots } from "smelte/src/components/Tabs/Tab";
+  export class Tab extends SvelteTypedComponent<{selected?: string|boolean; id?: string|null;}, TabEvents, TabSlots> {}
   export { default as TextField, Label } from "smelte/src/components/TextField";
   export { default as DataTable } from "smelte/src/components/DataTable";
   export { default as Switch } from "smelte/src/components/Switch";
