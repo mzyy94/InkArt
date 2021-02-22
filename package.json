@@ -12,7 +12,7 @@
     "@rollup/plugin-node-resolve": "^11.2.0",
     "@rollup/plugin-replace": "^2.4.0",
     "@rollup/plugin-typescript": "^8.2.0",
-    "@tsconfig/svelte": "^1.0.0",
+    "@tsconfig/svelte": "^1.0.10",
     "rollup": "^2.38.5",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-css-only": "^3.1.0",
@@ -22,8 +22,8 @@
     "svelte": "^3.32.2",
     "svelte-check": "^1.1.35",
     "svelte-preprocess": "^4.6.9",
-    "tslib": "^2.0.0",
-    "typescript": "^3.9.3"
+    "tslib": "^2.1.0",
+    "typescript": "^3.9.8"
   },
   "dependencies": {
     "material-icons": "^0.5.3",
