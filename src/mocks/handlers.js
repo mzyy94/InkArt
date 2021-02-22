@@ -115,4 +115,37 @@ export const handlers = [
       }
     })
   }),
+  rest.get("/photos.json", (_req, res, ctx) => {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(databaseName, 2);
+
+      request.onerror = function(event) {
+        reject(res(ctx.status(500), ctx.json({
+          status: "failed",
+          detail: /** @type {IDBOpenDBRequest} */(event.target).error
+        })))
+      };
+      request.onupgradeneeded = function(event) {
+        const db = /** @type {IDBOpenDBRequest} */(event.target).result;
+        const objectStore = db.createObjectStore(storeName, { keyPath: "filename" });
+        objectStore.createIndex("date", "date", { unique: false });
+      };
+      request.onsuccess = function(event) {
+        const db = /** @type {IDBOpenDBRequest} */(event.target).result;
+        const transaction = db.transaction([storeName], "readonly");
+        const store = transaction.objectStore(storeName);
+        const result = store.getAll();
+        result.onsuccess = function(event) {
+          const data = /** @type {IDBRequest<any[]>} */(event.target).result;
+          if (data !== undefined) {
+            db.close();
+            resolve(res(ctx.delay(3000), ctx.status(200), ctx.json({ status: "ok", data })));
+          } else {
+            db.close();
+            resolve(res(ctx.delay(1000), ctx.status(200), ctx.json({ status: "ok", data: [] })));
+          }
+        };
+      }
+    })
+  }),
 ];
