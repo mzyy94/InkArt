@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Select } from "smelte";
+  import { Select, Snackbar } from "smelte";
   import ImageLoader from "../atoms/ImageLoader.svelte";
   import Grayscale from "../atoms/Grayscale.svelte";
   import Move from "../atoms/Move.svelte";
@@ -17,6 +17,13 @@
 
   const img = new Image();
   let active = false;
+
+  let snackbar = {
+    show: false,
+    text: "",
+    color: "primary",
+  };
+
   let grayscale: Grayscale;
   let uploading = false;
 
@@ -24,8 +31,11 @@
     uploading = true;
     const png = grayscale.getPngDataURL();
     fetch("/photos.json", { method: "POST", body: png })
-      .then((res) => res.json())
-      .then(console.log)
+      .then((res) => {
+        snackbar.text = `Upload ${res.ok ? "succeeded" : "failed"}`;
+        snackbar.color = res.ok ? "primary" : "error";
+        snackbar.show = true;
+      })
       .finally(() => {
         uploading = false;
       });
@@ -49,3 +59,7 @@
   Upload
   <span slot="loading">Uploading...</span>
 </ProgressButton>
+
+<Snackbar color={snackbar.color} bind:value={snackbar.show}>
+  <div>{snackbar.text}</div>
+</Snackbar>
