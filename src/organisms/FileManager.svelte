@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { DataTable } from "smelte";
   import { onMount } from "svelte";
+  import PhotoList from "../molecules/PhotoList.svelte";
 
   let data: { filename: string; date: string; data: string }[] = [];
   let loading = true;
@@ -22,24 +22,5 @@
 </script>
 
 <section class={clazz}>
-  <DataTable
-    {data}
-    {loading}
-    columns={[
-      { label: "Name", field: "filename", editable: false },
-      {
-        label: "Date",
-        value: ({ date }) => new Date(date).toLocaleString(),
-        editable: false,
-      },
-      {
-        field: "Image",
-        value: (v) => `<img src="${v.data}" height="70" alt="${v.filename}">`,
-        class: "w-64",
-        sortable: false,
-        editable: false,
-        headerRemove: "justify-end",
-      },
-    ]}
-  />
+  <PhotoList bind:data bind:loading />
 </section>
