@@ -30,7 +30,10 @@
   function uploadImage() {
     uploading = true;
     const bmp = grayscale.getBmpArrayBuffer();
-    fetch("/photos.json", { method: "POST", body: bmp })
+    const blob = new Blob([bmp], { type: "image/bmp" });
+    const formData = new FormData();
+    formData.append("file", blob, `image-${Date.now()}.bmp`);
+    fetch("/photos.json", { method: "POST", body: formData })
       .then((res) => {
         snackbar.text = `Upload ${res.ok ? "succeeded" : "failed"}`;
         snackbar.color = res.ok ? "primary" : "error";

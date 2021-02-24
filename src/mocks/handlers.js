@@ -122,18 +122,18 @@ export const handlers = [
   rest.post("/photos.json", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
       .then((store) => {
-        const filename = `image-${Date.now()}.bmp`;
+        const file = /** @type {File} */ (req.body.file);
         const request = store.add({
-          filename,
-          date: new Date(),
-          data: req.body,
+          filename: file.name,
+          date: new Date(file.lastModified),
+          data: file,
         });
         return promisifyRequest(request)
           .then(() =>
             res(
               ctx.delay(3000),
               ctx.status(200),
-              ctx.json({ status: "succeeded", filename })
+              ctx.json({ status: "succeeded", filename: file.name })
             )
           )
           .catch((event) => Promise.reject(event.target.error))
