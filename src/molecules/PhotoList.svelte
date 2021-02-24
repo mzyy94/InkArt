@@ -19,7 +19,8 @@
       },
       {
         field: "Image",
-        value: (v) => `<img src="${v.data}" height="70" alt="${v.filename}">`,
+        value: (v) =>
+          `<img src="/photos/${v.filename}" height="70" alt="${v.filename}">`,
         class: "w-64",
         sortable: false,
         headerRemove: "justify-end",

@@ -14,7 +14,11 @@
       />
     </div>
     <div slot="media">
-      <Image class="w-full" src={data.data} alt={data.filename} />
+      <Image
+        class="w-full"
+        src={`/photos/${data.filename}`}
+        alt={data.filename}
+      />
     </div>
 
     <div slot="actions">
