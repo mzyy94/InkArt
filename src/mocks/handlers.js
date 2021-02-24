@@ -122,7 +122,7 @@ export const handlers = [
   rest.post("/photos.json", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
       .then((store) => {
-        const filename = `image-${Date.now()}.png`;
+        const filename = `image-${Date.now()}.bmp`;
         const request = store.add({
           filename,
           date: new Date(),
