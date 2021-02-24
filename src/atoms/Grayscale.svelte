@@ -217,6 +217,126 @@
   export function getPngDataURL() {
     return canvas.toDataURL("image/png");
   }
+
+  class BmpDataView extends DataView {
+    private pos = 0;
+    public readonly width;
+    public readonly height;
+    public static readonly bytesPerPixel = 4;
+    public static readonly headerSize = 122;
+
+    static createArrayBuffer(width: number, height: number) {
+      return new ArrayBuffer(
+        width * height * BmpDataView.bytesPerPixel + BmpDataView.headerSize
+      );
+    }
+
+    constructor(buffer: ArrayBufferLike, width: number, height: number) {
+      super(buffer);
+      this.width = width;
+      this.height = height;
+    }
+
+    get imageSize() {
+      return this.width * this.height * BmpDataView.bytesPerPixel;
+    }
+
+    get fileSize() {
+      return this.imageSize + BmpDataView.headerSize;
+    }
+
+    writeWord(data = 0) {
+      this.setUint16(this.pos, data, true);
+      this.pos += 2;
+    }
+
+    writeDWord(data = 0) {
+      this.setUint32(this.pos, data, true);
+      this.pos += 4;
+    }
+
+    writeShort(data = 0) {
+      this.writeWord(data);
+    }
+
+    writeLong(data = 0) {
+      this.writeDWord(data);
+    }
+
+    writeCIEXYZ() {
+      this.writeDWord(); // ciexyzX
+      this.writeDWord(); // ciexyzY
+      this.writeDWord(); // ciexyzZ
+    }
+
+    writeCIEXYZTRIPLE() {
+      this.writeCIEXYZ(); // ciexyzRed
+      this.writeCIEXYZ(); // ciexyzGreen
+      this.writeCIEXYZ(); // ciexyzBlue
+    }
+
+    writePixel(data: number) {
+      this.setUint32(this.pos, data, false);
+      this.pos += 4;
+    }
+  }
+
+  function imageData2Bmp({ data, width, height }: ImageData) {
+    const imageData = new Uint32Array(data.buffer);
+    const arrayBuffer = BmpDataView.createArrayBuffer(width, height);
+    const bmp = new BmpDataView(arrayBuffer, width, height);
+
+    // BITMAPFILEHEADER
+    bmp.writeWord(0x4d42); // bfType - "BM"
+    bmp.writeDWord(bmp.fileSize); // bfSize
+    bmp.writeWord(); // bfReserved1
+    bmp.writeWord(); // bfReserved2
+    bmp.writeDWord(0x7a); // bfOffBits
+
+    // BITMAPINFOHEADER
+    bmp.writeDWord(108); // biSize
+    bmp.writeLong(width); // biWidth
+    bmp.writeLong(-height >>> 0); // biHeight - negative height
+    bmp.writeWord(1); // biPlanes - 1 plane
+    bmp.writeWord(32); // biBitCount - 32-bits (BGRA)
+    bmp.writeDWord(3); // biCompression - BI_BITFIELD = 3
+    bmp.writeDWord(bmp.imageSize); // biSizeImage
+    bmp.writeLong(2835); // biXPelsPerMeter
+    bmp.writeLong(2835); // biYPelsPerMeter
+    bmp.writeDWord(0); // biClrUsed
+    bmp.writeDWord(0); // biClrImportant
+
+    // BITMAPV4HEADER
+    bmp.writeDWord(0x00ff0000); // bV4RedMask
+    bmp.writeDWord(0x0000ff00); // bV4GreenMask
+    bmp.writeDWord(0x000000ff); // bV4BlueMask
+    bmp.writeDWord(0xff000000); // bV4AlphaMask
+    bmp.writeDWord(0x57696e20); // bV4CSType - "Win "
+    bmp.writeCIEXYZTRIPLE(); // bV4Endpoints
+    bmp.writeDWord(); // bV4GammaRed
+    bmp.writeDWord(); // bV4GammaGreen
+    bmp.writeDWord(); // bV4AlphbV4GammaBlueaMask
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const abgr = imageData[x + y * width];
+        const a = abgr >>> 24;
+        bmp.writePixel((abgr << 8) | a);
+      }
+    }
+
+    return arrayBuffer;
+  }
+
+  export function getBmpArrayBuffer() {
+    const print = document.createElement("canvas");
+    print.width = width;
+    print.height = height;
+    const ctx = print.getContext("2d")!;
+    ctx.drawImage(canvas, 0, 0);
+    const imageData = ctx.getImageData(0, 0, width, height);
+    return imageData2Bmp(imageData);
+  }
 </script>
 
 <canvas bind:this={canvas} {width} {height} />
