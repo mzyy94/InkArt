@@ -7,6 +7,7 @@
 
 <section class="mt-3">
   <DataTable
+    class="w-full"
     editable={false}
     {data}
     {loading}
@@ -21,7 +22,7 @@
         field: "Image",
         value: (v) =>
           `<img src="/photos/${v.filename}" height="70" alt="${v.filename}">`,
-        class: "w-64",
+        class: "w-1/2",
         sortable: false,
         headerRemove: "justify-end",
       },
