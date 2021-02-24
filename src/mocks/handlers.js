@@ -60,6 +60,29 @@ async function openPhotoDatabase(mode) {
     });
 }
 
+/**
+ * @param {File} file
+ */
+async function getArrayBufferFrom7bitFile(file) {
+  const buffer = await new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = () => reject(fr.error);
+    fr.readAsArrayBuffer(file);
+  });
+  const markers = new Set();
+  const data = new Uint8Array(buffer)
+    .map((c, i, a) => {
+      if (c < 194) {
+        return c;
+      }
+      markers.add(i + 1);
+      return c == 194 ? a[i + 1] : a[i + 1] + 64;
+    })
+    .filter((_, i) => !markers.has(i));
+  return data.buffer;
+}
+
 export const handlers = [
   rest.get("/status.json", (_req, res, ctx) => {
     return res(
@@ -163,6 +186,36 @@ export const handlers = [
               ctx.json({ status: "ok", data: data ?? [] })
             )
           )
+          .catch((event) => Promise.reject(event.target.error))
+          .finally(() => {
+            store.transaction.db.close();
+          });
+      })
+      .catch((error) =>
+        res(
+          ctx.status(500),
+          ctx.json({
+            status: "failed",
+            detail: error,
+          })
+        )
+      );
+  }),
+  rest.get("/photos/:filename", (req, res, ctx) => {
+    return openPhotoDatabase("readonly")
+      .then((store) => {
+        const request = store.get(req.params.filename);
+        return promisifyRequest(request)
+          .then(async ({ target: { result: data } }) => {
+            const file = /** @type {File} */ (data.data);
+            const buffer = await getArrayBufferFrom7bitFile(file);
+            return res(
+              ctx.status(200),
+              ctx.set("Content-Length", buffer.byteLength.toString()),
+              ctx.set("Content-Type", "image/bmp"),
+              ctx.body(buffer)
+            );
+          })
           .catch((event) => Promise.reject(event.target.error))
           .finally(() => {
             store.transaction.db.close();
