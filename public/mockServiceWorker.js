@@ -131,7 +131,13 @@ self.addEventListener('fetch', function (event) {
       }
 
       const reqHeaders = serializeHeaders(request.headers)
-      const body = await request.text()
+      const blob = await request.blob()
+      const body = await new Promise((resolve, reject) => {
+        const fr = new FileReader()
+        fr.onload = () => resolve(fr.result)
+        fr.onerror = () => reject(fr.error)
+        fr.readAsBinaryString(blob)
+      })
 
       const rawClientMessage = await sendToClient(client, {
         type: 'REQUEST',
