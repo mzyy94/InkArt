@@ -47,12 +47,9 @@
       push(menuItem.value);
     }
   };
-
-  let clazz = "";
-  export { clazz as class };
 </script>
 
-<section class={clazz}>
+<section>
   <List on:change={selectListItem} items={menuItems} class="w-full" />
 </section>
 

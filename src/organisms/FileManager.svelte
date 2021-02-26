@@ -57,12 +57,9 @@
       }
     });
   }
-
-  let clazz = "";
-  export { clazz as class };
 </script>
 
-<section class={clazz}>
+<section>
   <Tabs
     bind:selected={mode}
     color="black"

@@ -16,15 +16,13 @@
     });
   }
 
-  let clazz = "";
-  export { clazz as class };
   export let ssid: string;
   export let password: string;
   export let button = "Connect";
   export let pending = false;
 </script>
 
-<form class={clazz}>
+<form>
   <TextField label="SSID" bind:value={ssid} />
   <TextField type="password" label="Password" bind:value={password} />
   <ProgressButton on:click={submit} loading={pending}>
