@@ -1,30 +1,15 @@
 <script lang="ts">
-  import { Card, Button, Image, Dialog } from "smelte";
+  import { createEventDispatcher } from "svelte";
+  import { Card, Button, Image } from "smelte";
+
+  const dispatch = createEventDispatcher();
 
   function hideFile() {
-    fetch(`/photos/${data.filename}`, {
-      method: "PUT",
-      body: JSON.stringify({ hide: !data.hidden }),
-    }).then((res) => {
-      if (res.ok) {
-        data.hidden = !data.hidden;
-      } else {
-        // TODO: Show error snackbar
-      }
-    });
+    dispatch("hide", { data });
   }
 
-  let showDialog = false;
-
   function deleteFile() {
-    showDialog = false;
-    fetch(`/photos/${data.filename}`, { method: "DELETE" }).then((res) => {
-      if (res.ok) {
-        // TODO: Remove card
-      } else {
-        // TODO: Show error snackbar
-      }
-    });
+    dispatch("delete", { data });
   }
 
   const replace = { flex: "inline-flex" };
@@ -60,7 +45,7 @@
         <Button
           color="error"
           icon="delete"
-          on:click={() => (showDialog = true)}
+          on:click={deleteFile}
           text
           {replace}
         >
@@ -70,15 +55,6 @@
     </div>
   </Card.Card>
 </article>
-
-<Dialog bind:value={showDialog}>
-  <h5 slot="title">Delete file?</h5>
-  <div class="text-gray-700">Are you sure you want to delete file?</div>
-  <div slot="actions">
-    <Button text on:click={() => (showDialog = false)}>Cancel</Button>
-    <Button text on:click={deleteFile} color="error">Delete</Button>
-  </div>
-</Dialog>
 
 <style>
   article {
