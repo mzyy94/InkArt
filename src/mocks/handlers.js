@@ -145,6 +145,12 @@ export const handlers = [
   rest.post("/photos.json", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
       .then((store) => {
+        if (!req.body.file) {
+          return res(
+            ctx.status(400),
+            ctx.json({ status: "failed", detail: "file not found" })
+          );
+        }
         const file = /** @type {File} */ (req.body.file);
         const request = store.add(file);
         return promisifyRequest(request)
@@ -207,6 +213,9 @@ export const handlers = [
         const request = store.get(req.params.filename);
         return promisifyRequest(request)
           .then(async ({ target: { result: data } }) => {
+            if (!data) {
+              return res(ctx.status(404), ctx.body(""));
+            }
             const file = /** @type {File} */ (data);
             const buffer = await getArrayBufferFrom7bitFile(file);
             return res(
