@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Tab, Tabs, Button, Dialog } from "smelte";
-  import PhotoCard from "../molecules/PhotoCard.svelte";
   import PhotoList from "../molecules/PhotoList.svelte";
+  import PhotoGrid from "../molecules/PhotoGrid.svelte";
 
-  let mode = "list";
+  let mode = "grid";
 
   type Entry = { filename: string; date: string; hidden: boolean };
   let data: Entry[] = [];
@@ -74,15 +74,12 @@
   >
     <div slot="content">
       <Tab id="grid" selected={mode}>
-        <section class="flex w-full flex-row flex-wrap justify-center">
-          {#each data as elm}
-            <PhotoCard
-              data={elm}
-              on:delete={confirmDelete}
-              on:hide={hideFile}
-            />
-          {/each}
-        </section>
+        <PhotoGrid
+          bind:data
+          bind:loading
+          on:hide={hideFile}
+          on:delete={confirmDelete}
+        />
       </Tab>
       <Tab id="list" selected={mode}>
         <PhotoList bind:data bind:loading />
