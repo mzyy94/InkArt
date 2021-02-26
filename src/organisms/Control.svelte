@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Button, Select, Slider, Snackbar, Switch } from "smelte";
+  import dark from "smelte/src/dark";
+  const darkMode = dark();
 
   type Orientation =
     | "portrait"
@@ -16,7 +18,6 @@
   ];
 
   let orientation: Orientation;
-  let inverted: boolean;
   let interval = 0;
   let margin = 0;
 
@@ -30,7 +31,7 @@
           interval: number;
           margin: number;
         }) => {
-          inverted = display.inverted;
+          darkMode.set(display.inverted);
           orientation = display.orientation;
           interval = display.interval;
           margin = display.margin;
@@ -42,7 +43,12 @@
     fetch("/display.json", {
       method: "POST",
       headers: [["Content-Type", "application/json"]],
-      body: JSON.stringify({ inverted, orientation, interval, margin }),
+      body: JSON.stringify({
+        inverted: $darkMode,
+        orientation,
+        interval,
+        margin,
+      }),
     }).then((res) => {
       snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
       snackbar.color = res.ok ? "primary" : "error";
@@ -59,7 +65,7 @@
   };
 </script>
 
-<Switch label="Invert black/white" bind:value={inverted} />
+<Switch label="Invert black/white" bind:value={$darkMode} />
 
 <Select
   label="Orientation"

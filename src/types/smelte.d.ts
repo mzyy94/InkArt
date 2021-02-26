@@ -1,3 +1,7 @@
+declare module 'smelte/src/dark' {
+  import { Writable } from 'svelte/store';
+  export default (): Writable<boolean> => {};
+}
 declare module 'smelte' {
   import { SvelteTypedComponent } from 'svelte-typed-component';
   export { default as Button } from "smelte/src/components/Button";
