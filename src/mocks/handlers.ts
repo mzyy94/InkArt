@@ -52,8 +52,8 @@ export const handlers = [
 
     return res(ctx.delay(2000), ctx.status(200), ctx.json(list));
   }),
-  rest.post<string>("/wifi.json", (req, res, ctx) => {
-    const { mode, ssid, password } = JSON.parse(req.body);
+  rest.post<{ [key in string]: string }>("/wifi.json", (req, res, ctx) => {
+    const { mode, ssid, password } = req.body;
 
     if (ssid.length == password.length) {
       sessionStorage.setItem("wifi-mode", mode);
@@ -155,8 +155,8 @@ export const handlers = [
         .catch(handle500ErrorResponse(res, ctx))
     );
   }),
-  rest.put<string>("/photos/:filename", (req, res, ctx) => {
-    const { hide } = JSON.parse(req.body);
+  rest.put<{ hide: boolean }>("/photos/:filename", (req, res, ctx) => {
+    const { hide } = req.body;
     return openPhotoDatabase("readwrite")
       .then(({ photo, hidden, close }) =>
         photo

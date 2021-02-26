@@ -25,6 +25,7 @@
   function hideFile({ detail }: CustomEvent<{ data: Entry }>) {
     fetch(`/photos/${detail.data.filename}`, {
       method: "PUT",
+      headers: [["Content-Type", "application/json"]],
       body: JSON.stringify({ hide: !detail.data.hidden }),
     }).then((res) => {
       if (res.ok) {

@@ -40,6 +40,7 @@
 
     fetch("/wifi.json", {
       method: "POST",
+      headers: [["Content-Type", "application/json"]],
       body: JSON.stringify({ mode, ssid, password }),
     }).then((res) => {
       snackbar.text = `${operation} ${res.ok ? "succeeded" : "failed"}`;
