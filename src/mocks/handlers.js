@@ -36,7 +36,11 @@ async function promisifyRequest(request) {
 
 /**
  * @param {IDBTransactionMode} mode
- * @returns {!Promise<{photo: IDBObjectStore, hidden: IDBObjectStore, close: Function}>}
+ * @returns {!Promise<{
+ *   photo: {[key in keyof IDBObjectStore]: (...args: any[]) => Promise<{target: IDBRequest<IDBObjectStore>}>},
+ *   hidden: {[key in keyof IDBObjectStore]: (...args: any[]) => Promise<{target: IDBRequest<IDBObjectStore>}>},
+ *   close: Function
+ * }>}
  */
 async function openPhotoDatabase(mode) {
   const request = indexedDB.open(databaseName, 4);
@@ -62,7 +66,17 @@ async function openPhotoDatabase(mode) {
       const close = () => {
         db.close();
       };
-      return { photo, hidden, close };
+      const handler = {
+        get: function (target, prop) {
+          return (...args) => promisifyRequest(target[prop](...args));
+        },
+      };
+
+      return {
+        photo: new Proxy(photo, handler),
+        hidden: new Proxy(hidden, handler),
+        close,
+      };
     })
     .catch((event) => {
       return Promise.reject(event.target.error);
@@ -161,8 +175,8 @@ export const handlers = [
           );
         }
         const file = /** @type {File} */ (req.body.file);
-        const request = photo.add(file);
-        return promisifyRequest(request)
+        return photo
+          .add(file)
           .then(() =>
             res(
               ctx.delay(3000),
@@ -185,9 +199,9 @@ export const handlers = [
   }),
   rest.get("/photos.json", (_req, res, ctx) => {
     return openPhotoDatabase("readonly")
-      .then(({ photo, close }) => {
-        const request = photo.getAll();
-        return promisifyRequest(request)
+      .then(({ photo, close }) =>
+        photo
+          .getAll()
           .then(({ target: { result: data } }) => {
             const filelist = (data ?? []).map((file) => ({
               filename: file.name,
@@ -200,8 +214,8 @@ export const handlers = [
             );
           })
           .catch((event) => Promise.reject(event.target.error))
-          .finally(close);
-      })
+          .finally(close)
+      )
       .catch((error) =>
         res(
           ctx.status(500),
@@ -214,9 +228,9 @@ export const handlers = [
   }),
   rest.get("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readonly")
-      .then(({ photo, close }) => {
-        const request = photo.get(req.params.filename);
-        return promisifyRequest(request)
+      .then(({ photo, close }) =>
+        photo
+          .get(req.params.filename)
           .then(async ({ target: { result: data } }) => {
             if (!data) {
               return res(ctx.status(404), ctx.body(""));
@@ -231,8 +245,8 @@ export const handlers = [
             );
           })
           .catch((event) => Promise.reject(event.target.error))
-          .finally(close);
-      })
+          .finally(close)
+      )
       .catch((error) =>
         res(
           ctx.status(500),
@@ -245,21 +259,22 @@ export const handlers = [
   }),
   rest.delete("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
-      .then(({ photo, close }) => {
-        const request = photo.get(req.params.filename);
-        return promisifyRequest(request)
+      .then(({ photo, close }) =>
+        photo
+          .get(req.params.filename)
           .then(({ target: { result: data } }) => {
             if (!data) {
               return res(ctx.status(404), ctx.json({ status: "failed" }));
             }
-            const request = photo.delete(req.params.filename);
-            return promisifyRequest(request).then(() =>
-              res(ctx.status(200), ctx.json({ status: "succeeded" }))
-            );
+            return photo
+              .delete(req.params.filename)
+              .then(() =>
+                res(ctx.status(200), ctx.json({ status: "succeeded" }))
+              );
           })
           .catch((event) => Promise.reject(event.target.error))
-          .finally(close);
-      })
+          .finally(close)
+      )
       .catch((error) =>
         res(
           ctx.status(500),
@@ -272,25 +287,25 @@ export const handlers = [
   }),
   rest.put("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
-      .then(({ photo, hidden, close }) => {
-        const request = photo.get(req.params.filename);
-        const { hide } = JSON.parse(req.body);
-        return promisifyRequest(request)
+      .then(({ photo, hidden, close }) =>
+        photo
+          .get(req.params.filename)
           .then(({ target: { result: data } }) => {
             if (!data) {
               return res(ctx.status(404), ctx.json({ status: "failed" }));
             }
+            const { hide } = JSON.parse(req.body);
             const request = hide
               ? hidden.add({ name: req.params.filename })
               : hidden.delete(req.params.filename);
 
-            return promisifyRequest(request).then(() =>
+            return request.then(() =>
               res(ctx.status(200), ctx.json({ status: "succeeded" }))
             );
           })
           .catch((event) => Promise.reject(event.target.error))
-          .finally(close);
-      })
+          .finally(close)
+      )
       .catch((error) =>
         res(
           ctx.status(500),
