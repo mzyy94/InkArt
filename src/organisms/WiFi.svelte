@@ -28,22 +28,19 @@
   });
 
   function setupWiFi(e: SubmitEvent) {
-    let endpoint: string;
     let operation: string;
     if (mode == "sta") {
-      endpoint = "/connect.json";
       operation = "Connection";
     } else {
-      endpoint = "/ap.json";
       operation = "Create AP";
     }
 
     processing = true;
     const { ssid, password } = e.detail;
 
-    fetch(endpoint, {
+    fetch("/wifi.json", {
       method: "POST",
-      body: JSON.stringify({ ssid, password }),
+      body: JSON.stringify({ mode, ssid, password }),
     }).then((res) => {
       snackbar.text = `${operation} ${res.ok ? "succeeded" : "failed"}`;
       snackbar.color = res.ok ? "primary" : "error";

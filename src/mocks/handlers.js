@@ -128,35 +128,16 @@ export const handlers = [
 
     return res(ctx.delay(2000), ctx.status(200), ctx.json(list));
   }),
-  rest.post("/connect.json", (req, res, ctx) => {
-    const { ssid, password } = JSON.parse(req.body);
+  rest.post("/wifi.json", (req, res, ctx) => {
+    const { mode, ssid, password } = JSON.parse(req.body);
 
     if (ssid.length == password.length) {
-      sessionStorage.setItem("wifi-mode", "sta");
+      sessionStorage.setItem("wifi-mode", mode);
       sessionStorage.setItem("ssid", ssid);
       return res(
         ctx.delay(4000),
         ctx.status(200),
-        ctx.json({ status: "connected" })
-      );
-    } else {
-      return res(
-        ctx.delay(4000),
-        ctx.status(403),
-        ctx.json({ status: "failed" })
-      );
-    }
-  }),
-  rest.post("/ap.json", (req, res, ctx) => {
-    const { ssid, password } = JSON.parse(req.body);
-
-    if (ssid.length == password.length) {
-      sessionStorage.setItem("wifi-mode", "ap");
-      sessionStorage.setItem("ssid", ssid);
-      return res(
-        ctx.delay(4000),
-        ctx.status(200),
-        ctx.json({ status: "created" })
+        ctx.json({ status: "succeeded" })
       );
     } else {
       return res(
