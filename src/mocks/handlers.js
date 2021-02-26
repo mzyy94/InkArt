@@ -240,4 +240,33 @@ export const handlers = [
         )
       );
   }),
+  rest.delete("/photos/:filename", (req, res, ctx) => {
+    return openPhotoDatabase("readwrite")
+      .then((store) => {
+        const request = store.get(req.params.filename);
+        return promisifyRequest(request)
+          .then(({ target: { result: data } }) => {
+            if (!data) {
+              return res(ctx.status(404), ctx.json({ status: "failed" }));
+            }
+            const request = store.delete(req.params.filename);
+            return promisifyRequest(request).then(() =>
+              res(ctx.status(200), ctx.json({ status: "succeeded" }))
+            );
+          })
+          .catch((event) => Promise.reject(event.target.error))
+          .finally(() => {
+            store.transaction.db.close();
+          });
+      })
+      .catch((error) =>
+        res(
+          ctx.status(500),
+          ctx.json({
+            status: "failed",
+            detail: error,
+          })
+        )
+      );
+  }),
 ];
