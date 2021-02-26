@@ -36,7 +36,7 @@ async function promisifyRequest(request) {
 
 /**
  * @param {IDBTransactionMode} mode
- * @returns {!Promise<{photo: IDBObjectStore, hidden: IDBObjectStore}>}
+ * @returns {!Promise<{photo: IDBObjectStore, hidden: IDBObjectStore, close: Function}>}
  */
 async function openPhotoDatabase(mode) {
   const request = indexedDB.open(databaseName, 4);
@@ -59,7 +59,10 @@ async function openPhotoDatabase(mode) {
       );
       const photo = transaction.objectStore(photoStoreName);
       const hidden = transaction.objectStore(hiddenStoreName);
-      return { photo, hidden };
+      const close = () => {
+        db.close();
+      };
+      return { photo, hidden, close };
     })
     .catch((event) => {
       return Promise.reject(event.target.error);
@@ -150,7 +153,7 @@ export const handlers = [
   }),
   rest.post("/photos.json", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
-      .then(({ photo }) => {
+      .then(({ photo, close }) => {
         if (!req.body.file) {
           return res(
             ctx.status(400),
@@ -168,9 +171,7 @@ export const handlers = [
             )
           )
           .catch((event) => Promise.reject(event.target.error))
-          .finally(() => {
-            photo.transaction.db.close();
-          });
+          .finally(close);
       })
       .catch((error) =>
         res(
@@ -184,7 +185,7 @@ export const handlers = [
   }),
   rest.get("/photos.json", (_req, res, ctx) => {
     return openPhotoDatabase("readonly")
-      .then(({ photo }) => {
+      .then(({ photo, close }) => {
         const request = photo.getAll();
         return promisifyRequest(request)
           .then(({ target: { result: data } }) => {
@@ -199,9 +200,7 @@ export const handlers = [
             );
           })
           .catch((event) => Promise.reject(event.target.error))
-          .finally(() => {
-            photo.transaction.db.close();
-          });
+          .finally(close);
       })
       .catch((error) =>
         res(
@@ -215,7 +214,7 @@ export const handlers = [
   }),
   rest.get("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readonly")
-      .then(({ photo }) => {
+      .then(({ photo, close }) => {
         const request = photo.get(req.params.filename);
         return promisifyRequest(request)
           .then(async ({ target: { result: data } }) => {
@@ -232,9 +231,7 @@ export const handlers = [
             );
           })
           .catch((event) => Promise.reject(event.target.error))
-          .finally(() => {
-            photo.transaction.db.close();
-          });
+          .finally(close);
       })
       .catch((error) =>
         res(
@@ -248,7 +245,7 @@ export const handlers = [
   }),
   rest.delete("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
-      .then(({ photo }) => {
+      .then(({ photo, close }) => {
         const request = photo.get(req.params.filename);
         return promisifyRequest(request)
           .then(({ target: { result: data } }) => {
@@ -261,9 +258,7 @@ export const handlers = [
             );
           })
           .catch((event) => Promise.reject(event.target.error))
-          .finally(() => {
-            photo.transaction.db.close();
-          });
+          .finally(close);
       })
       .catch((error) =>
         res(
@@ -277,7 +272,7 @@ export const handlers = [
   }),
   rest.put("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
-      .then(({ photo, hidden }) => {
+      .then(({ photo, hidden, close }) => {
         const request = photo.get(req.params.filename);
         const { hide } = JSON.parse(req.body);
         return promisifyRequest(request)
@@ -294,9 +289,7 @@ export const handlers = [
             );
           })
           .catch((event) => Promise.reject(event.target.error))
-          .finally(() => {
-            hidden.transaction.db.close();
-          });
+          .finally(close);
       })
       .catch((error) =>
         res(
