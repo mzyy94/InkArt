@@ -106,6 +106,19 @@ async function getArrayBufferFrom7bitFile(file) {
   return data.buffer;
 }
 
+function handle500ErrorResponse(res, ctx) {
+  return function (error) {
+    console.error(error);
+    return res(
+      ctx.status(500),
+      ctx.json({
+        status: "failed",
+        detail: error,
+      })
+    );
+  };
+}
+
 export const handlers = [
   rest.get("/status.json", (_req, res, ctx) => {
     return res(
@@ -184,18 +197,9 @@ export const handlers = [
               ctx.json({ status: "succeeded", filename: file.name })
             )
           )
-          .catch((event) => Promise.reject(event.target.error))
           .finally(close);
       })
-      .catch((error) =>
-        res(
-          ctx.status(500),
-          ctx.json({
-            status: "failed",
-            detail: error,
-          })
-        )
-      );
+      .catch(handle500ErrorResponse(res, ctx));
   }),
   rest.get("/photos.json", (_req, res, ctx) => {
     return openPhotoDatabase("readonly")
@@ -213,18 +217,9 @@ export const handlers = [
               ctx.json({ status: "ok", data: filelist })
             );
           })
-          .catch((event) => Promise.reject(event.target.error))
           .finally(close)
       )
-      .catch((error) =>
-        res(
-          ctx.status(500),
-          ctx.json({
-            status: "failed",
-            detail: error,
-          })
-        )
-      );
+      .catch(handle500ErrorResponse(res, ctx));
   }),
   rest.get("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readonly")
@@ -244,18 +239,9 @@ export const handlers = [
               ctx.body(buffer)
             );
           })
-          .catch((event) => Promise.reject(event.target.error))
           .finally(close)
       )
-      .catch((error) =>
-        res(
-          ctx.status(500),
-          ctx.json({
-            status: "failed",
-            detail: error,
-          })
-        )
-      );
+      .catch(handle500ErrorResponse(res, ctx));
   }),
   rest.delete("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
@@ -272,18 +258,9 @@ export const handlers = [
                 res(ctx.status(200), ctx.json({ status: "succeeded" }))
               );
           })
-          .catch((event) => Promise.reject(event.target.error))
           .finally(close)
       )
-      .catch((error) =>
-        res(
-          ctx.status(500),
-          ctx.json({
-            status: "failed",
-            detail: error,
-          })
-        )
-      );
+      .catch(handle500ErrorResponse(res, ctx));
   }),
   rest.put("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
@@ -303,17 +280,8 @@ export const handlers = [
               res(ctx.status(200), ctx.json({ status: "succeeded" }))
             );
           })
-          .catch((event) => Promise.reject(event.target.error))
           .finally(close)
       )
-      .catch((error) =>
-        res(
-          ctx.status(500),
-          ctx.json({
-            status: "failed",
-            detail: error,
-          })
-        )
-      );
+      .catch(handle500ErrorResponse(res, ctx));
   }),
 ];
