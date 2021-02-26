@@ -295,17 +295,12 @@
     bmp.writeDWord(0); // biClrImportant
 
     // RGBQUAD
-    bmp.writeDWord(0x00ff0000); // RedMask
+    bmp.writeDWord(0x000000ff); // RedMask
     bmp.writeDWord(0x0000ff00); // GreenMask
-    bmp.writeDWord(0x000000ff); // BlueMask
+    bmp.writeDWord(0x00ff0000); // BlueMask
 
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const abgr = imageData[x + y * width];
-        const a = abgr >>> 24;
-        bmp.writePixel((abgr << 8) | a);
-      }
-    }
+    const array = new Uint8Array(arrayBuffer);
+    array.set(new Uint8Array(imageData.buffer), 0x42);
 
     return arrayBuffer;
   }
