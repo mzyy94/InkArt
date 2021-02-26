@@ -6,7 +6,7 @@
 
   let mode = "list";
 
-  let data: { filename: string; date: string; data: string }[] = [];
+  let data: { filename: string; date: string; hidden: boolean }[] = [];
   let loading = true;
 
   onMount(() => {

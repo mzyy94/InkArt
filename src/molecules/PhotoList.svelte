@@ -1,7 +1,7 @@
 <script lang="ts">
   import { DataTable } from "smelte";
 
-  export let data: { filename: string; date: string; data: string }[];
+  export let data: { filename: string; date: string; hidden: boolean }[];
   export let loading: boolean;
 </script>
 
@@ -12,7 +12,8 @@
     {data}
     {loading}
     columns={[
-      { label: "Name", field: "filename", editable: false },
+      { label: "Name", field: "filename" },
+      { label: "Hidden", field: "hidden" },
       {
         label: "Date",
         value: ({ date }) => new Date(date).toLocaleString(),
