@@ -4,14 +4,11 @@
   import type { ListItemProps } from "smelte";
 
   let items: ListItemProps[] = [];
-  let loading = !false;
+  let loading = false;
 
-  async function fetchApList() {
-    return new Promise((resolve) => {
-      loading = true;
-      resolve(true);
-    })
-      .then(() => fetch("/aplist.json"))
+  function fetchApList() {
+    loading = true;
+    fetch("/aplist.json")
       .then((res) => res.json())
       .then((list: { ssid: string; auth: string; rssi: number }[]) => {
         items = list
@@ -22,7 +19,7 @@
             subheading: `RSSI: ${item.rssi}dB`,
           }));
       })
-      .then(() => {
+      .finally(() => {
         loading = false;
       });
   }
