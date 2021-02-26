@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Card, Button, Image } from "smelte";
+  import { Card, Button, Image, Dialog } from "smelte";
 
   function hideFile() {
     fetch(`/photos/${data.filename}`, {
@@ -8,6 +8,19 @@
     }).then((res) => {
       if (res.ok) {
         data.hidden = !data.hidden;
+      } else {
+        // TODO: Show error snackbar
+      }
+    });
+  }
+
+  let showDialog = false;
+
+  function deleteFile() {
+    showDialog = false;
+    fetch(`/photos/${data.filename}`, { method: "DELETE" }).then((res) => {
+      if (res.ok) {
+        // TODO: Remove card
       } else {
         // TODO: Show error snackbar
       }
@@ -44,11 +57,28 @@
         >
           {data.hidden ? "Show" : "Hide"}
         </Button>
-        <Button color="error" icon="delete" text {replace}>Delete</Button>
+        <Button
+          color="error"
+          icon="delete"
+          on:click={() => (showDialog = true)}
+          text
+          {replace}
+        >
+          Delete
+        </Button>
       </div>
     </div>
   </Card.Card>
 </article>
+
+<Dialog bind:value={showDialog}>
+  <h5 slot="title">Delete file?</h5>
+  <div class="text-gray-700">Are you sure you want to delete file?</div>
+  <div slot="actions">
+    <Button text on:click={() => (showDialog = false)}>Cancel</Button>
+    <Button text on:click={deleteFile} color="error">Delete</Button>
+  </div>
+</Dialog>
 
 <style>
   article {
