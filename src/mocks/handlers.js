@@ -203,13 +203,19 @@ export const handlers = [
   }),
   rest.get("/photos.json", (_req, res, ctx) => {
     return openPhotoDatabase("readonly")
-      .then(({ photo, close }) =>
+      .then(({ photo, hidden, close }) =>
         photo
           .getAll()
-          .then(({ target: { result: data } }) => {
+          .then(async ({ target: { result: data } }) => {
+            const hiddenList = await hidden
+              .getAll()
+              .then(({ target: { result: list } }) => {
+                return new Set(list.map((item) => item.name));
+              });
             const filelist = (data ?? []).map((file) => ({
               filename: file.name,
               date: new Date(file.lastModified),
+              hidden: hiddenList.has(file.name),
             }));
             return res(
               ctx.delay(2000),
