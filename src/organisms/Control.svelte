@@ -1,0 +1,88 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { Button, Select, Slider, Snackbar, Switch } from "smelte";
+
+  type Orientation =
+    | "portrait"
+    | "landscape-right"
+    | "landscape-left"
+    | "upside-down";
+
+  const orientations = [
+    { value: "portrait", text: "Portrait" },
+    { value: "landscape-right", text: "Landscape Right" },
+    { value: "landscape-left", text: "Landscape Left" },
+    { value: "upside-down", text: "Upside Down" },
+  ];
+
+  let orientation: Orientation;
+  let inverted: boolean;
+  let interval = 0;
+  let margin = 0;
+
+  function initSettings() {
+    fetch("/display.json")
+      .then((res) => res.json())
+      .then(
+        (display: {
+          inverted: boolean;
+          orientation: Orientation;
+          interval: number;
+          margin: number;
+        }) => {
+          inverted = display.inverted;
+          orientation = display.orientation;
+          interval = display.interval;
+          margin = display.margin;
+        }
+      );
+  }
+
+  function applySettings() {
+    fetch("/display.json", {
+      method: "POST",
+      headers: [["Content-Type", "application/json"]],
+      body: JSON.stringify({ inverted, orientation, interval, margin }),
+    }).then((res) => {
+      snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
+      snackbar.color = res.ok ? "primary" : "error";
+      snackbar.show = true;
+    });
+  }
+
+  onMount(initSettings);
+
+  let snackbar = {
+    show: false,
+    text: "",
+    color: "primary",
+  };
+</script>
+
+<Switch label="Invert black/white" bind:value={inverted} />
+
+<Select
+  label="Orientation"
+  name="orientation"
+  bind:value={orientation}
+  items={orientations}
+/>
+
+<fieldset class="my-3">
+  <p class="text-gray-700">Update Interval: {interval}min</p>
+  <Slider min={0} step={5} max={480} bind:value={interval} />
+</fieldset>
+
+<fieldset class="my-3">
+  <p class="text-gray-700">Margin: {margin}pixel</p>
+  <Slider min={-20} max={20} bind:value={margin} />
+</fieldset>
+
+<div class="float-right">
+  <Button on:click={applySettings}>Apply</Button>
+  <Button color="secondary" on:click={initSettings}>Reset</Button>
+</div>
+
+<Snackbar color={snackbar.color} bind:value={snackbar.show}>
+  <div>{snackbar.text}</div>
+</Snackbar>
