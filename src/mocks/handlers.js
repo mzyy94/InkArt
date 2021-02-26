@@ -38,14 +38,14 @@ async function promisifyRequest(request) {
  * @returns {!Promise<IDBObjectStore>}
  */
 async function openPhotoDatabase(mode) {
-  const request = indexedDB.open(databaseName, 2);
+  const request = indexedDB.open(databaseName, 3);
 
   request.onupgradeneeded = function (event) {
     const db = /** @type {IDBOpenDBRequest} */ (event.target).result;
     const objectStore = db.createObjectStore(storeName, {
-      keyPath: "filename",
+      keyPath: "name",
     });
-    objectStore.createIndex("date", "date", { unique: false });
+    objectStore.createIndex("date", "lastModified", { unique: false });
   };
 
   return promisifyRequest(request)
@@ -146,11 +146,7 @@ export const handlers = [
     return openPhotoDatabase("readwrite")
       .then((store) => {
         const file = /** @type {File} */ (req.body.file);
-        const request = store.add({
-          filename: file.name,
-          date: new Date(file.lastModified),
-          data: file,
-        });
+        const request = store.add(file);
         return promisifyRequest(request)
           .then(() =>
             res(
@@ -179,13 +175,17 @@ export const handlers = [
       .then((store) => {
         const request = store.getAll();
         return promisifyRequest(request)
-          .then(({ target: { result: data } }) =>
-            res(
+          .then(({ target: { result: data } }) => {
+            const filelist = (data ?? []).map((file) => ({
+              filename: file.name,
+              date: new Date(file.lastModified),
+            }));
+            return res(
               ctx.delay(2000),
               ctx.status(200),
-              ctx.json({ status: "ok", data: data ?? [] })
-            )
-          )
+              ctx.json({ status: "ok", data: filelist })
+            );
+          })
           .catch((event) => Promise.reject(event.target.error))
           .finally(() => {
             store.transaction.db.close();
@@ -207,7 +207,7 @@ export const handlers = [
         const request = store.get(req.params.filename);
         return promisifyRequest(request)
           .then(async ({ target: { result: data } }) => {
-            const file = /** @type {File} */ (data.data);
+            const file = /** @type {File} */ (data);
             const buffer = await getArrayBufferFrom7bitFile(file);
             return res(
               ctx.status(200),
