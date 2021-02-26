@@ -189,32 +189,26 @@ export const handlers = [
     const file = new File([buffer], name, { type });
 
     return openPhotoDatabase("readwrite")
-      .then(async ({ photo, close }) => {
-        return photo
-          .add(file)
-          .then(() =>
-            res(
-              ctx.delay(3000),
-              ctx.status(200),
-              ctx.json({ status: "succeeded", filename: name })
-            )
-          )
-          .finally(close);
-      })
+      .then(async ({ photo, close }) => photo.add(file).finally(close))
+      .then(() =>
+        res(
+          ctx.delay(3000),
+          ctx.status(200),
+          ctx.json({ status: "succeeded", filename: name })
+        )
+      )
       .catch(handle500ErrorResponse(res, ctx));
   }),
   rest.get("/photos.json", (_req, res, ctx) => {
     return openPhotoDatabase("readonly")
       .then(({ photo, hidden, close }) =>
-        photo
-          .getAll()
-          .then(async ({ target: { result: data } }) => {
-            const hiddenList = await hidden
-              .getAll()
-              .then(({ target: { result: list } }) => {
-                return new Set(list.map((item) => item.name));
-              });
-            const filelist = (data ?? []).map((file) => ({
+        Promise.all([photo.getAll(), hidden.getAll()])
+          .finally(close)
+          .then(([photos, hiddens]) => {
+            const hiddenList = new Set(
+              hiddens.target.result.map((item) => item.name)
+            );
+            const filelist = (photos.target.result ?? []).map((file) => ({
               filename: file.name,
               date: new Date(file.lastModified),
               hidden: hiddenList.has(file.name),
@@ -225,52 +219,47 @@ export const handlers = [
               ctx.json({ status: "ok", data: filelist })
             );
           })
-          .finally(close)
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
   rest.get("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readonly")
-      .then(({ photo, close }) =>
-        photo
-          .get(req.params.filename)
-          .then(async ({ target: { result: data } }) => {
-            if (!data) {
-              return res(ctx.status(404), ctx.body(""));
-            }
-            const file = /** @type {File} */ (data);
-            const buffer = await readFileAsArrayBuffer(file);
-            return res(
-              ctx.status(200),
-              ctx.set("Content-Length", buffer.byteLength.toString()),
-              ctx.set("Content-Type", "image/bmp"),
-              ctx.body(buffer)
-            );
-          })
-          .finally(close)
-      )
+      .then(({ photo, close }) => photo.get(req.params.filename).finally(close))
+      .then(async ({ target: { result: data } }) => {
+        if (!data) {
+          return res(ctx.status(404), ctx.body(""));
+        }
+        const file = /** @type {File} */ (data);
+        const buffer = await readFileAsArrayBuffer(file);
+        return res(
+          ctx.status(200),
+          ctx.set("Content-Length", buffer.byteLength.toString()),
+          ctx.set("Content-Type", "image/bmp"),
+          ctx.body(buffer)
+        );
+      })
       .catch(handle500ErrorResponse(res, ctx));
   }),
   rest.delete("/photos/:filename", (req, res, ctx) => {
-    return openPhotoDatabase("readwrite")
-      .then(({ photo, close }) =>
-        photo
-          .get(req.params.filename)
-          .then(({ target: { result: data } }) => {
-            if (!data) {
-              return res(ctx.status(404), ctx.json({ status: "failed" }));
-            }
-            return photo
-              .delete(req.params.filename)
-              .then(() =>
-                res(ctx.status(200), ctx.json({ status: "succeeded" }))
-              );
-          })
-          .finally(close)
-      )
-      .catch(handle500ErrorResponse(res, ctx));
+    return openPhotoDatabase("readwrite").then(({ photo, close }) =>
+      photo
+        .get(req.params.filename)
+        .then(({ target: { result: data } }) => {
+          if (!data) {
+            return res(ctx.status(404), ctx.json({ status: "failed" }));
+          }
+          return photo
+            .delete(req.params.filename)
+            .finally(close)
+            .then(() =>
+              res(ctx.status(200), ctx.json({ status: "succeeded" }))
+            );
+        })
+        .catch(handle500ErrorResponse(res, ctx))
+    );
   }),
   rest.put("/photos/:filename", (req, res, ctx) => {
+    const { hide } = JSON.parse(req.body);
     return openPhotoDatabase("readwrite")
       .then(({ photo, hidden, close }) =>
         photo
@@ -279,16 +268,13 @@ export const handlers = [
             if (!data) {
               return res(ctx.status(404), ctx.json({ status: "failed" }));
             }
-            const { hide } = JSON.parse(req.body);
             const request = hide
               ? hidden.add({ name: req.params.filename })
               : hidden.delete(req.params.filename);
 
-            return request.then(() =>
-              res(ctx.status(200), ctx.json({ status: "succeeded" }))
-            );
+            return request.finally(close);
           })
-          .finally(close)
+          .then(() => res(ctx.status(200), ctx.json({ status: "succeeded" })))
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
