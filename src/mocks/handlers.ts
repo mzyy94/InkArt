@@ -175,4 +175,27 @@ export const handlers = [
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
+  rest.get("/display.json", (_req, res, ctx) => {
+    const inverted = sessionStorage.getItem("inverted") == "true";
+    const orientation = sessionStorage.getItem("orientation") ?? "portrait";
+    const interval = parseInt(sessionStorage.getItem("interval") ?? "30");
+    const margin = parseInt(sessionStorage.getItem("margin") ?? "0");
+    return res(
+      ctx.status(200),
+      ctx.json({ inverted, orientation, interval, margin })
+    );
+  }),
+  rest.post<{
+    inverted: boolean;
+    orientation: string;
+    interval: number;
+    margin: number;
+  }>("/display.json", (req, res, ctx) => {
+    const { inverted, orientation, interval, margin } = req.body;
+    sessionStorage.setItem("inverted", inverted.toString());
+    sessionStorage.setItem("orientation", orientation);
+    sessionStorage.setItem("interval", interval.toString(10));
+    sessionStorage.setItem("margin", margin.toString(10));
+    return res(ctx.status(200), ctx.json({ status: "succeeded" }));
+  }),
 ];
