@@ -28,7 +28,11 @@
       body: JSON.stringify({ hide: !detail.data.hidden }),
     }).then((res) => {
       if (res.ok) {
-        // TODO: Toggle visibility
+        data = data.map((entry) =>
+          entry.filename == detail.data.filename
+            ? { ...entry, hidden: !entry.hidden }
+            : entry
+        );
       } else {
         // TODO: Show error snackbar
       }
@@ -42,17 +46,15 @@
   }
 
   function deleteFile() {
-    fetch(`/photos/${fileToDelete?.filename}`, { method: "DELETE" })
-      .then((res) => {
-        if (res.ok) {
-          // TODO: Remove entry
-        } else {
-          // TODO: Show error snackbar
-        }
-      })
-      .finally(() => {
-        fileToDelete = null;
-      });
+    const filename = fileToDelete?.filename;
+    fileToDelete = null;
+    fetch(`/photos/${filename}`, { method: "DELETE" }).then((res) => {
+      if (res.ok) {
+        data = data.filter((entry) => entry.filename != filename);
+      } else {
+        // TODO: Show error snackbar
+      }
+    });
   }
 
   let clazz = "";
