@@ -38,7 +38,7 @@ export const handlers = [
     return res(
       ctx.status(200),
       ctx.json({
-        status: "ok",
+        darkmode: sessionStorage.getItem("inverted") == "true",
       })
     );
   }),
