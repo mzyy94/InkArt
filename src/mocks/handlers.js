@@ -19,7 +19,8 @@ const names = [
 ];
 
 const databaseName = "photoplate";
-const storeName = "photos";
+const photoStoreName = "photos";
+const hiddenStoreName = "hidden";
 
 /**
  * @template T
@@ -35,25 +36,30 @@ async function promisifyRequest(request) {
 
 /**
  * @param {IDBTransactionMode} mode
- * @returns {!Promise<IDBObjectStore>}
+ * @returns {!Promise<{photo: IDBObjectStore, hidden: IDBObjectStore}>}
  */
 async function openPhotoDatabase(mode) {
-  const request = indexedDB.open(databaseName, 3);
+  const request = indexedDB.open(databaseName, 4);
 
   request.onupgradeneeded = function (event) {
     const db = /** @type {IDBOpenDBRequest} */ (event.target).result;
-    const objectStore = db.createObjectStore(storeName, {
+    const objectStore = db.createObjectStore(photoStoreName, {
       keyPath: "name",
     });
     objectStore.createIndex("date", "lastModified", { unique: false });
+    db.createObjectStore(hiddenStoreName, { keyPath: "name" });
   };
 
   return promisifyRequest(request)
     .then((event) => {
       const db = event.target.result;
-      const transaction = db.transaction([storeName], mode);
-      const store = transaction.objectStore(storeName);
-      return store;
+      const transaction = db.transaction(
+        [photoStoreName, hiddenStoreName],
+        mode
+      );
+      const photo = transaction.objectStore(photoStoreName);
+      const hidden = transaction.objectStore(hiddenStoreName);
+      return { photo, hidden };
     })
     .catch((event) => {
       return Promise.reject(event.target.error);
@@ -144,7 +150,7 @@ export const handlers = [
   }),
   rest.post("/photos.json", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
-      .then((store) => {
+      .then(({ photo }) => {
         if (!req.body.file) {
           return res(
             ctx.status(400),
@@ -152,7 +158,7 @@ export const handlers = [
           );
         }
         const file = /** @type {File} */ (req.body.file);
-        const request = store.add(file);
+        const request = photo.add(file);
         return promisifyRequest(request)
           .then(() =>
             res(
@@ -163,7 +169,7 @@ export const handlers = [
           )
           .catch((event) => Promise.reject(event.target.error))
           .finally(() => {
-            store.transaction.db.close();
+            photo.transaction.db.close();
           });
       })
       .catch((error) =>
@@ -178,8 +184,8 @@ export const handlers = [
   }),
   rest.get("/photos.json", (_req, res, ctx) => {
     return openPhotoDatabase("readonly")
-      .then((store) => {
-        const request = store.getAll();
+      .then(({ photo }) => {
+        const request = photo.getAll();
         return promisifyRequest(request)
           .then(({ target: { result: data } }) => {
             const filelist = (data ?? []).map((file) => ({
@@ -194,7 +200,7 @@ export const handlers = [
           })
           .catch((event) => Promise.reject(event.target.error))
           .finally(() => {
-            store.transaction.db.close();
+            photo.transaction.db.close();
           });
       })
       .catch((error) =>
@@ -209,8 +215,8 @@ export const handlers = [
   }),
   rest.get("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readonly")
-      .then((store) => {
-        const request = store.get(req.params.filename);
+      .then(({ photo }) => {
+        const request = photo.get(req.params.filename);
         return promisifyRequest(request)
           .then(async ({ target: { result: data } }) => {
             if (!data) {
@@ -227,7 +233,7 @@ export const handlers = [
           })
           .catch((event) => Promise.reject(event.target.error))
           .finally(() => {
-            store.transaction.db.close();
+            photo.transaction.db.close();
           });
       })
       .catch((error) =>
@@ -242,21 +248,21 @@ export const handlers = [
   }),
   rest.delete("/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readwrite")
-      .then((store) => {
-        const request = store.get(req.params.filename);
+      .then(({ photo }) => {
+        const request = photo.get(req.params.filename);
         return promisifyRequest(request)
           .then(({ target: { result: data } }) => {
             if (!data) {
               return res(ctx.status(404), ctx.json({ status: "failed" }));
             }
-            const request = store.delete(req.params.filename);
+            const request = photo.delete(req.params.filename);
             return promisifyRequest(request).then(() =>
               res(ctx.status(200), ctx.json({ status: "succeeded" }))
             );
           })
           .catch((event) => Promise.reject(event.target.error))
           .finally(() => {
-            store.transaction.db.close();
+            photo.transaction.db.close();
           });
       })
       .catch((error) =>
