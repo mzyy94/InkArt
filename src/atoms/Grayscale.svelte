@@ -263,18 +263,6 @@
       this.writeDWord(data);
     }
 
-    writeCIEXYZ() {
-      this.writeDWord(); // ciexyzX
-      this.writeDWord(); // ciexyzY
-      this.writeDWord(); // ciexyzZ
-    }
-
-    writeCIEXYZTRIPLE() {
-      this.writeCIEXYZ(); // ciexyzRed
-      this.writeCIEXYZ(); // ciexyzGreen
-      this.writeCIEXYZ(); // ciexyzBlue
-    }
-
     writePixel(data: number) {
       this.setUint32(this.pos, data, false);
       this.pos += 4;
@@ -291,10 +279,10 @@
     bmp.writeDWord(bmp.fileSize); // bfSize
     bmp.writeWord(); // bfReserved1
     bmp.writeWord(); // bfReserved2
-    bmp.writeDWord(0x7a); // bfOffBits
+    bmp.writeDWord(0x42); // bfOffBits
 
     // BITMAPINFOHEADER
-    bmp.writeDWord(108); // biSize
+    bmp.writeDWord(40); // biSize
     bmp.writeLong(width); // biWidth
     bmp.writeLong(-height >>> 0); // biHeight - negative height
     bmp.writeWord(1); // biPlanes - 1 plane
@@ -306,16 +294,10 @@
     bmp.writeDWord(0); // biClrUsed
     bmp.writeDWord(0); // biClrImportant
 
-    // BITMAPV4HEADER
-    bmp.writeDWord(0x00ff0000); // bV4RedMask
-    bmp.writeDWord(0x0000ff00); // bV4GreenMask
-    bmp.writeDWord(0x000000ff); // bV4BlueMask
-    bmp.writeDWord(0xff000000); // bV4AlphaMask
-    bmp.writeDWord(0x57696e20); // bV4CSType - "Win "
-    bmp.writeCIEXYZTRIPLE(); // bV4Endpoints
-    bmp.writeDWord(); // bV4GammaRed
-    bmp.writeDWord(); // bV4GammaGreen
-    bmp.writeDWord(); // bV4AlphbV4GammaBlueaMask
+    // RGBQUAD
+    bmp.writeDWord(0x00ff0000); // RedMask
+    bmp.writeDWord(0x0000ff00); // GreenMask
+    bmp.writeDWord(0x000000ff); // BlueMask
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
