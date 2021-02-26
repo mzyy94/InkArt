@@ -275,4 +275,37 @@ export const handlers = [
         )
       );
   }),
+  rest.put("/photos/:filename", (req, res, ctx) => {
+    return openPhotoDatabase("readwrite")
+      .then(({ photo, hidden }) => {
+        const request = photo.get(req.params.filename);
+        const { hide } = JSON.parse(req.body);
+        return promisifyRequest(request)
+          .then(({ target: { result: data } }) => {
+            if (!data) {
+              return res(ctx.status(404), ctx.json({ status: "failed" }));
+            }
+            const request = hide
+              ? hidden.add({ name: req.params.filename })
+              : hidden.delete(req.params.filename);
+
+            return promisifyRequest(request).then(() =>
+              res(ctx.status(200), ctx.json({ status: "succeeded" }))
+            );
+          })
+          .catch((event) => Promise.reject(event.target.error))
+          .finally(() => {
+            hidden.transaction.db.close();
+          });
+      })
+      .catch((error) =>
+        res(
+          ctx.status(500),
+          ctx.json({
+            status: "failed",
+            detail: error,
+          })
+        )
+      );
+  }),
 ];
