@@ -21,7 +21,10 @@
   onMount(() => {
     fetch("/wifi.json")
       .then((res) => res.json())
-      .then((wifi: { mode: Mode }) => (mode = wifi.mode));
+      .then((wifi: { mode: Mode; ssid: string }) => {
+        mode = wifi.mode;
+        ssid = wifi.ssid;
+      });
   });
 
   function setupWiFi(e: SubmitEvent) {

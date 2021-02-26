@@ -133,6 +133,7 @@ export const handlers = [
 
     if (ssid.length == password.length) {
       sessionStorage.setItem("wifi-mode", "sta");
+      sessionStorage.setItem("ssid", ssid);
       return res(
         ctx.delay(4000),
         ctx.status(200),
@@ -151,6 +152,7 @@ export const handlers = [
 
     if (ssid.length == password.length) {
       sessionStorage.setItem("wifi-mode", "ap");
+      sessionStorage.setItem("ssid", ssid);
       return res(
         ctx.delay(4000),
         ctx.status(200),
@@ -166,7 +168,8 @@ export const handlers = [
   }),
   rest.get("/wifi.json", (_req, res, ctx) => {
     const mode = sessionStorage.getItem("wifi-mode") ?? "ap";
-    return res(ctx.status(200), ctx.json({ mode }));
+    const ssid = sessionStorage.getItem("ssid") ?? "TEST_AP_1234";
+    return res(ctx.status(200), ctx.json({ mode, ssid }));
   }),
   rest.post("/photos.json", async (req, res, ctx) => {
     if (!req.body.file) {
