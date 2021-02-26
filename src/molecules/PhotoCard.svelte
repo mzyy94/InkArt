@@ -1,6 +1,19 @@
 <script lang="ts">
   import { Card, Button, Image } from "smelte";
 
+  function hideFile() {
+    fetch(`/photos/${data.filename}`, {
+      method: "PUT",
+      body: JSON.stringify({ hide: !data.hidden }),
+    }).then((res) => {
+      if (res.ok) {
+        data.hidden = !data.hidden;
+      } else {
+        // TODO: Show error snackbar
+      }
+    });
+  }
+
   const replace = { flex: "inline-flex" };
   export let data: { filename: string; date: string; hidden: boolean };
 </script>
@@ -23,7 +36,12 @@
 
     <div slot="actions">
       <div class="p-2">
-        <Button icon={data.hidden ? "image" : "hide_image"} text {replace}>
+        <Button
+          icon={data.hidden ? "image" : "hide_image"}
+          on:click={hideFile}
+          text
+          {replace}
+        >
           {data.hidden ? "Show" : "Hide"}
         </Button>
         <Button color="error" icon="delete" text {replace}>Delete</Button>
