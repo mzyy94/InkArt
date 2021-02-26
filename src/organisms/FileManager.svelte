@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Tab, Tabs, Button, Dialog } from "smelte";
+  import { Tab, Tabs, Button, Dialog, Snackbar } from "smelte";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
 
@@ -35,7 +35,9 @@
             : entry
         );
       } else {
-        // TODO: Show error snackbar
+        snackbar.text = "Hide file failed";
+        snackbar.color = "error";
+        snackbar.show = true;
       }
     });
   }
@@ -53,10 +55,18 @@
       if (res.ok) {
         data = data.filter((entry) => entry.filename != filename);
       } else {
-        // TODO: Show error snackbar
+        snackbar.text = "Delete file failed";
+        snackbar.color = "error";
+        snackbar.show = true;
       }
     });
   }
+
+  let snackbar = {
+    show: false,
+    text: "",
+    color: "primary",
+  };
 </script>
 
 <section>
@@ -94,3 +104,7 @@
     <Button text on:click={deleteFile} color="error">Delete</Button>
   </div>
 </Dialog>
+
+<Snackbar color={snackbar.color} bind:value={snackbar.show}>
+  <div>{snackbar.text}</div>
+</Snackbar>
