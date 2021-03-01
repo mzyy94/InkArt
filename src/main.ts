@@ -9,6 +9,7 @@ import WiFiSettings from "./pages/WiFiSettings.svelte";
 import PhotoUpload from "./pages/PhotoUpload.svelte";
 import FileManagement from "./pages/FileManagement.svelte";
 import DisplayControl from "./pages/DisplayControl.svelte";
+import Settings from "./pages/Settings.svelte";
 
 const routes = {
   "/": Welcome,
@@ -16,13 +17,14 @@ const routes = {
   "/upload": PhotoUpload,
   "/files": FileManagement,
   "/control": DisplayControl,
+  "/settings": Settings,
   "/:name": App,
 };
 
 // @ts-ignore
 if (process.env.NODE_ENV === "development") {
   // @ts-ignore
-  import("./mocks/browser").then(({worker}) => {
+  import("./mocks/browser").then(({ worker }) => {
     worker.start();
   });
 }
