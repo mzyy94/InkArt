@@ -198,12 +198,12 @@ export const handlers = [
     sessionStorage.setItem("margin", margin.toString(10));
     return res(ctx.status(200), ctx.json({ status: "succeeded" }));
   }),
-  rest.get("/time.json", (_req, res, ctx) => {
+  rest.get("/config.json", (_req, res, ctx) => {
     const offset = parseInt(sessionStorage.getItem("offset") || "0", 10);
     const time = new Date(Date.now() + offset);
     return res(ctx.status(200), ctx.json({ time }));
   }),
-  rest.post<{ time: string }>("/time.json", (req, res, ctx) => {
+  rest.post<{ time: string }>("/config.json", (req, res, ctx) => {
     const time = new Date(req.body.time);
     const diff = time.getTime() - Date.now();
     sessionStorage.setItem("offset", diff.toString(10));

@@ -16,7 +16,7 @@
   };
 
   function initSettings() {
-    fetch("/time.json")
+    fetch("/config.json")
       .then((res) => res.json())
       .then((json: { time: string }) => {
         date = new Date(json.time);
@@ -25,7 +25,7 @@
   }
 
   function applySettings() {
-    fetch("/time.json", {
+    fetch("/config.json", {
       method: "POST",
       headers: [["Content-Type", "application/json"]],
       body: JSON.stringify({
