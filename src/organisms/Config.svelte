@@ -20,7 +20,6 @@
       .then((res) => res.json())
       .then((json: { time: string }) => {
         date = new Date(json.time);
-        time = date.toLocaleTimeString("en-US", { hour12: false });
       });
   }
 
@@ -48,25 +47,29 @@
 
   let { timeZone } = new Intl.DateTimeFormat("default", {}).resolvedOptions();
   let date: Date = new Date();
-  let time: string = date.toLocaleTimeString("en-US", { hour12: false });
 
   $: datetime = (() => {
-    const d = new Date(date);
-    const [hh, mm, ss] = time?.split(":")?.map((t) => parseInt(t, 10)) ?? [];
-    d.setHours(hh, mm, ss);
-    const defaultDate = Intl.DateTimeFormat("en-US", fullFormat).format(d);
+    const defaultDate = Intl.DateTimeFormat("en-US", fullFormat).format(date);
     const modifiedDate = Intl.DateTimeFormat("en-US", {
       timeZone,
       ...fullFormat,
-    }).format(d);
+    }).format(date);
     const timeZoneOffset =
       new Date(defaultDate).getTime() - new Date(modifiedDate).getTime();
-    return new Date(d.getTime() + timeZoneOffset);
+    return new Date(date.getTime() + timeZoneOffset);
   })();
+
+  function onDateChange(e: CustomEvent<Date>) {
+    const newDate = e.detail;
+    const time = date.toLocaleTimeString("en-US", { hour12: false });
+    const [hh, mm, ss] = time?.split(":")?.map((t) => parseInt(t, 10)) ?? [];
+    newDate.setHours(hh, mm, ss);
+    date = newDate;
+  }
 </script>
 
-<DatePicker bind:value={date} />
-<TimeInput bind:time />
+<DatePicker value={date} on:change={onDateChange} />
+<TimeInput value={date} on:update={onDateChange} />
 <TimeZoneInput bind:timeZone />
 
 <div class="float-right">
