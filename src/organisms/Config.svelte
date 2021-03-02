@@ -71,7 +71,7 @@
 <TimeInput bind:value={date} />
 <TimeZoneInput bind:timeZone />
 
-<div class="float-right">
+<div class="flex space-x-2 justify-end">
   <Button color="blue" on:click={syncDate}>Sync</Button>
   <Button on:click={applySettings}>Apply</Button>
   <Button color="secondary" on:click={initSettings}>Reset</Button>

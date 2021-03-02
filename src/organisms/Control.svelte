@@ -84,7 +84,7 @@
   <Slider min={-20} max={20} bind:value={margin} />
 </fieldset>
 
-<div class="float-right">
+<div class="flex space-x-2 justify-end">
   <Button on:click={applySettings}>Apply</Button>
   <Button color="secondary" on:click={initSettings}>Reset</Button>
 </div>
