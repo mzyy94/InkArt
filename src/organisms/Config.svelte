@@ -61,6 +61,10 @@
     const d = e.detail;
     date.setFullYear(d.getFullYear(), d.getMonth(), d.getDate());
   }
+
+  function syncDate() {
+    date = new Date();
+  }
 </script>
 
 <DatePicker value={date} on:change={onDateChange} />
@@ -68,6 +72,7 @@
 <TimeZoneInput bind:timeZone />
 
 <div class="float-right">
+  <Button color="blue" on:click={syncDate}>Sync</Button>
   <Button on:click={applySettings}>Apply</Button>
   <Button color="secondary" on:click={initSettings}>Reset</Button>
 </div>
