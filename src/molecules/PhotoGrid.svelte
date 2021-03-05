@@ -6,11 +6,13 @@
   export let loading: boolean;
 </script>
 
-<section class="flex w-full flex-row flex-wrap justify-center">
+<section class="w-full">
   {#if loading}
     <ProgressLinear />
   {/if}
-  {#each data as elm}
-    <PhotoCard data={elm} on:delete on:hide />
-  {/each}
+  <div class="grid md:grid-cols-2 grid-cols-1">
+    {#each data as elm}
+      <PhotoCard data={elm} on:delete on:hide />
+    {/each}
+  </div>
 </section>

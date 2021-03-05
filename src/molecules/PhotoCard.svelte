@@ -16,7 +16,7 @@
   export let data: { filename: string; date: string; hidden: boolean };
 </script>
 
-<article class="m-3 md:w-2/5 sm:w-4/5">
+<article class="m-6">
   <Card.Card class={data.hidden ? "bg-gray-200" : ""}>
     <div slot="title">
       <Card.Title
@@ -55,9 +55,3 @@
     </div>
   </Card.Card>
 </article>
-
-<style>
-  article {
-    min-width: 240px;
-  }
-</style>
