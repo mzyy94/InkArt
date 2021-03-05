@@ -1,9 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Snackbar, Tabs, Tab } from "smelte";
+  import dark from "smelte/src/dark";
   import WiFiInput from "../molecules/WiFiInput.svelte";
   import type { SubmitEvent } from "../molecules/WiFiInput.svelte";
   import APList from "../molecules/APList.svelte";
+
+  const darkMode = dark();
 
   let ssid = "";
   let password = "";
@@ -53,7 +56,7 @@
 
 <Tabs
   bind:selected={mode}
-  color="black"
+  color={$darkMode ? "white" : "black"}
   notSelectedColor="gray"
   indicator={false}
   loading={mode == ""}
