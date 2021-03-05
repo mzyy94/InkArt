@@ -209,4 +209,31 @@ export const handlers = [
     sessionStorage.setItem("offset", diff.toString(10));
     return res(ctx.status(200), ctx.json({ status: "succeeded" }));
   }),
+  rest.get("/info.json", (_req, res, ctx) => {
+    const version = "1.0";
+    const model = "Inkplate 6";
+    const mac = "00:11:22:33:44:55";
+    const ipv4 = "192.168.123.234";
+    const photos = 241;
+    const used = 1000 * 1000 * 413;
+    const total = 1000 * 1000 * 1000 * 4;
+    return res(
+      ctx.status(200),
+      ctx.json({
+        system: {
+          version,
+          model,
+        },
+        storage: {
+          used,
+          total,
+          photos,
+        },
+        network: {
+          mac,
+          ipv4,
+        },
+      })
+    );
+  }),
 ];
