@@ -39,6 +39,13 @@
       icon: "settings",
       subheading: "Date/Time, Location and settings other than display",
     },
+    {
+      id: "info",
+      value: "/info",
+      text: "Information",
+      icon: "info",
+      subheading: "App Version and Device Information",
+    },
   ];
 
   const selectListItem = (e: { detail: string }) => {

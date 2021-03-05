@@ -10,6 +10,7 @@ import PhotoUpload from "./pages/PhotoUpload.svelte";
 import FileManagement from "./pages/FileManagement.svelte";
 import DisplayControl from "./pages/DisplayControl.svelte";
 import Settings from "./pages/Settings.svelte";
+import Information from "./pages/Information.svelte";
 
 const routes = {
   "/": Welcome,
@@ -18,6 +19,7 @@ const routes = {
   "/files": FileManagement,
   "/control": DisplayControl,
   "/settings": Settings,
+  "/info": Information,
   "/:name": App,
 };
 
