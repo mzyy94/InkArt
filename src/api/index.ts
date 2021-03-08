@@ -6,7 +6,9 @@ export interface AccessPoint {
   rssi: number;
 }
 
-export type AccessPointList = AccessPoint[];
+export interface AccessPointList {
+  data: AccessPoint[];
+}
 
 export interface Config {
   time: string;

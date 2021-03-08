@@ -43,14 +43,14 @@ export const handlers = [
     );
   }),
   rest.get("/aplist.json", (_req, res, ctx) => {
-    const list = Array.from({ length: 6 }, (_, i) => {
+    const data = Array.from({ length: 6 }, (_, i) => {
       const ssid = names[i];
       const auth = enc[i];
       const rssi = -50 - ((Math.random() * 50) | 0);
       return { ssid, auth, rssi };
     });
 
-    return res(ctx.delay(2000), ctx.status(200), ctx.json(list));
+    return res(ctx.delay(2000), ctx.status(200), ctx.json({ data }));
   }),
   rest.post<{ [key in string]: string }>("/wifi.json", (req, res, ctx) => {
     const { mode, ssid, password } = req.body;

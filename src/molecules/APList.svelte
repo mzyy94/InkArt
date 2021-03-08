@@ -12,7 +12,7 @@
     api
       .apList()
       .then((list) => {
-        items = list
+        items = list.data
           .sort((a, b) => b.rssi - a.rssi)
           .map((item) => ({
             text: item.ssid,
