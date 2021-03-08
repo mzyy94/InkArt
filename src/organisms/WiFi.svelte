@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { Snackbar, Tabs, Tab } from "smelte";
   import dark from "smelte/src/dark";
+  import { post } from "../api/method";
   import WiFiInput from "../molecules/WiFiInput.svelte";
   import type { SubmitEvent } from "../molecules/WiFiInput.svelte";
   import APList from "../molecules/APList.svelte";
@@ -41,11 +42,7 @@
     processing = true;
     const { ssid, password } = e.detail;
 
-    fetch("/wifi.json", {
-      method: "POST",
-      headers: [["Content-Type", "application/json"]],
-      body: JSON.stringify({ mode, ssid, password }),
-    }).then((res) => {
+    post("/wifi.json", { mode, ssid, password }).then((res) => {
       snackbar.text = `${operation} ${res.ok ? "succeeded" : "failed"}`;
       snackbar.color = res.ok ? "primary" : "error";
       snackbar.show = true;

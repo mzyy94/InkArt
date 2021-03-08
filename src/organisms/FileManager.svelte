@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { Tab, Tabs, Button, Dialog, Snackbar } from "smelte";
   import dark from "smelte/src/dark";
+  import { post } from "../api/method";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
 
@@ -26,10 +27,8 @@
   });
 
   function hideFile({ detail }: CustomEvent<{ data: Entry }>) {
-    fetch(`/photos/${detail.data.filename}`, {
-      method: "PUT",
-      headers: [["Content-Type", "application/json"]],
-      body: JSON.stringify({ hide: !detail.data.hidden }),
+    post(`/photos/${detail.data.filename}`, {
+      hide: !detail.data.hidden,
     }).then((res) => {
       if (res.ok) {
         data = data.map((entry) =>

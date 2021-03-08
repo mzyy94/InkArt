@@ -2,6 +2,8 @@
   import { onMount } from "svelte";
   import { Button, Select, Slider, Snackbar, Switch } from "smelte";
   import dark from "smelte/src/dark";
+  import { post } from "../api/method";
+
   const darkMode = dark();
 
   type Orientation =
@@ -40,15 +42,11 @@
   }
 
   function applySettings() {
-    fetch("/display.json", {
-      method: "POST",
-      headers: [["Content-Type", "application/json"]],
-      body: JSON.stringify({
-        inverted: $darkMode,
-        orientation,
-        interval,
-        margin,
-      }),
+    post("/display.json", {
+      inverted: $darkMode,
+      orientation,
+      interval,
+      margin,
     }).then((res) => {
       snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
       snackbar.color = res.ok ? "primary" : "error";
