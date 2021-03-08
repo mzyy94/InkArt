@@ -65,6 +65,11 @@ export interface WiFi {
 
 export type WiFiMode = "sta" | "ap";
 
+export interface OperationResult {
+  status: "succeeded" | "failed";
+  detail?: string;
+}
+
 type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };
