@@ -127,12 +127,16 @@
         const canvasAspect = canvas.width / canvas.height;
         const scaleFactor = imageAspect / canvasAspect;
         const threshold = mode == "cover" ? scaleFactor : 1 / scaleFactor;
-        if (threshold > 1) {
+        if (scaleFactor == 1) {
+          x = y = 0;
+        } else if (threshold > 1) {
           width *= scaleFactor;
           x += (canvas.width - width) / 2;
+          y = 0;
         } else {
           height /= scaleFactor;
           y += (canvas.height - height) / 2;
+          x = 0;
         }
         break;
       }
@@ -145,6 +149,7 @@
       }
       case "fill":
       default: {
+        x = y = 0;
         break;
       }
     }
