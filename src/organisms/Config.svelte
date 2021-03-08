@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Button, DatePicker, Snackbar } from "smelte";
-  import { get, post } from "../api/method";
+  import api from "../api";
   import TimeInput from "../atoms/TimeInput.svelte";
   import TimeZoneInput from "../atoms/TimeZoneInput.svelte";
 
@@ -17,7 +17,7 @@
   };
 
   function initSettings() {
-    get<{ time: string }>("/config.json").then(({ time }) => {
+    api.config().then(({ time }) => {
       date = new Date(time);
     });
   }
@@ -32,9 +32,7 @@
       new Date(defaultDate).getTime() - new Date(modifiedDate).getTime();
     const datetime = new Date(date.getTime() + timeZoneOffset);
 
-    post("/config.json", {
-      time: datetime,
-    }).then((res) => {
+    api.config({ time: datetime.toJSON() }).then((res) => {
       snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
       snackbar.color = res.ok ? "primary" : "error";
       snackbar.show = true;

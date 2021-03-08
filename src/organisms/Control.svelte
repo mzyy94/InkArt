@@ -2,15 +2,10 @@
   import { onMount } from "svelte";
   import { Button, Select, Slider, Snackbar, Switch } from "smelte";
   import dark from "smelte/src/dark";
-  import { get, post } from "../api/method";
+  import api from "../api";
+  import type { Orientation } from "../api";
 
   const darkMode = dark();
-
-  type Orientation =
-    | "portrait"
-    | "landscape-right"
-    | "landscape-left"
-    | "upside-down";
 
   const orientations = [
     { value: "portrait", text: "Portrait" },
@@ -24,12 +19,7 @@
   let margin = 0;
 
   function initSettings() {
-    get<{
-      inverted: boolean;
-      orientation: Orientation;
-      interval: number;
-      margin: number;
-    }>("/display.json").then((display) => {
+    api.display().then((display) => {
       darkMode.set(display.inverted);
       orientation = display.orientation;
       interval = display.interval;
@@ -38,16 +28,18 @@
   }
 
   function applySettings() {
-    post("/display.json", {
-      inverted: $darkMode,
-      orientation,
-      interval,
-      margin,
-    }).then((res) => {
-      snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
-      snackbar.color = res.ok ? "primary" : "error";
-      snackbar.show = true;
-    });
+    api
+      .display({
+        inverted: $darkMode,
+        orientation,
+        interval,
+        margin,
+      })
+      .then((res) => {
+        snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
+        snackbar.color = res.ok ? "primary" : "error";
+        snackbar.show = true;
+      });
   }
 
   onMount(initSettings);

@@ -2,7 +2,8 @@
   import { onMount } from "svelte";
   import { Snackbar, Tabs, Tab } from "smelte";
   import dark from "smelte/src/dark";
-  import { get, post } from "../api/method";
+  import api from "../api";
+  import type { WiFiMode } from "../api";
   import WiFiInput from "../molecules/WiFiInput.svelte";
   import type { SubmitEvent } from "../molecules/WiFiInput.svelte";
   import APList from "../molecules/APList.svelte";
@@ -12,8 +13,7 @@
   let ssid = "";
   let password = "";
 
-  type Mode = "sta" | "ap";
-  let mode: Mode | "" = "";
+  let mode: WiFiMode | "" = "";
   let processing = false;
 
   let snackbar = {
@@ -23,13 +23,16 @@
   };
 
   onMount(() => {
-    get<{ mode: Mode; ssid: string }>("/wifi.json").then((wifi) => {
+    api.wifi().then((wifi) => {
       mode = wifi.mode;
       ssid = wifi.ssid;
     });
   });
 
   function setupWiFi(e: SubmitEvent) {
+    if (mode == "") {
+      return;
+    }
     let operation: string;
     if (mode == "sta") {
       operation = "Connection";
@@ -40,7 +43,7 @@
     processing = true;
     const { ssid, password } = e.detail;
 
-    post("/wifi.json", { mode, ssid, password }).then((res) => {
+    api.wifi({ mode, ssid, password }).then((res) => {
       snackbar.text = `${operation} ${res.ok ? "succeeded" : "failed"}`;
       snackbar.color = res.ok ? "primary" : "error";
       snackbar.show = true;

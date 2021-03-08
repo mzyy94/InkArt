@@ -1,29 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { get } from "../api/method";
+  import api from "../api";
+  import type { Info } from "../api";
   import UsageBar from "../molecules/UsageBar.svelte";
   import InfoLabel from "../atoms/InfoLabel.svelte";
-
-  interface Info {
-    system: {
-      version: string;
-      model: string;
-    };
-    storage: {
-      used: number;
-      total: number;
-      photos: number;
-    };
-    network: {
-      mac: string;
-      ipv4: string;
-    };
-  }
 
   let info: Info | undefined;
 
   function initSettings() {
-    get<Info>("/info.json").then((data) => {
+    api.info().then((data) => {
       info = data;
     });
   }

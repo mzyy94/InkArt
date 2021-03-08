@@ -2,7 +2,9 @@
   import { onMount } from "svelte";
   import { Tab, Tabs, Button, Dialog, Snackbar } from "smelte";
   import dark from "smelte/src/dark";
-  import { get, post } from "../api/method";
+  import api from "../api";
+  import type { Entry } from "../api";
+  import { post } from "../api/method";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
 
@@ -10,13 +12,13 @@
 
   let mode = "grid";
 
-  type Entry = { filename: string; date: string; hidden: boolean };
   let data: Entry[] = [];
   let loading = true;
 
   onMount(() => {
     loading = true;
-    get<{ data: Entry[] }>("/photos.json")
+    api
+      .photos()
       .then((body) => {
         data = body.data;
       })
