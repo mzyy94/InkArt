@@ -27,7 +27,7 @@
     <div slot="media">
       <Image
         class="w-full"
-        src={`/photos/${data.filename}`}
+        src={`/api/photos/${data.filename}`}
         alt={data.filename}
       />
     </div>

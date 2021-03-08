@@ -46,7 +46,7 @@ function handle500ErrorResponse(res: ResponseComposition, ctx: RestContext) {
 }
 
 export const handlers = [
-  rest.get("/status.json", (_req, res, ctx) => {
+  rest.get("/api/status.json", (_req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json<Status>({
@@ -54,7 +54,7 @@ export const handlers = [
       })
     );
   }),
-  rest.get("/aplist.json", (_req, res, ctx) => {
+  rest.get("/api/aplist.json", (_req, res, ctx) => {
     const data = Array.from({ length: 6 }, (_, i) => {
       const ssid = names[i];
       const auth = enc[i];
@@ -68,7 +68,7 @@ export const handlers = [
       ctx.json<AccessPointList>({ data })
     );
   }),
-  rest.post<WiFi>("/wifi.json", (req, res, ctx) => {
+  rest.post<WiFi>("/api/wifi.json", (req, res, ctx) => {
     const { mode, ssid, password } = req.body;
 
     if (ssid.length == password?.length) {
@@ -87,7 +87,7 @@ export const handlers = [
       );
     }
   }),
-  rest.get("/wifi.json", (_req, res, ctx) => {
+  rest.get("/api/wifi.json", (_req, res, ctx) => {
     const mode =
       (sessionStorage.getItem("wifi-mode") as WiFiMode | null) ?? "ap";
     const ssid = sessionStorage.getItem("ssid") ?? "TEST_AP_1234";
@@ -96,7 +96,7 @@ export const handlers = [
       ctx.json<WiFi>({ mode, ssid })
     );
   }),
-  rest.put<{ file: File }>("/upload", async (req, res, ctx) => {
+  rest.put<{ file: File }>("/api/upload", async (req, res, ctx) => {
     if (!req.body.file) {
       return res(
         ctx.status(400),
@@ -119,7 +119,7 @@ export const handlers = [
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
-  rest.get("/photos.json", (_req, res, ctx) => {
+  rest.get("/api/photos.json", (_req, res, ctx) => {
     return openPhotoDatabase("readonly")
       .then(({ photo, hidden, close }) =>
         Promise.all([photo.getAll(), hidden.getAll()])
@@ -142,7 +142,7 @@ export const handlers = [
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
-  rest.get("/photos/:filename", (req, res, ctx) => {
+  rest.get("/api/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readonly")
       .then(({ photo, close }) => photo.get(req.params.filename).finally(close))
       .then(async ({ target: { result: data } }) => {
@@ -160,7 +160,7 @@ export const handlers = [
       })
       .catch(handle500ErrorResponse(res, ctx));
   }),
-  rest.delete("/photos/:filename", (req, res, ctx) => {
+  rest.delete("/api/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readwrite").then(({ photo, close }) =>
       photo
         .get(req.params.filename)
@@ -184,7 +184,7 @@ export const handlers = [
         .catch(handle500ErrorResponse(res, ctx))
     );
   }),
-  rest.patch<PhotoEntry>("/photos.json", (req, res, ctx) => {
+  rest.patch<PhotoEntry>("/api/photos.json", (req, res, ctx) => {
     const [{ hidden: hide, filename }] = req.body.data;
     return openPhotoDatabase("readwrite")
       .then(({ photo, hidden, close }) =>
@@ -212,7 +212,7 @@ export const handlers = [
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
-  rest.get("/display.json", (_req, res, ctx) => {
+  rest.get("/api/display.json", (_req, res, ctx) => {
     const inverted = sessionStorage.getItem("inverted") == "true";
     const orientation =
       (sessionStorage.getItem("orientation") as Orientation | null) ??
@@ -224,7 +224,7 @@ export const handlers = [
       ctx.json<Display>({ inverted, orientation, interval, margin })
     );
   }),
-  rest.post<Display>("/display.json", (req, res, ctx) => {
+  rest.post<Display>("/api/display.json", (req, res, ctx) => {
     const { inverted, orientation, interval, margin } = req.body;
     sessionStorage.setItem("inverted", inverted.toString());
     sessionStorage.setItem("orientation", orientation);
@@ -235,7 +235,7 @@ export const handlers = [
       ctx.json<OperationResult>({ status: "succeeded" })
     );
   }),
-  rest.get("/config.json", (_req, res, ctx) => {
+  rest.get("/api/config.json", (_req, res, ctx) => {
     const offset = parseInt(sessionStorage.getItem("offset") || "0", 10);
     const time = new Date(Date.now() + offset).toJSON();
     return res(
@@ -243,7 +243,7 @@ export const handlers = [
       ctx.json<Config>({ time })
     );
   }),
-  rest.post<Config>("/config.json", (req, res, ctx) => {
+  rest.post<Config>("/api/config.json", (req, res, ctx) => {
     const time = new Date(req.body.time);
     const diff = time.getTime() - Date.now();
     sessionStorage.setItem("offset", diff.toString(10));
@@ -252,7 +252,7 @@ export const handlers = [
       ctx.json<OperationResult>({ status: "succeeded" })
     );
   }),
-  rest.get("/info.json", (_req, res, ctx) => {
+  rest.get("/api/info.json", (_req, res, ctx) => {
     const version = "1.0";
     const model = "Inkplate 6";
     const mac = "00:11:22:33:44:55";

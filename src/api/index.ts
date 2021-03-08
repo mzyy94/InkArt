@@ -91,11 +91,11 @@ function API<T extends { [key in string]: any }>(path: string) {
 }
 
 export default {
-  apList: API<AccessPointList>("/aplist.json"),
-  config: API<Config>("/config.json"),
-  display: API<Display>("/display.json"),
-  photos: API<PhotoEntry>("/photos.json"),
-  info: API<Info>("/info.json"),
-  status: API<Status>("/status.json"),
-  wifi: API<WiFi>("/wifi.json"),
+  apList: API<AccessPointList>("/api/aplist.json"),
+  config: API<Config>("/api/config.json"),
+  display: API<Display>("/api/display.json"),
+  photos: API<PhotoEntry>("/api/photos.json"),
+  info: API<Info>("/api/info.json"),
+  status: API<Status>("/api/status.json"),
+  wifi: API<WiFi>("/api/wifi.json"),
 } as const;

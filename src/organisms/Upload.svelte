@@ -33,7 +33,7 @@
     const blob = new Blob([bmp], { type: "image/bmp" });
     const formData = new FormData();
     formData.append("file", blob, `image-${Date.now()}.bmp`);
-    fetch("/upload", { method: "PUT", body: formData })
+    fetch("/api/upload", { method: "PUT", body: formData })
       .then((res) => {
         snackbar.text = `Upload ${res.ok ? "succeeded" : "failed"}`;
         snackbar.color = res.ok ? "primary" : "error";
