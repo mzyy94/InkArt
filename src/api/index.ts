@@ -1,4 +1,4 @@
-import { get, post } from "./method";
+import { get, patch, post } from "./method";
 
 export interface AccessPoint {
   ssid: string;
@@ -65,16 +65,22 @@ export interface WiFi {
 
 export type WiFiMode = "sta" | "ap";
 
-function API<T extends object>(path: string) {
+type DeepPartial<T> = {
+  [P in keyof T]?: DeepPartial<T[P]>;
+};
+
+function API<T extends { [key in string]: any }>(path: string) {
   return function <U>(
     ...value: [U] | []
-  ): U extends T ? Promise<Response> : Promise<T> {
+  ): U extends T | DeepPartial<T> ? Promise<Response> : Promise<T> {
     if (value[0] === undefined) {
-      return get<T>(path) as U extends T ? Promise<Response> : Promise<T>;
+      return get<T>(path) as any;
     } else {
-      return post(path, (value[0] as unknown) as T) as U extends T
-        ? Promise<Response>
-        : Promise<T>;
+      const obj = (value[0] as unknown) as T;
+      if (obj?.data?.length == 1) {
+        return patch(path, obj) as any;
+      }
+      return post(path, obj) as any;
     }
   };
 }

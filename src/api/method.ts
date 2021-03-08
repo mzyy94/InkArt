@@ -16,3 +16,11 @@ export function get<T>(path: string): Promise<T> {
     return res.json();
   });
 }
+
+export function patch(path: string, json: object) {
+  return fetch(path, {
+    method: "PATCH",
+    headers: [["Content-Type", "application/json"]],
+    body: JSON.stringify(json),
+  });
+}
