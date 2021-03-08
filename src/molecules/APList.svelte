@@ -2,15 +2,15 @@
   import { onMount } from "svelte";
   import { List, ProgressLinear } from "smelte";
   import type { ListItemProps } from "smelte";
+  import { get } from "../api/method";
 
   let items: ListItemProps[] = [];
   let loading = false;
 
   function fetchApList() {
     loading = true;
-    fetch("/aplist.json")
-      .then((res) => res.json())
-      .then((list: { ssid: string; auth: string; rssi: number }[]) => {
+    get<{ ssid: string; auth: string; rssi: number }[]>("/aplist.json")
+      .then((list) => {
         items = list
           .sort((a, b) => b.rssi - a.rssi)
           .map((item) => ({

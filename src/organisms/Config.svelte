@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Button, DatePicker, Snackbar } from "smelte";
-  import { post } from "../api/method";
+  import { get, post } from "../api/method";
   import TimeInput from "../atoms/TimeInput.svelte";
   import TimeZoneInput from "../atoms/TimeZoneInput.svelte";
 
@@ -17,11 +17,9 @@
   };
 
   function initSettings() {
-    fetch("/config.json")
-      .then((res) => res.json())
-      .then((json: { time: string }) => {
-        date = new Date(json.time);
-      });
+    get<{ time: string }>("/config.json").then(({ time }) => {
+      date = new Date(time);
+    });
   }
 
   function applySettings() {

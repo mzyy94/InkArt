@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { get } from "../api/method";
   import UsageBar from "../molecules/UsageBar.svelte";
   import InfoLabel from "../atoms/InfoLabel.svelte";
 
@@ -22,11 +23,9 @@
   let info: Info | undefined;
 
   function initSettings() {
-    fetch("/info.json")
-      .then((res) => res.json())
-      .then((data: Info) => {
-        info = data;
-      });
+    get<Info>("/info.json").then((data) => {
+      info = data;
+    });
   }
 
   onMount(initSettings);

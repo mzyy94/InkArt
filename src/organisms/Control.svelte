@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { Button, Select, Slider, Snackbar, Switch } from "smelte";
   import dark from "smelte/src/dark";
-  import { post } from "../api/method";
+  import { get, post } from "../api/method";
 
   const darkMode = dark();
 
@@ -24,21 +24,17 @@
   let margin = 0;
 
   function initSettings() {
-    fetch("/display.json")
-      .then((res) => res.json())
-      .then(
-        (display: {
-          inverted: boolean;
-          orientation: Orientation;
-          interval: number;
-          margin: number;
-        }) => {
-          darkMode.set(display.inverted);
-          orientation = display.orientation;
-          interval = display.interval;
-          margin = display.margin;
-        }
-      );
+    get<{
+      inverted: boolean;
+      orientation: Orientation;
+      interval: number;
+      margin: number;
+    }>("/display.json").then((display) => {
+      darkMode.set(display.inverted);
+      orientation = display.orientation;
+      interval = display.interval;
+      margin = display.margin;
+    });
   }
 
   function applySettings() {

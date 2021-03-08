@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { Tab, Tabs, Button, Dialog, Snackbar } from "smelte";
   import dark from "smelte/src/dark";
-  import { post } from "../api/method";
+  import { get, post } from "../api/method";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
 
@@ -16,8 +16,7 @@
 
   onMount(() => {
     loading = true;
-    fetch("/photos.json")
-      .then((res) => res.json())
+    get<{ data: Entry[] }>("/photos.json")
       .then((body) => {
         data = body.data;
       })

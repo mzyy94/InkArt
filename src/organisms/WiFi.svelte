@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { Snackbar, Tabs, Tab } from "smelte";
   import dark from "smelte/src/dark";
-  import { post } from "../api/method";
+  import { get, post } from "../api/method";
   import WiFiInput from "../molecules/WiFiInput.svelte";
   import type { SubmitEvent } from "../molecules/WiFiInput.svelte";
   import APList from "../molecules/APList.svelte";
@@ -23,12 +23,10 @@
   };
 
   onMount(() => {
-    fetch("/wifi.json")
-      .then((res) => res.json())
-      .then((wifi: { mode: Mode; ssid: string }) => {
-        mode = wifi.mode;
-        ssid = wifi.ssid;
-      });
+    get<{ mode: Mode; ssid: string }>("/wifi.json").then((wifi) => {
+      mode = wifi.mode;
+      ssid = wifi.ssid;
+    });
   });
 
   function setupWiFi(e: SubmitEvent) {
