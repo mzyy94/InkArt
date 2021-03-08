@@ -4,7 +4,6 @@
   import dark from "smelte/src/dark";
   import api from "../api";
   import type { Entry } from "../api";
-  import { post } from "../api/method";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
 
@@ -28,21 +27,23 @@
   });
 
   function hideFile({ detail }: CustomEvent<{ data: Entry }>) {
-    post(`/photos/${detail.data.filename}`, {
-      hide: !detail.data.hidden,
-    }).then((res) => {
-      if (res.ok) {
-        data = data.map((entry) =>
-          entry.filename == detail.data.filename
-            ? { ...entry, hidden: !entry.hidden }
-            : entry
-        );
-      } else {
-        snackbar.text = "Hide file failed";
-        snackbar.color = "error";
-        snackbar.show = true;
-      }
-    });
+    api
+      .photos({
+        data: [{ filename: detail.data.filename, hidden: !detail.data.hidden }],
+      })
+      .then((res) => {
+        if (res.ok) {
+          data = data.map((entry) =>
+            entry.filename == detail.data.filename
+              ? { ...entry, hidden: !entry.hidden }
+              : entry
+          );
+        } else {
+          snackbar.text = "Hide file failed";
+          snackbar.color = "error";
+          snackbar.show = true;
+        }
+      });
   }
 
   let fileToDelete: Entry | null = null;

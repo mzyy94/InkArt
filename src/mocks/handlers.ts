@@ -155,19 +155,26 @@ export const handlers = [
         .catch(handle500ErrorResponse(res, ctx))
     );
   }),
-  rest.put<{ hide: boolean }>("/photos/:filename", (req, res, ctx) => {
-    const { hide } = req.body;
+  rest.patch<{
+    data: [
+      {
+        filename: string;
+        hidden: boolean;
+      }
+    ];
+  }>("/photos.json", (req, res, ctx) => {
+    const [{ hidden: hide, filename }] = req.body.data;
     return openPhotoDatabase("readwrite")
       .then(({ photo, hidden, close }) =>
         photo
-          .get(req.params.filename)
+          .get(filename)
           .then(({ target: { result: data } }) => {
             if (!data) {
               return res(ctx.status(404), ctx.json({ status: "failed" }));
             }
             const request = hide
-              ? hidden.add({ name: req.params.filename })
-              : hidden.delete(req.params.filename);
+              ? hidden.add({ name: filename })
+              : hidden.delete(filename);
 
             return request.finally(close) as Promise<any>;
           })
