@@ -96,7 +96,7 @@ export const handlers = [
       ctx.json<WiFi>({ mode, ssid })
     );
   }),
-  rest.post<{ file: File }>("/photos.json", async (req, res, ctx) => {
+  rest.put<{ file: File }>("/upload", async (req, res, ctx) => {
     if (!req.body.file) {
       return res(
         ctx.status(400),
