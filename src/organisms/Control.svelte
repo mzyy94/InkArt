@@ -18,13 +18,12 @@
   let interval = 0;
   let margin = 0;
 
-  function initSettings() {
-    api.display().then((display) => {
-      darkMode.set(display.inverted);
-      orientation = display.orientation;
-      interval = display.interval;
-      margin = display.margin;
-    });
+  async function initSettings() {
+    const display = await api.display();
+    $darkMode = display.inverted;
+    orientation = display.orientation;
+    interval = display.interval;
+    margin = display.margin;
   }
 
   function applySettings() {

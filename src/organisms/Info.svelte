@@ -7,10 +7,8 @@
 
   let info: Info | undefined;
 
-  function initSettings() {
-    api.info().then((data) => {
-      info = data;
-    });
+  async function initSettings() {
+    info = await api.info();
   }
 
   onMount(initSettings);

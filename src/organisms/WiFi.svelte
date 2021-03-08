@@ -22,11 +22,10 @@
     color: "primary",
   };
 
-  onMount(() => {
-    api.wifi().then((wifi) => {
-      mode = wifi.mode;
-      ssid = wifi.ssid;
-    });
+  onMount(async () => {
+    const wifi = await api.wifi();
+    mode = wifi.mode;
+    ssid = wifi.ssid;
   });
 
   function setupWiFi(e: SubmitEvent) {

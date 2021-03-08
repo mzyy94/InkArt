@@ -6,10 +6,9 @@
   import Menu from "../organisms/Menu.svelte";
   const darkMode = dark();
 
-  onMount(() => {
-    api.status().then(({ darkmode }) => {
-      darkMode.set(darkmode);
-    });
+  onMount(async () => {
+    const { darkmode } = await api.status();
+    darkMode.set(darkmode);
   });
 </script>
 

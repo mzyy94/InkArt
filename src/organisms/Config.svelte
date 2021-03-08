@@ -16,10 +16,9 @@
     hour12: false,
   };
 
-  function initSettings() {
-    api.config().then(({ time }) => {
-      date = new Date(time);
-    });
+  async function initSettings() {
+    const { time } = await api.config();
+    date = new Date(time);
   }
 
   function applySettings() {
