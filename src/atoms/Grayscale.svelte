@@ -112,34 +112,27 @@
   export let width = 800;
   export let height = 600;
 
-  function resizeImage(mode: string, x = 0, y = 0) {
-    if (!img.src) {
-      return;
-    }
-
-    const resized = document.createElement("canvas");
-    resized.width = canvas.width;
-    resized.height = canvas.height;
-
-    const ctx = resized.getContext("2d")!;
-    let { width, height } = ctx.canvas;
-
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, width, height);
+  function resizeImageRect(
+    img: HTMLImageElement,
+    mode: string,
+    x: number,
+    y: number
+  ) {
+    let { width, height } = canvas;
 
     switch (mode) {
       case "cover":
       case "fit": {
         const imageAspect = img.width / img.height;
-        const canvasAspect = ctx.canvas.width / ctx.canvas.height;
+        const canvasAspect = canvas.width / canvas.height;
         const scaleFactor = imageAspect / canvasAspect;
         const threshold = mode == "cover" ? scaleFactor : 1 / scaleFactor;
         if (threshold > 1) {
           width *= scaleFactor;
-          x += (ctx.canvas.width - width) / 2;
+          x += (canvas.width - width) / 2;
         } else {
           height /= scaleFactor;
-          y += (ctx.canvas.height - height) / 2;
+          y += (canvas.height - height) / 2;
         }
         break;
       }
@@ -156,8 +149,7 @@
       }
     }
 
-    ctx.drawImage(img, x, y, width, height);
-    setTexture(gl, texture, resized);
+    return { x, y, width, height };
   }
 
   let canvas: HTMLCanvasElement;
@@ -171,15 +163,16 @@
     texture = gl.createTexture()!;
   });
 
-  function drawImage(x: number, y: number) {
-    if (!gl) {
+  function drawImage(mode: string, x: number, y: number) {
+    if (!gl || !img.src) {
       return;
     }
+    const resized = resizeImageRect(img, mode, x, y);
 
-    if (mode == "cover" || mode == "none") {
-      resizeImage(mode, x, y);
-      x = y = 0;
-    }
+    x = resized.x;
+    y = resized.y;
+    const ww = (2 * resized.width) / gl.canvas.width;
+    const hh = (-2 * resized.height) / gl.canvas.height;
 
     if (algorithm != "default") {
       return;
@@ -194,8 +187,8 @@
     const xx = (x / gl.canvas.width) * 2 - 1;
     const yy = (y / gl.canvas.height) * -2 + 1;
     gl.uniformMatrix3fv(matrixLocation, false, [
-      ...[2, 0, 0],
-      ...[0, -2, 0],
+      ...[ww, 0, 0],
+      ...[0, hh, 0],
       ...[xx, yy, 1],
     ]);
 
@@ -203,16 +196,12 @@
   }
 
   img.onload = () => {
-    resizeImage(mode);
-    drawImage(offsetX, offsetY);
+    setTexture(gl, texture, img);
+    drawImage(mode, 0, 0);
     active = true;
   };
 
-  $: {
-    resizeImage(mode);
-    drawImage(0, 0);
-  }
-  $: drawImage(offsetX, offsetY);
+  $: drawImage(mode, offsetX, offsetY);
 
   export function getPngDataURL() {
     return canvas.toDataURL("image/png");
