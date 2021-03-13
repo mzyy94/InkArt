@@ -29,6 +29,17 @@ if (process.env.NODE_ENV === "development") {
   import("./mocks/browser").then(({ worker }) => {
     worker.start();
   });
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 200;
+  canvas.height = 200;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "rgba(128,128,128,0.1)";
+  ctx.font = "64px Helvetica";
+  ctx.rotate(Math.PI / 4);
+  ctx.fillText("Demo", 30, 30);
+  const dataUrl = canvas.toDataURL();
+  document.body.style.backgroundImage = `url('${dataUrl}')`;
 }
 
 const app = new Router({
