@@ -2,7 +2,6 @@ import { rest, ResponseComposition, RestContext } from "msw";
 import { readFileAsArrayBuffer, fixBrokenFile } from "./file";
 import { openPhotoDatabase } from "./db";
 import type {
-  Status,
   AccessPointList,
   WiFi,
   WiFiMode,
@@ -46,14 +45,6 @@ function handle500ErrorResponse(res: ResponseComposition, ctx: RestContext) {
 }
 
 export const handlers = [
-  rest.get("/api/status.json", (_req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.json<Status>({
-        darkmode: sessionStorage.getItem("inverted") == "true",
-      })
-    );
-  }),
   rest.get("/api/aplist.json", (_req, res, ctx) => {
     const data = Array.from({ length: 6 }, (_, i) => {
       const ssid = names[i];

@@ -53,10 +53,6 @@ export interface Info {
   };
 }
 
-export interface Status {
-  darkmode: boolean;
-}
-
 export interface WiFi {
   mode: WiFiMode;
   ssid: string;
@@ -96,6 +92,5 @@ export default {
   display: API<Display>("/api/display.json"),
   photos: API<PhotoEntry>("/api/photos.json"),
   info: API<Info>("/api/info.json"),
-  status: API<Status>("/api/status.json"),
   wifi: API<WiFi>("/api/wifi.json"),
 } as const;

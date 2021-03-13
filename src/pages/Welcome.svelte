@@ -7,8 +7,8 @@
   const darkMode = dark();
 
   onMount(async () => {
-    const { darkmode } = await api.status();
-    darkMode.set(darkmode);
+    const { inverted } = await api.display();
+    darkMode.set(inverted);
   });
 </script>
 
