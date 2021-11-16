@@ -59,7 +59,7 @@ export default {
 		css({ output: 'bundle.css', exclude: ['**/tailwind.css'] }),
 		copy({
 			targets: [
-				{ src: 'node_modules/material-icons/iconfont/material-icons-two-tone.woff2', dest: 'public/build/' },
+				{ src: 'node_modules/material-icons/iconfont/material-icons.woff2', dest: 'public/build/' },
 			]
 		}),
 
