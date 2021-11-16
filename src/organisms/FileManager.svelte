@@ -94,7 +94,12 @@
         />
       </Tab>
       <Tab id="list" selected={mode}>
-        <PhotoList bind:data bind:loading />
+        <PhotoList
+          bind:data
+          bind:loading
+          on:hide={hideFile}
+          on:delete={confirmDelete}
+        />
       </Tab>
     </div>
   </Tabs>

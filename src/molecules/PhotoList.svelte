@@ -1,6 +1,13 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { DataTable } from "smelte";
-  import Icon from "../atoms/Icon.svelte";
+  import ActionIcon from "../atoms/ActionIcon.svelte";
+
+  const dispatch = createEventDispatcher();
+
+  function hideFile(data: { filename: string; date: string; hidden: boolean }) {
+    dispatch("hide", { data });
+  }
 
   export let data: { filename: string; date: string; hidden: boolean }[];
   export let loading: boolean;
@@ -18,8 +25,8 @@
         field: "Visibility",
         remove: "text-right",
         add: "text-center",
-        component: Icon,
-        componentProps: ({ hidden }) => ({icon: hidden ? "visibility_off" : "visibility"}),
+        component: ActionIcon,
+        componentProps: (data) => ({icon: data.hidden ? "visibility_off" : "visibility", callback: () => hideFile(data)}),
       },
       {
         label: "Date",
