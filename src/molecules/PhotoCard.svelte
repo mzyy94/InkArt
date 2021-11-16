@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { Card, Button, Image } from "smelte";
+  import type { Entry } from "../api";
 
   const dispatch = createEventDispatcher();
 
@@ -13,7 +14,7 @@
   }
 
   const replace = { flex: "inline-flex" };
-  export let data: { filename: string; date: string; hidden: boolean };
+  export let data: Entry;
 </script>
 
 <article class="m-6">

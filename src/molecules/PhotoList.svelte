@@ -2,18 +2,19 @@
   import { createEventDispatcher } from "svelte";
   import { DataTable } from "smelte";
   import ActionIcon from "../atoms/ActionIcon.svelte";
+  import type { Entry } from "../api";
 
   const dispatch = createEventDispatcher();
 
-  function hideFile(data: { filename: string; date: string; hidden: boolean }) {
+  function hideFile(data: Entry) {
     dispatch("hide", { data });
   }
 
-  function deleteFile(data: { filename: string; date: string; hidden: boolean }) {
+  function deleteFile(data: Entry) {
     dispatch("delete", { data });
   }
 
-  export let data: { filename: string; date: string; hidden: boolean }[];
+  export let data: Entry[];
   export let loading: boolean;
 </script>
 

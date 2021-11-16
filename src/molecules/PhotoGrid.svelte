@@ -1,8 +1,9 @@
 <script lang="ts">
   import { ProgressLinear } from "smelte";
   import PhotoCard from "./PhotoCard.svelte";
+  import type { Entry } from "../api";
 
-  export let data: { filename: string; date: string; hidden: boolean }[];
+  export let data: Entry[];
   export let loading: boolean;
 </script>
 
