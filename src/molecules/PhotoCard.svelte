@@ -26,7 +26,7 @@
     </div>
     <div slot="media">
       <Image
-        class="w-full"
+        class={`w-full duration-200 ease-in ${data.hidden ? "opacity-60" : ""}`}
         src={`/api/photos/${data.filename}`}
         alt={data.filename}
       />
