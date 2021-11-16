@@ -1,5 +1,6 @@
 <script lang="ts">
   import { DataTable } from "smelte";
+  import Icon from "../atoms/Icon.svelte";
 
   export let data: { filename: string; date: string; hidden: boolean }[];
   export let loading: boolean;
@@ -13,7 +14,13 @@
     {loading}
     columns={[
       { label: "Name", field: "filename" },
-      { label: "Hidden", field: "hidden" },
+      {
+        field: "Visibility",
+        remove: "text-right",
+        add: "text-center",
+        component: Icon,
+        componentProps: ({ hidden }) => ({icon: hidden ? "visibility_off" : "visibility"}),
+      },
       {
         label: "Date",
         value: ({ date }) => new Date(date).toLocaleString(),
