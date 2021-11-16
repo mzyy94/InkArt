@@ -9,6 +9,10 @@
     dispatch("hide", { data });
   }
 
+  function deleteFile(data: { filename: string; date: string; hidden: boolean }) {
+    dispatch("delete", { data });
+  }
+
   export let data: { filename: string; date: string; hidden: boolean }[];
   export let loading: boolean;
 </script>
@@ -40,6 +44,14 @@
         class: "w-1/2",
         sortable: false,
         headerRemove: "justify-end",
+      },
+      {
+        field: "Delete",
+        remove: "text-right",
+        add: "text-center",
+        component: ActionIcon,
+        componentProps: (data) => ({icon: "delete", class: "text-error-500", callback: () => deleteFile(data)}),
+        sortable: false,
       },
     ]}
   />
