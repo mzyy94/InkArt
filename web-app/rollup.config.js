@@ -9,6 +9,7 @@ import css from 'rollup-plugin-css-only';
 import smelte from 'smelte/rollup-plugin-smelte';
 import copy from 'rollup-plugin-copy'
 import replace from '@rollup/plugin-replace';
+import brotli from 'rollup-plugin-brotli';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -109,7 +110,15 @@ export default {
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
-		production && terser()
+		production && terser(),
+
+		// After that, compress resources using brotli algorithm.
+		production && brotli({
+			test: /\.(js|css)$/,
+			additional: [
+				'public/index.html'
+			],
+		})
 	],
 	watch: {
 		clearScreen: false

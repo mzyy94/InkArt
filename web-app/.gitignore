@@ -106,3 +106,5 @@ dist
 # Svelte build output
 public/build
 
+# brotli compress file
+*.br
