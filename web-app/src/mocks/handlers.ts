@@ -1,6 +1,5 @@
 import { rest } from "msw";
 import type { ResponseComposition, RestContext } from "msw";
-import { readFileAsArrayBuffer, fixBrokenFile } from "./file";
 import { openPhotoDatabase } from "./db";
 import type {
   PhotoEntry,
@@ -25,8 +24,8 @@ function handle500ErrorResponse(res: ResponseComposition, ctx: RestContext) {
 }
 
 export const handlers = [
-  rest.put<{ file: File }>("/api/upload", async (req, res, ctx) => {
-    if (!req.body.file) {
+  rest.post<string>("/api/upload", async (req, res, ctx) => {
+    if (!req.body) {
       return res(
         ctx.status(400),
         ctx.json<OperationResult>({
@@ -35,8 +34,10 @@ export const handlers = [
         })
       );
     }
-    const file = await fixBrokenFile(req.body.file);
-
+    const blob = await fetch(`data:image/bmp;base64,` + req.body).then(
+      (response) => response.blob()
+    );
+    const file = new File([blob], `image-${Date.now()}.bmp`);
     return openPhotoDatabase("readwrite")
       .then(async ({ photo, close }) => photo.add(file).finally(close))
       .then(() =>
@@ -79,7 +80,12 @@ export const handlers = [
           return res(ctx.status(404), ctx.body(""));
         }
         const file = data as File;
-        const buffer = await readFileAsArrayBuffer(file);
+        const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+          const fr = new FileReader();
+          fr.onload = () => resolve(fr.result as ArrayBuffer);
+          fr.onerror = () => reject(fr.error);
+          fr.readAsArrayBuffer(file);
+        });
         return res(
           ctx.status(200),
           ctx.set("Content-Length", buffer.byteLength.toString()),

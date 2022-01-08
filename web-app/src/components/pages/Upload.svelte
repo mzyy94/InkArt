@@ -28,13 +28,22 @@
   let grayscale: Grayscale;
   let uploading = false;
 
-  function uploadImage() {
+  async function uploadImage() {
     uploading = true;
     const bmp = grayscale.getBmpArrayBuffer();
     const blob = new Blob([bmp], { type: "image/bmp" });
-    const formData = new FormData();
-    formData.append("file", blob, `image-${Date.now()}.bmp`);
-    fetch("/api/upload", { method: "PUT", body: formData })
+    const encodedText = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const offset = result.indexOf(",") + 1;
+        resolve(result.slice(offset));
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+
+    fetch("/api/upload", { method: "POST", body: encodedText })
       .then((res) => {
         snackbar.text = `Upload ${res.ok ? "succeeded" : "failed"}`;
         snackbar.color = res.ok ? "primary" : "error";
