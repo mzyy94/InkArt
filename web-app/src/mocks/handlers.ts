@@ -1,4 +1,5 @@
-import { rest, ResponseComposition, RestContext } from "msw";
+import { rest } from "msw";
+import type { ResponseComposition, RestContext } from "msw";
 import { readFileAsArrayBuffer, fixBrokenFile } from "./file";
 import { openPhotoDatabase } from "./db";
 import type {
