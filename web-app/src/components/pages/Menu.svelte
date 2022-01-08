@@ -7,37 +7,37 @@
     {
       id: "upload",
       value: "/upload",
-      text: "Photo Upload",
+      text: "Upload photo",
       icon: "photo",
-      subheading: "Upload and Edit Photo",
+      subheading: "Edit and upload photo",
     },
     {
       id: "files",
       value: "/files",
       text: "File Management",
       icon: "folder",
-      subheading: "Hide or Delete photos and change the display order",
+      subheading: "Organize photos to be shown",
     },
     {
       id: "control",
       value: "/control",
       text: "Display Control",
       icon: "gamepad",
-      subheading: "Set display rotation and paddings",
+      subheading: "Set display orientation and paddings",
     },
     {
       id: "settings",
       value: "/settings",
       text: "Settings",
       icon: "settings",
-      subheading: "Date/Time, Location and settings other than display",
+      subheading: "Change device Date/Time, refresh interval, etc.",
     },
     {
       id: "info",
       value: "/info",
       text: "Information",
       icon: "info",
-      subheading: "App Version and Device Information",
+      subheading: "App version and device information",
     },
   ];
 

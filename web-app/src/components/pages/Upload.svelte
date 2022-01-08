@@ -57,7 +57,8 @@
 
 <main>
   <Container>
-    <span slot="title">Photo Upload</span><ImageLoader {img} />
+    <span slot="title">Upload Photo</span>
+    <ImageLoader {img} />
     <Select {label} items={modes} bind:value={mode} />
     <Move let:offsetX let:offsetY reset={mode} {active}>
       <Grayscale
