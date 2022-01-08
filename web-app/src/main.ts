@@ -3,20 +3,20 @@ import "material-icons/iconfont/material-icons.css";
 
 import Router from "svelte-spa-router";
 
-import Welcome from "./components/pages/Welcome.svelte";
-import PhotoUpload from "./components/pages/PhotoUpload.svelte";
-import FileManagement from "./components/pages/FileManagement.svelte";
-import DisplayControl from "./components/pages/DisplayControl.svelte";
-import Settings from "./components/pages/Settings.svelte";
-import Information from "./components/pages/Information.svelte";
+import Menu from "./components/organisms/Menu.svelte";
+import Upload from "./components/organisms/Upload.svelte";
+import Files from "./components/organisms/Files.svelte";
+import Display from "./components/organisms/Display.svelte";
+import Settings from "./components/organisms/Settings.svelte";
+import Info from "./components/organisms/Info.svelte";
 
 const routes = {
-  "/": Welcome,
-  "/upload": PhotoUpload,
-  "/files": FileManagement,
-  "/control": DisplayControl,
+  "/": Menu,
+  "/upload": Upload,
+  "/files": Files,
+  "/control": Display,
   "/settings": Settings,
-  "/info": Information,
+  "/info": Info,
 };
 
 // @ts-ignore
