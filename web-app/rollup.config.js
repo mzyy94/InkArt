@@ -10,6 +10,7 @@ import smelte from 'smelte/rollup-plugin-smelte';
 import copy from 'rollup-plugin-copy'
 import replace from '@rollup/plugin-replace';
 import brotli from 'rollup-plugin-brotli';
+import builtins from 'rollup-plugin-node-builtins';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -89,6 +90,7 @@ export default {
 		// some cases you'll need additional configuration -
 		// consult the documentation for details:
 		// https://github.com/rollup/plugins/tree/master/packages/commonjs
+		builtins(),
 		resolve({
 			browser: true,
 			dedupe: ['svelte']
