@@ -23,7 +23,7 @@
       text: "Display Control",
       icon: "gamepad",
       subheading:
-        "Set display rotation, refresh interval and display are margins",
+        "Set display rotation and paddings",
     },
     {
       id: "settings",

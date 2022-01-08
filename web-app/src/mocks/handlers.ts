@@ -146,19 +146,31 @@ export const handlers = [
     const orientation =
       (sessionStorage.getItem("orientation") as Orientation | null) ??
       "portrait";
-    const interval = parseInt(sessionStorage.getItem("interval") ?? "30");
-    const margin = parseInt(sessionStorage.getItem("margin") ?? "0");
+    const top = parseInt(sessionStorage.getItem("paddingTop") ?? "0");
+    const left = parseInt(sessionStorage.getItem("paddingLeft") ?? "0");
+    const right = parseInt(sessionStorage.getItem("paddingRight") ?? "0");
+    const bottom = parseInt(sessionStorage.getItem("paddingBottom") ?? "0");
     return res(
       ctx.status(200),
-      ctx.json<Display>({ inverted, orientation, interval, margin })
+      ctx.json<Display>({
+        inverted,
+        orientation,
+        padding: { top, left, right, bottom },
+      })
     );
   }),
   rest.post<Display>("/api/display.json", (req, res, ctx) => {
-    const { inverted, orientation, interval, margin } = req.body;
+    const {
+      inverted,
+      orientation,
+      padding: { top, left, right, bottom },
+    } = req.body;
     sessionStorage.setItem("inverted", inverted.toString());
     sessionStorage.setItem("orientation", orientation);
-    sessionStorage.setItem("interval", interval.toString(10));
-    sessionStorage.setItem("margin", margin.toString(10));
+    sessionStorage.setItem("paddingTop", top.toString(10));
+    sessionStorage.setItem("paddingLeft", left.toString(10));
+    sessionStorage.setItem("paddingRight", right.toString(10));
+    sessionStorage.setItem("paddingBottom", bottom.toString(10));
     return res(
       ctx.status(200),
       ctx.json<OperationResult>({ status: "succeeded" })
@@ -167,10 +179,7 @@ export const handlers = [
   rest.get("/api/config.json", (_req, res, ctx) => {
     const offset = parseInt(sessionStorage.getItem("offset") || "0", 10);
     const time = new Date(Date.now() + offset).toJSON();
-    return res(
-      ctx.status(200),
-      ctx.json<Config>({ time })
-    );
+    return res(ctx.status(200), ctx.json<Config>({ time }));
   }),
   rest.post<Config>("/api/config.json", (req, res, ctx) => {
     const time = new Date(req.body.time);

@@ -7,8 +7,12 @@ export interface Config {
 export interface Display {
   inverted: boolean;
   orientation: Orientation;
-  interval: number;
-  margin: number;
+  padding: {
+    top: number;
+    left: number;
+    right: number;
+    bottom: number;
+  };
 }
 
 export type Orientation =

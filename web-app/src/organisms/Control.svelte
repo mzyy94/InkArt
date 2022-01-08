@@ -15,15 +15,19 @@
   ];
 
   let orientation: Orientation;
-  let interval = 0;
-  let margin = 0;
+  let paddingTop = 0;
+  let paddingLeft = 0;
+  let paddingRight = 0;
+  let paddingBottom = 0;
 
   async function initSettings() {
     const display = await api.display();
     $darkMode = display.inverted;
     orientation = display.orientation;
-    interval = display.interval;
-    margin = display.margin;
+    paddingTop = display.padding.top;
+    paddingLeft = display.padding.left;
+    paddingRight = display.padding.right;
+    paddingBottom = display.padding.bottom;
   }
 
   function applySettings() {
@@ -31,8 +35,12 @@
       .display({
         inverted: $darkMode,
         orientation,
-        interval,
-        margin,
+        padding: {
+          top: paddingTop,
+          left: paddingLeft,
+          right: paddingRight,
+          bottom: paddingBottom,
+        },
       })
       .then((res) => {
         snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
@@ -60,13 +68,23 @@
 />
 
 <fieldset class="my-3">
-  <p class="text-gray-700">Update Interval: {interval}min</p>
-  <Slider min={0} step={5} max={480} bind:value={interval} />
+  <p class="text-gray-700">Top: {paddingTop}pixel</p>
+  <Slider min={0} max={200} bind:value={paddingTop} />
 </fieldset>
 
 <fieldset class="my-3">
-  <p class="text-gray-700">Margin: {margin}pixel</p>
-  <Slider min={-20} max={20} bind:value={margin} />
+  <p class="text-gray-700">Left: {paddingLeft}pixel</p>
+  <Slider min={0} max={200} bind:value={paddingLeft} />
+</fieldset>
+
+<fieldset class="my-3">
+  <p class="text-gray-700">Right: {paddingRight}pixel</p>
+  <Slider min={0} max={200} bind:value={paddingRight} />
+</fieldset>
+
+<fieldset class="my-3">
+  <p class="text-gray-700">Bottom: {paddingBottom}pixel</p>
+  <Slider min={0} max={200} bind:value={paddingBottom} />
 </fieldset>
 
 <div class="flex space-x-2 justify-end">
