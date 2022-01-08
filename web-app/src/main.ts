@@ -3,12 +3,12 @@ import "material-icons/iconfont/material-icons.css";
 
 import Router from "svelte-spa-router";
 
-import Menu from "./components/organisms/Menu.svelte";
-import Upload from "./components/organisms/Upload.svelte";
-import Files from "./components/organisms/Files.svelte";
-import Display from "./components/organisms/Display.svelte";
-import Settings from "./components/organisms/Settings.svelte";
-import Info from "./components/organisms/Info.svelte";
+import Menu from "./components/pages/Menu.svelte";
+import Upload from "./components/pages/Upload.svelte";
+import Files from "./components/pages/Files.svelte";
+import Display from "./components/pages/Display.svelte";
+import Settings from "./components/pages/Settings.svelte";
+import Info from "./components/pages/Info.svelte";
 
 const routes = {
   "/": Menu,
