@@ -16,10 +16,10 @@ export interface Display {
 }
 
 export type Orientation =
-  | "portrait"
-  | "landscape-right"
-  | "landscape-left"
-  | "upside-down";
+  | "portrait-right"
+  | "upside-down"
+  | "landscape"
+  | "portrait-left";
 
 export interface Entry {
   filename: string;

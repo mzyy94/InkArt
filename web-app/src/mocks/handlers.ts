@@ -145,7 +145,7 @@ export const handlers = [
     const inverted = sessionStorage.getItem("inverted") == "true";
     const orientation =
       (sessionStorage.getItem("orientation") as Orientation | null) ??
-      "portrait";
+      "landscape";
     const top = parseInt(sessionStorage.getItem("paddingTop") ?? "0");
     const left = parseInt(sessionStorage.getItem("paddingLeft") ?? "0");
     const right = parseInt(sessionStorage.getItem("paddingRight") ?? "0");

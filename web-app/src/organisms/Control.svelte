@@ -7,10 +7,10 @@
 
   const darkMode = dark();
 
-  const orientations = [
-    { value: "portrait", text: "Portrait" },
-    { value: "landscape-right", text: "Landscape Right" },
-    { value: "landscape-left", text: "Landscape Left" },
+  const orientations: Array<{ value: Orientation; text: string }> = [
+    { value: "landscape", text: "Landscape" },
+    { value: "portrait-right", text: "Portrait Right" },
+    { value: "portrait-left", text: "Portrait Left" },
     { value: "upside-down", text: "Upside Down" },
   ];
 
@@ -59,7 +59,7 @@
 
   $: if (ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const portrait = orientation == "portrait" || orientation == "upside-down";
+    const portrait = orientation.startsWith("portrait");
     const width = 800;
     const height = 600;
     const scale = 0.5;
@@ -67,11 +67,11 @@
     const rotate = () => {
       ctx.save();
       ctx.translate(center.x, center.y);
-      if (orientation == "portrait") {
+      if (orientation == "portrait-right") {
         ctx.rotate((-Math.PI / 2) * 1);
-      } else if (orientation == "landscape-right") {
-        ctx.rotate((-Math.PI / 2) * 2);
       } else if (orientation == "upside-down") {
+        ctx.rotate((-Math.PI / 2) * 2);
+      } else if (orientation == "portrait-left") {
         ctx.rotate((-Math.PI / 2) * 3);
       }
       ctx.scale(scale, scale);
