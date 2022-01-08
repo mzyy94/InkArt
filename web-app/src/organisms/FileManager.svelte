@@ -1,13 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Tab, Tabs, Button, Dialog, Snackbar } from "smelte";
-  import dark from "smelte/src/dark";
   import api from "../api";
   import type { Entry } from "../api";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
-
-  const darkMode = dark();
 
   let mode = "grid";
 
@@ -76,7 +73,7 @@
 <section>
   <Tabs
     bind:selected={mode}
-    color={$darkMode ? "white" : "black"}
+    color={"black"}
     notSelectedColor="gray"
     indicator={false}
     items={[

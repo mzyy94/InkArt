@@ -1,11 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Button, Select, Slider, Snackbar, Switch } from "smelte";
-  import dark from "smelte/src/dark";
   import api from "../api";
   import type { Orientation } from "../api";
-
-  const darkMode = dark();
 
   const orientations: Array<{ value: Orientation; text: string }> = [
     { value: "landscape", text: "Landscape" },
@@ -22,10 +19,11 @@
   let paddingLeft = 0;
   let paddingRight = 0;
   let paddingBottom = 0;
+  let inverted = false;
 
   async function initSettings() {
     const display = await api.display();
-    $darkMode = display.inverted;
+    inverted = display.inverted;
     orientation = display.orientation;
     paddingTop = display.padding.top;
     paddingLeft = display.padding.left;
@@ -36,7 +34,7 @@
   function applySettings() {
     api
       .display({
-        inverted: $darkMode,
+        inverted,
         orientation,
         padding: {
           top: paddingTop,
@@ -104,10 +102,11 @@
     ctx.fillRect(-width / 2, -height / 2, width, height);
     ctx.restore();
 
+    // Active area
     ctx.save();
     ctx.translate(center.x, center.y);
     ctx.scale(scale, scale);
-    ctx.fillStyle = "#aaa";
+    ctx.fillStyle = inverted ? "#444" : "#aaa";
     ctx.fillRect(
       -((portrait ? height : width) / 2 - paddingLeft),
       -((portrait ? width : height) / 2 - paddingTop),
@@ -118,7 +117,7 @@
 
     rotate();
     ctx.textAlign = "center";
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = inverted ? "#ccc" : "#000";
     ctx.font = "60px sans-serif";
     ctx.fillText("Inkplate 6", 0, 0);
     ctx.restore();
@@ -131,7 +130,7 @@
   };
 </script>
 
-<Switch label="Invert black/white" bind:value={$darkMode} />
+<Switch label="Invert black/white" bind:value={inverted} />
 
 <Select
   label="Orientation"
