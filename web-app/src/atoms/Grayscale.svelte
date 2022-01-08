@@ -17,7 +17,7 @@
 
   // ITU-R Rec BT.601
   const vec3 filter = vec3(0.299, 0.587, 0.114);
-  const float depth = 8.0;
+  const float depth = 4.0;
 
   void main() {
       vec4 color = texture2D(texture, vTexCoord);
@@ -208,20 +208,20 @@
 
   $: drawImage(mode, offsetX, offsetY);
 
-  export function getPngDataURL() {
-    return canvas.toDataURL("image/png");
-  }
-
   class BmpDataView extends DataView {
     private pos = 0;
     public readonly width;
     public readonly height;
-    public static readonly bytesPerPixel = 4;
-    public static readonly headerSize = 122;
+    public static readonly bytesPerPixel = 1 / 2;
+    public static readonly headerSize = 118;
 
     static createArrayBuffer(width: number, height: number) {
+      let size = width * height;
+      if (width % 4) {
+        size += height * (4 - (width % 4));
+      }
       return new ArrayBuffer(
-        width * height * BmpDataView.bytesPerPixel + BmpDataView.headerSize
+        size * BmpDataView.bytesPerPixel + BmpDataView.headerSize
       );
     }
 
@@ -256,15 +256,10 @@
     writeLong(data = 0) {
       this.writeDWord(data);
     }
-
-    writePixel(data: number) {
-      this.setUint32(this.pos, data, false);
-      this.pos += 4;
-    }
   }
 
   function imageData2Bmp({ data, width, height }: ImageData) {
-    const imageData = new Uint32Array(data.buffer);
+    const imageData = new Uint8Array(data.buffer);
     const arrayBuffer = BmpDataView.createArrayBuffer(width, height);
     const bmp = new BmpDataView(arrayBuffer, width, height);
 
@@ -273,28 +268,39 @@
     bmp.writeDWord(bmp.fileSize); // bfSize
     bmp.writeWord(); // bfReserved1
     bmp.writeWord(); // bfReserved2
-    bmp.writeDWord(0x42); // bfOffBits
+    bmp.writeDWord(BmpDataView.headerSize); // bfOffBits
 
     // BITMAPINFOHEADER
     bmp.writeDWord(40); // biSize
     bmp.writeLong(width); // biWidth
     bmp.writeLong(-height >>> 0); // biHeight - negative height
     bmp.writeWord(1); // biPlanes - 1 plane
-    bmp.writeWord(32); // biBitCount - 32-bits (BGRA)
-    bmp.writeDWord(3); // biCompression - BI_BITFIELD = 3
+    bmp.writeWord(4); // biBitCount - 4-bits (16-Palettes)
+    bmp.writeDWord(0); // biCompression - BI_RGB = 0
     bmp.writeDWord(bmp.imageSize); // biSizeImage
     bmp.writeLong(2835); // biXPelsPerMeter
     bmp.writeLong(2835); // biYPelsPerMeter
-    bmp.writeDWord(0); // biClrUsed
+    bmp.writeDWord(8); // biClrUsed
     bmp.writeDWord(0); // biClrImportant
 
     // RGBQUAD
-    bmp.writeDWord(0x000000ff); // RedMask
-    bmp.writeDWord(0x0000ff00); // GreenMask
-    bmp.writeDWord(0x00ff0000); // BlueMask
+    for (let i = 0; i < 8; i++) {
+      bmp.writeDWord(0x00222222 * i);
+    }
+    for (let i = 0; i < 8; i++) {
+      bmp.writeDWord(0x00000000);
+    }
 
-    const array = new Uint8Array(arrayBuffer);
-    array.set(new Uint8Array(imageData.buffer), 0x42);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x += 4) {
+        const i = y * width + x;
+        const h0 = imageData[i * 4] >> 5;
+        const l0 = imageData[(i + 1) * 4] >> 5;
+        const h1 = imageData[(i + 2) * 4] >> 5;
+        const l1 = imageData[(i + 3) * 4] >> 5;
+        bmp.writeWord((h1 << 12) | (l1 << 8) | (h0 << 4) | l0);
+      }
+    }
 
     return arrayBuffer;
   }
