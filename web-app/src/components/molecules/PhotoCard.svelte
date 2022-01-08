@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { Card, Button, Image } from "smelte";
-  import type { Entry } from "../api";
+  import type { Entry } from "../../api";
 
   const dispatch = createEventDispatcher();
 

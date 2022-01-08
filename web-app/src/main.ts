@@ -3,13 +3,12 @@ import "material-icons/iconfont/material-icons.css";
 
 import Router from "svelte-spa-router";
 
-import App from "./App.svelte";
-import Welcome from "./pages/Welcome.svelte";
-import PhotoUpload from "./pages/PhotoUpload.svelte";
-import FileManagement from "./pages/FileManagement.svelte";
-import DisplayControl from "./pages/DisplayControl.svelte";
-import Settings from "./pages/Settings.svelte";
-import Information from "./pages/Information.svelte";
+import Welcome from "./components/pages/Welcome.svelte";
+import PhotoUpload from "./components/pages/PhotoUpload.svelte";
+import FileManagement from "./components/pages/FileManagement.svelte";
+import DisplayControl from "./components/pages/DisplayControl.svelte";
+import Settings from "./components/pages/Settings.svelte";
+import Information from "./components/pages/Information.svelte";
 
 const routes = {
   "/": Welcome,
@@ -18,7 +17,6 @@ const routes = {
   "/control": DisplayControl,
   "/settings": Settings,
   "/info": Information,
-  "/:name": App,
 };
 
 // @ts-ignore

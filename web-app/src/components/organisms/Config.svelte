@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Button, DatePicker, Snackbar } from "smelte";
-  import api from "../api";
+  import api from "../../api";
   import Container from "../templates/Container.svelte";
   import TimeInput from "../atoms/TimeInput.svelte";
   import TimeZoneInput from "../atoms/TimeZoneInput.svelte";

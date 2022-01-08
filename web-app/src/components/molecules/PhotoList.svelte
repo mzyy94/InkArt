@@ -2,7 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import { DataTable } from "smelte";
   import ActionIcon from "../atoms/ActionIcon.svelte";
-  import type { Entry } from "../api";
+  import type { Entry } from "../../api";
 
   const dispatch = createEventDispatcher();
 

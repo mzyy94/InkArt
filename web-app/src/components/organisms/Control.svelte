@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Button, Select, Slider, Snackbar, Switch } from "smelte";
-  import api from "../api";
-  import type { Orientation } from "../api";
+  import api from "../../api";
+  import type { Orientation } from "../../api";
   import Container from "../templates/Container.svelte";
 
   const orientations: Array<{ value: Orientation; text: string }> = [

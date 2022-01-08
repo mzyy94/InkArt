@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Tab, Tabs, Button, Dialog, Snackbar } from "smelte";
-  import api from "../api";
-  import type { Entry } from "../api";
+  import api from "../../api";
+  import type { Entry } from "../../api";
   import Container from "../templates/Container.svelte";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";

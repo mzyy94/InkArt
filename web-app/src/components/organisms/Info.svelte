@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import api from "../api";
-  import type { Info } from "../api";
+  import api from "../../api";
+  import type { Info } from "../../api";
   import Container from "../templates/Container.svelte";
   import UsageBar from "../molecules/UsageBar.svelte";
   import InfoLabel from "../atoms/InfoLabel.svelte";
