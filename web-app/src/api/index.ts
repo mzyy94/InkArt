@@ -1,15 +1,5 @@
 import { get, patch, post } from "./method";
 
-export interface AccessPoint {
-  ssid: string;
-  auth: string;
-  rssi: number;
-}
-
-export interface AccessPointList {
-  data: AccessPoint[];
-}
-
 export interface Config {
   time: string;
 }
@@ -53,14 +43,6 @@ export interface Info {
   };
 }
 
-export interface WiFi {
-  mode: WiFiMode;
-  ssid: string;
-  password?: string;
-}
-
-export type WiFiMode = "sta" | "ap";
-
 export interface OperationResult {
   status: "succeeded" | "failed";
   detail?: string;
@@ -87,10 +69,8 @@ function API<T extends { [key in string]: any }>(path: string) {
 }
 
 export default {
-  apList: API<AccessPointList>("/api/aplist.json"),
   config: API<Config>("/api/config.json"),
   display: API<Display>("/api/display.json"),
   photos: API<PhotoEntry>("/api/photos.json"),
   info: API<Info>("/api/info.json"),
-  wifi: API<WiFi>("/api/wifi.json"),
 } as const;

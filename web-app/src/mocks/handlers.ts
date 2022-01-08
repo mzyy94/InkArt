@@ -2,9 +2,6 @@ import { rest, ResponseComposition, RestContext } from "msw";
 import { readFileAsArrayBuffer, fixBrokenFile } from "./file";
 import { openPhotoDatabase } from "./db";
 import type {
-  AccessPointList,
-  WiFi,
-  WiFiMode,
   PhotoEntry,
   Display,
   Orientation,
@@ -12,24 +9,6 @@ import type {
   Info,
   OperationResult,
 } from "../api";
-
-const enc = [
-  "open",
-  "WEP",
-  "WPA_PSK",
-  "WPA2_PSK",
-  "WPA_WPA2_PSK",
-  "WPA2_ENTERPRISE",
-];
-
-const names = [
-  "Panther",
-  "Tiger",
-  "Leopard",
-  "Snow Leopard",
-  "Lion",
-  "Mountain Lion",
-];
 
 function handle500ErrorResponse(res: ResponseComposition, ctx: RestContext) {
   return function (error: Error) {
@@ -45,48 +24,6 @@ function handle500ErrorResponse(res: ResponseComposition, ctx: RestContext) {
 }
 
 export const handlers = [
-  rest.get("/api/aplist.json", (_req, res, ctx) => {
-    const data = Array.from({ length: 6 }, (_, i) => {
-      const ssid = names[i];
-      const auth = enc[i];
-      const rssi = -50 - ((Math.random() * 50) | 0);
-      return { ssid, auth, rssi };
-    });
-
-    return res(
-      ctx.delay(2000),
-      ctx.status(200),
-      ctx.json<AccessPointList>({ data })
-    );
-  }),
-  rest.post<WiFi>("/api/wifi.json", (req, res, ctx) => {
-    const { mode, ssid, password } = req.body;
-
-    if (ssid.length == password?.length) {
-      sessionStorage.setItem("wifi-mode", mode);
-      sessionStorage.setItem("ssid", ssid);
-      return res(
-        ctx.delay(4000),
-        ctx.status(200),
-        ctx.json<OperationResult>({ status: "succeeded" })
-      );
-    } else {
-      return res(
-        ctx.delay(4000),
-        ctx.status(403),
-        ctx.json<OperationResult>({ status: "failed" })
-      );
-    }
-  }),
-  rest.get("/api/wifi.json", (_req, res, ctx) => {
-    const mode =
-      (sessionStorage.getItem("wifi-mode") as WiFiMode | null) ?? "ap";
-    const ssid = sessionStorage.getItem("ssid") ?? "TEST_AP_1234";
-    return res(
-      ctx.status(200),
-      ctx.json<WiFi>({ mode, ssid })
-    );
-  }),
   rest.put<{ file: File }>("/api/upload", async (req, res, ctx) => {
     if (!req.body.file) {
       return res(

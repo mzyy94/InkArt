@@ -4,13 +4,6 @@
 
   const menuItems = [
     {
-      id: "wifi",
-      value: "/wifi",
-      text: "Wi-Fi Setup",
-      icon: "wifi",
-      subheading: "Change STA/AP mode, edit SSID/Password",
-    },
-    {
       id: "upload",
       value: "/upload",
       text: "Photo Upload",
