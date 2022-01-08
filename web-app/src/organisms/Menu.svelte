@@ -1,6 +1,7 @@
 <script lang="ts">
   import { push } from "svelte-spa-router";
   import { List } from "smelte";
+  import Container from "../templates/Container.svelte";
 
   const menuItems = [
     {
@@ -22,8 +23,7 @@
       value: "/control",
       text: "Display Control",
       icon: "gamepad",
-      subheading:
-        "Set display rotation and paddings",
+      subheading: "Set display rotation and paddings",
     },
     {
       id: "settings",
@@ -49,9 +49,14 @@
   };
 </script>
 
-<section>
-  <List on:change={selectListItem} items={menuItems} class="w-full" />
-</section>
+<main>
+  <Container>
+    <span slot="title">Welcome monophoto6</span>
+    <section>
+      <List on:change={selectListItem} items={menuItems} class="w-full" />
+    </section>
+  </Container>
+</main>
 
 <style>
 </style>

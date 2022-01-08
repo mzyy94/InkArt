@@ -3,6 +3,7 @@
   import { Tab, Tabs, Button, Dialog, Snackbar } from "smelte";
   import api from "../api";
   import type { Entry } from "../api";
+  import Container from "../templates/Container.svelte";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
 
@@ -70,37 +71,42 @@
   };
 </script>
 
-<section>
-  <Tabs
-    bind:selected={mode}
-    color={"black"}
-    notSelectedColor="gray"
-    indicator={false}
-    items={[
-      { id: "grid", text: "grid", icon: "grid_view" },
-      { id: "list", text: "list", icon: "list" },
-    ]}
-  >
-    <div slot="content">
-      <Tab id="grid" selected={mode}>
-        <PhotoGrid
-          bind:data
-          bind:loading
-          on:hide={hideFile}
-          on:delete={confirmDelete}
-        />
-      </Tab>
-      <Tab id="list" selected={mode}>
-        <PhotoList
-          bind:data
-          bind:loading
-          on:hide={hideFile}
-          on:delete={confirmDelete}
-        />
-      </Tab>
-    </div>
-  </Tabs>
-</section>
+<main>
+  <Container>
+    <span slot="title">File Management</span>
+    <section>
+      <Tabs
+        bind:selected={mode}
+        color={"black"}
+        notSelectedColor="gray"
+        indicator={false}
+        items={[
+          { id: "grid", text: "grid", icon: "grid_view" },
+          { id: "list", text: "list", icon: "list" },
+        ]}
+      >
+        <div slot="content">
+          <Tab id="grid" selected={mode}>
+            <PhotoGrid
+              bind:data
+              bind:loading
+              on:hide={hideFile}
+              on:delete={confirmDelete}
+            />
+          </Tab>
+          <Tab id="list" selected={mode}>
+            <PhotoList
+              bind:data
+              bind:loading
+              on:hide={hideFile}
+              on:delete={confirmDelete}
+            />
+          </Tab>
+        </div>
+      </Tabs>
+    </section>
+  </Container>
+</main>
 
 <Dialog value={fileToDelete != null}>
   <h5 slot="title">Delete file?</h5>

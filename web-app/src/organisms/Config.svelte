@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { Button, DatePicker, Snackbar } from "smelte";
   import api from "../api";
+  import Container from "../templates/Container.svelte";
   import TimeInput from "../atoms/TimeInput.svelte";
   import TimeZoneInput from "../atoms/TimeZoneInput.svelte";
 
@@ -59,15 +60,22 @@
   }
 </script>
 
-<DatePicker value={date} on:change={onDateChange} />
-<TimeInput bind:value={date} />
-<TimeZoneInput bind:timeZone />
+<main>
+  <Container>
+    <span slot="title">Settings</span><DatePicker
+      value={date}
+      on:change={onDateChange}
+    />
+    <TimeInput bind:value={date} />
+    <TimeZoneInput bind:timeZone />
 
-<div class="flex space-x-2 justify-end">
-  <Button color="blue" on:click={syncDate}>Sync</Button>
-  <Button on:click={applySettings}>Apply</Button>
-  <Button color="secondary" on:click={initSettings}>Reset</Button>
-</div>
+    <div class="flex space-x-2 justify-end">
+      <Button color="blue" on:click={syncDate}>Sync</Button>
+      <Button on:click={applySettings}>Apply</Button>
+      <Button color="secondary" on:click={initSettings}>Reset</Button>
+    </div>
+  </Container>
+</main>
 
 <Snackbar color={snackbar.color} bind:value={snackbar.show}>
   <div>{snackbar.text}</div>

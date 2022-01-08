@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Select, Snackbar } from "smelte";
+  import Container from "../templates/Container.svelte";
   import ImageLoader from "../atoms/ImageLoader.svelte";
   import Grayscale from "../atoms/Grayscale.svelte";
   import Move from "../atoms/Move.svelte";
@@ -45,23 +46,27 @@
   }
 </script>
 
-<ImageLoader {img} />
-<Select {label} items={modes} bind:value={mode} />
-<Move let:offsetX let:offsetY reset={mode} {active}>
-  <Grayscale
-    bind:this={grayscale}
-    {img}
-    {mode}
-    {offsetX}
-    {offsetY}
-    bind:active
-  />
-</Move>
+<main>
+  <Container>
+    <span slot="title">Photo Upload</span><ImageLoader {img} />
+    <Select {label} items={modes} bind:value={mode} />
+    <Move let:offsetX let:offsetY reset={mode} {active}>
+      <Grayscale
+        bind:this={grayscale}
+        {img}
+        {mode}
+        {offsetX}
+        {offsetY}
+        bind:active
+      />
+    </Move>
 
-<ProgressButton on:click={uploadImage} loading={uploading}>
-  Upload
-  <span slot="loading">Uploading...</span>
-</ProgressButton>
+    <ProgressButton on:click={uploadImage} loading={uploading}>
+      Upload
+      <span slot="loading">Uploading...</span>
+    </ProgressButton>
+  </Container>
+</main>
 
 <Snackbar color={snackbar.color} bind:value={snackbar.show}>
   <div>{snackbar.text}</div>

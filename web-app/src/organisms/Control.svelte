@@ -3,6 +3,7 @@
   import { Button, Select, Slider, Snackbar, Switch } from "smelte";
   import api from "../api";
   import type { Orientation } from "../api";
+  import Container from "../templates/Container.svelte";
 
   const orientations: Array<{ value: Orientation; text: string }> = [
     { value: "landscape", text: "Landscape" },
@@ -130,45 +131,50 @@
   };
 </script>
 
-<Switch label="Invert black/white" bind:value={inverted} />
+<main>
+  <Container>
+    <span slot="title">Display Control</span>
+    <Switch label="Invert black/white" bind:value={inverted} />
 
-<Select
-  label="Orientation"
-  name="orientation"
-  bind:value={orientation}
-  items={orientations}
-/>
+    <Select
+      label="Orientation"
+      name="orientation"
+      bind:value={orientation}
+      items={orientations}
+    />
 
-<fieldset class="my-3">
-  <p class="text-gray-700">Top: {paddingTop}pixel</p>
-  <Slider min={0} max={200} bind:value={paddingTop} />
-</fieldset>
+    <fieldset class="my-3">
+      <p class="text-gray-700">Top: {paddingTop}pixel</p>
+      <Slider min={0} max={200} bind:value={paddingTop} />
+    </fieldset>
 
-<fieldset class="my-3">
-  <p class="text-gray-700">Left: {paddingLeft}pixel</p>
-  <Slider min={0} max={200} bind:value={paddingLeft} />
-</fieldset>
+    <fieldset class="my-3">
+      <p class="text-gray-700">Left: {paddingLeft}pixel</p>
+      <Slider min={0} max={200} bind:value={paddingLeft} />
+    </fieldset>
 
-<fieldset class="my-3">
-  <p class="text-gray-700">Right: {paddingRight}pixel</p>
-  <Slider min={0} max={200} bind:value={paddingRight} />
-</fieldset>
+    <fieldset class="my-3">
+      <p class="text-gray-700">Right: {paddingRight}pixel</p>
+      <Slider min={0} max={200} bind:value={paddingRight} />
+    </fieldset>
 
-<fieldset class="my-3">
-  <p class="text-gray-700">Bottom: {paddingBottom}pixel</p>
-  <Slider min={0} max={200} bind:value={paddingBottom} />
-</fieldset>
+    <fieldset class="my-3">
+      <p class="text-gray-700">Bottom: {paddingBottom}pixel</p>
+      <Slider min={0} max={200} bind:value={paddingBottom} />
+    </fieldset>
 
-<div class="flex space-x-2 justify-end">
-  <Button on:click={applySettings}>Apply</Button>
-  <Button color="secondary" on:click={initSettings}>Reset</Button>
-</div>
+    <div class="flex space-x-2 justify-end">
+      <Button on:click={applySettings}>Apply</Button>
+      <Button color="secondary" on:click={initSettings}>Reset</Button>
+    </div>
 
-<canvas bind:this={canvas} width={500} height={500} />
+    <canvas bind:this={canvas} width={500} height={500} />
 
-<Snackbar color={snackbar.color} bind:value={snackbar.show}>
-  <div>{snackbar.text}</div>
-</Snackbar>
+    <Snackbar color={snackbar.color} bind:value={snackbar.show}>
+      <div>{snackbar.text}</div>
+    </Snackbar>
+  </Container>
+</main>
 
 <style>
   canvas {
