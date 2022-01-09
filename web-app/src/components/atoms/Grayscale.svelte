@@ -99,7 +99,8 @@
 </script>
 
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
+  import api from "../../api";
 
   export let img: HTMLImageElement;
   export let mode = "fill";
@@ -109,8 +110,8 @@
   export let active = false;
   export let algorithm = "default";
 
-  export let width = 800;
-  export let height = 600;
+  let width = 0;
+  let height = 0;
 
   function resizeImageRect(
     img: HTMLImageElement,
@@ -162,7 +163,15 @@
   let program: WebGLProgram;
   let texture: WebGLTexture;
 
-  onMount(() => {
+  onMount(async () => {
+    const { display } = await api.info();
+    const { padding, orientation } = await api.display();
+    width = display.width - (padding.left + padding.right);
+    height = display.height - (padding.top + padding.bottom);
+    if (orientation.startsWith("portrait")) {
+      [width, height] = [height, width];
+    }
+    await tick();
     gl = canvas.getContext("webgl", { preserveDrawingBuffer: true })!;
     program = createProgram(gl, vertShader, fragShader);
     texture = gl.createTexture()!;
@@ -316,7 +325,10 @@
   }
 </script>
 
-<canvas bind:this={canvas} {width} {height} />
+{#if width > 0 && height > 0}
+  <span>Image size: {width}x{height}</span>
+  <canvas bind:this={canvas} {width} {height} />
+{/if}
 
 <style>
   canvas {
