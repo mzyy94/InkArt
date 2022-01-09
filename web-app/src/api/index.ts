@@ -24,7 +24,6 @@ export type Orientation =
 
 export interface Entry {
   filename: string;
-  date: string;
   hidden: boolean;
 }
 

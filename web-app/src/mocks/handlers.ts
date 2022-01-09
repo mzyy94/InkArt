@@ -60,7 +60,6 @@ export const handlers = [
             );
             const filelist = (photos.target.result ?? []).map((file) => ({
               filename: file.name,
-              date: new Date(file.lastModified).toJSON(),
               hidden: hiddenList.has(file.name),
             }));
             return res(

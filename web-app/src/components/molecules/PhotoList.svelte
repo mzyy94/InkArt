@@ -31,12 +31,10 @@
         remove: "text-right",
         add: "text-center",
         component: ActionIcon,
-        componentProps: (data) => ({icon: data.hidden ? "visibility_off" : "visibility", callback: () => hideFile(data)}),
-      },
-      {
-        label: "Date",
-        value: ({ date }) => new Date(date).toLocaleString(),
-        headerRemove: "justify-end",
+        componentProps: (data) => ({
+          icon: data.hidden ? "visibility_off" : "visibility",
+          callback: () => hideFile(data),
+        }),
       },
       {
         field: "Image",
@@ -51,7 +49,11 @@
         remove: "text-right",
         add: "text-center",
         component: ActionIcon,
-        componentProps: (data) => ({icon: "delete", class: "text-error-500", callback: () => deleteFile(data)}),
+        componentProps: (data) => ({
+          icon: "delete",
+          class: "text-error-500",
+          callback: () => deleteFile(data),
+        }),
         sortable: false,
       },
     ]}

@@ -20,10 +20,7 @@
 <article class="m-6">
   <Card.Card class={data.hidden ? "bg-gray-200" : ""}>
     <div slot="title">
-      <Card.Title
-        title={data.filename}
-        subheader={new Date(data.date).toLocaleString()}
-      />
+      <Card.Title title={data.filename} />
     </div>
     <div slot="media">
       <Image
