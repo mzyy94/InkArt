@@ -7,332 +7,137 @@
       "path": "web-app"
     }
   ],
-  "settings": {
-    "idf.espIdfPath": "${env:HOME}/esp/esp-idf",
-    "idf.pythonBinPath": "${env:HOME}/.espressif/python_env/idf4.3_py3.8_env/bin/python",
-    "idf.toolsPath": "${env:HOME}/.espressif",
-    "idf.customExtraPaths": "${env:HOME}/.espressif/tools/xtensa-esp32-elf/esp-2021r1-8.4.0/xtensa-esp32-elf/bin:${env:HOME}/.espressif/tools/xtensa-esp32s2-elf/esp-2021r1-8.4.0/xtensa-esp32s2-elf/bin:${env:HOME}/.espressif/tools/xtensa-esp32s3-elf/esp-2021r1-8.4.0/xtensa-esp32s3-elf/bin:${env:HOME}/.espressif/tools/riscv32-esp-elf/esp-2021r1-8.4.0/riscv32-esp-elf/bin:${env:HOME}/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:${env:HOME}/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:${env:HOME}/.espressif/tools/openocd-esp32/v0.10.0-esp32-20210401/openocd-esp32/bin",
-    "idf.customExtraVars": "{\"OPENOCD_SCRIPTS\":\"${env:HOME}/.espressif/tools/openocd-esp32/v0.10.0-esp32-20210401/openocd-esp32/share/openocd/scripts\"}",
-    "idf.gitPath": "git",
-    "idf.flashType": "UART",
-    "idf.port": "/dev/tty.usbserial-A115200000",
-    "idf.flashBaudRate": "115200",
-    "idf.adapterTargetName": "esp32"
-  },
   "extensions": {
     "recommendations": [
       "svelte.svelte-vscode",
-      "espressif.esp-idf-extension"
-    ]
-  },
-  "tasks": {
-    "version": "2.0.0",
-    "tasks": [
-      {
-        "label": "Build - Build project",
-        "type": "shell",
-        "command": "${config:idf.pythonBinPath} ${config:idf.espIdfPath}/tools/idf.py build",
-        "windows": {
-          "command": "${config:idf.pythonBinPathWin} ${config:idf.espIdfPathWin}\\tools\\idf.py build",
-          "options": {
-            "env": {
-              "PATH": "${env:PATH};${config:idf.customExtraPaths}"
-            }
-          }
-        },
-        "options": {
-          "env": {
-            "PATH": "${env:PATH}:${config:idf.customExtraPaths}"
-          }
-        },
-        "problemMatcher": [
-          {
-            "owner": "cpp",
-            "fileLocation": [
-              "relative",
-              "${workspaceFolder}"
-            ],
-            "pattern": {
-              "regexp": "^\\.\\.(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-              "file": 1,
-              "line": 2,
-              "column": 3,
-              "severity": 4,
-              "message": 5
-            }
-          },
-          {
-            "owner": "cpp",
-            "fileLocation": "absolute",
-            "pattern": {
-              "regexp": "^[^\\.](.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-              "file": 1,
-              "line": 2,
-              "column": 3,
-              "severity": 4,
-              "message": 5
-            }
-          }
-        ],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        }
-      },
-      {
-        "label": "Set ESP-IDF Target",
-        "type": "shell",
-        "command": "${command:espIdf.setTarget}",
-        "problemMatcher": {
-          "owner": "cpp",
-          "fileLocation": "absolute",
-          "pattern": {
-            "regexp": "^(.*):(//d+):(//d+)://s+(warning|error)://s+(.*)$",
-            "file": 1,
-            "line": 2,
-            "column": 3,
-            "severity": 4,
-            "message": 5
-          }
-        }
-      },
-      {
-        "label": "Clean - Clean the project",
-        "type": "shell",
-        "command": "${config:idf.pythonBinPath} ${config:idf.espIdfPath}/tools/idf.py fullclean",
-        "windows": {
-          "command": "${config:idf.pythonBinPathWin} ${config:idf.espIdfPathWin}\\tools\\idf.py fullclean",
-          "options": {
-            "env": {
-              "PATH": "${env:PATH};${config:idf.customExtraPaths}"
-            }
-          }
-        },
-        "options": {
-          "env": {
-            "PATH": "${env:PATH}:${config:idf.customExtraPaths}"
-          }
-        },
-        "problemMatcher": [
-          {
-            "owner": "cpp",
-            "fileLocation": [
-              "relative",
-              "${workspaceFolder}"
-            ],
-            "pattern": {
-              "regexp": "^\\.\\.(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-              "file": 1,
-              "line": 2,
-              "column": 3,
-              "severity": 4,
-              "message": 5
-            }
-          },
-          {
-            "owner": "cpp",
-            "fileLocation": "absolute",
-            "pattern": {
-              "regexp": "^[^\\.](.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-              "file": 1,
-              "line": 2,
-              "column": 3,
-              "severity": 4,
-              "message": 5
-            }
-          }
-        ]
-      },
-      {
-        "label": "Flash - Flash the device",
-        "type": "shell",
-        "command": "${config:idf.pythonBinPath} ${config:idf.espIdfPath}/tools/idf.py -p ${config:idf.port} -b ${config:idf.flashBaudRate} flash",
-        "windows": {
-          "command": "${config:idf.pythonBinPathWin} ${config:idf.espIdfPathWin}\\tools\\idf.py flash -p ${config:idf.portWin} -b ${config:idf.flashBaudRate}",
-          "options": {
-            "env": {
-              "PATH": "${env:PATH};${config:idf.customExtraPaths}"
-            }
-          }
-        },
-        "options": {
-          "env": {
-            "PATH": "${env:PATH}:${config:idf.customExtraPaths}"
-          }
-        },
-        "problemMatcher": [
-          {
-            "owner": "cpp",
-            "fileLocation": [
-              "relative",
-              "${workspaceFolder}"
-            ],
-            "pattern": {
-              "regexp": "^\\.\\.(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-              "file": 1,
-              "line": 2,
-              "column": 3,
-              "severity": 4,
-              "message": 5
-            }
-          },
-          {
-            "owner": "cpp",
-            "fileLocation": "absolute",
-            "pattern": {
-              "regexp": "^[^\\.](.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-              "file": 1,
-              "line": 2,
-              "column": 3,
-              "severity": 4,
-              "message": 5
-            }
-          }
-        ]
-      },
-      {
-        "label": "Monitor: Start the monitor",
-        "type": "shell",
-        "command": "${config:idf.pythonBinPath} ${config:idf.espIdfPath}/tools/idf.py -p ${config:idf.port} monitor",
-        "windows": {
-          "command": "${config:idf.pythonBinPathWin} ${config:idf.espIdfPathWin}\\tools\\idf.py -p ${config:idf.portWin} monitor",
-          "options": {
-            "env": {
-              "PATH": "${env:PATH};${config:idf.customExtraPaths}"
-            }
-          }
-        },
-        "options": {
-          "env": {
-            "PATH": "${env:PATH}:${config:idf.customExtraPaths}"
-          }
-        },
-        "problemMatcher": [
-          {
-            "owner": "cpp",
-            "fileLocation": [
-              "relative",
-              "${workspaceFolder}"
-            ],
-            "pattern": {
-              "regexp": "^\\.\\.(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-              "file": 1,
-              "line": 2,
-              "column": 3,
-              "severity": 4,
-              "message": 5
-            }
-          },
-          {
-            "owner": "cpp",
-            "fileLocation": "absolute",
-            "pattern": {
-              "regexp": "^[^\\.](.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-              "file": 1,
-              "line": 2,
-              "column": 3,
-              "severity": 4,
-              "message": 5
-            }
-          }
-        ],
-        "dependsOn": "Flash - Flash the device"
-      },
-      {
-        "label": "OpenOCD: Start openOCD",
-        "type": "shell",
-        "presentation": {
-          "echo": true,
-          "reveal": "never",
-          "focus": false,
-          "panel": "new"
-        },
-        "command": "openocd -s ${command:espIdf.getOpenOcdScriptValue} ${command:espIdf.getOpenOcdConfigs}",
-        "windows": {
-          "command": "openocd.exe -s ${command:espIdf.getOpenOcdScriptValue} ${command:espIdf.getOpenOcdConfigs}",
-          "options": {
-            "env": {
-              "PATH": "${env:PATH};${config:idf.customExtraPaths}"
-            }
-          }
-        },
-        "options": {
-          "env": {
-            "PATH": "${env:PATH}:${config:idf.customExtraPaths}"
-          }
-        },
-        "problemMatcher": {
-          "owner": "cpp",
-          "fileLocation": "absolute",
-          "pattern": {
-            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-            "file": 1,
-            "line": 2,
-            "column": 3,
-            "severity": 4,
-            "message": 5
-          }
-        }
-      },
-      {
-        "label": "adapter",
-        "type": "shell",
-        "command": "${config:idf.pythonBinPath}",
-        "isBackground": true,
-        "options": {
-          "env": {
-            "PATH": "${env:PATH}:${config:idf.customExtraPaths}",
-            "PYTHONPATH": "${command:espIdf.getExtensionPath}/esp_debug_adapter/debug_adapter"
-          }
-        },
-        "problemMatcher": {
-          "background": {
-            "beginsPattern": "\bDEBUG_ADAPTER_STARTED\b",
-            "endsPattern": "DEBUG_ADAPTER_READY2CONNECT",
-            "activeOnStart": true
-          },
-          "pattern": {
-            "regexp": "(\\d+)-(\\d+)-(\\d+)\\s(\\d+):(\\d+):(\\d+),(\\d+)\\s-(.+)\\s(ERROR)",
-            "file": 8,
-            "line": 2,
-            "column": 3,
-            "severity": 4,
-            "message": 9
-          }
-        },
-        "args": [
-          "${command:espIdf.getExtensionPath}/esp_debug_adapter/debug_adapter_main.py",
-          "-e",
-          "${workspaceFolder}/build/${command:espIdf.getProjectName}.elf",
-          "-s",
-          "${command:espIdf.getOpenOcdScriptValue}",
-          "-ip",
-          "localhost",
-          "-dn",
-          "${config:idf.adapterTargetName}",
-          "-om",
-          "connect_to_instance"
-        ],
-        "windows": {
-          "command": "${config:idf.pythonBinPathWin}",
-          "options": {
-            "env": {
-              "PATH": "${env:PATH};${config:idf.customExtraPaths}",
-              "PYTHONPATH": "${command:espIdf.getExtensionPath}/esp_debug_adapter/debug_adapter"
-            }
-          }
-        }
-      }
+      "platformio.platformio-ide"
     ]
   },
   "launch": {
-    "version": "0.2.0",
     "configurations": [
       {
-        "type": "espidf",
-        "name": "Launch",
-        "request": "launch"
+        "type": "platformio-debug",
+        "request": "launch",
+        "name": "PIO Debug",
+        "executable": "${workspaceFolder}/firmware/.pio/build/inkplate-10/firmware.elf",
+        "projectEnvName": "inkplate-10",
+        "toolchainBinDir": "${env:HOME}/.platformio/packages/toolchain-xtensa32/bin",
+        "internalConsoleOptions": "openOnSessionStart",
+        "preLaunchTask": {
+          "type": "PlatformIO",
+          "task": "Pre-Debug"
+        }
+      },
+      {
+        "type": "platformio-debug",
+        "request": "launch",
+        "name": "PIO Debug (skip Pre-Debug)",
+        "executable": "${workspaceFolder}/firmware/.pio/build/inkplate-10/firmware.elf",
+        "projectEnvName": "inkplate-10",
+        "toolchainBinDir": "${env:HOME}/.platformio/packages/toolchain-xtensa32/bin",
+        "internalConsoleOptions": "openOnSessionStart"
+      },
+      {
+        "type": "platformio-debug",
+        "request": "launch",
+        "name": "PIO Debug (without uploading)",
+        "executable": "${workspaceFolder}/firmware/.pio/build/inkplate-10/firmware.elf",
+        "projectEnvName": "inkplate-10",
+        "toolchainBinDir": "${env:HOME}/.platformio/packages/toolchain-xtensa32/bin",
+        "internalConsoleOptions": "openOnSessionStart",
+        "loadMode": "manual"
       }
     ]
+  },
+  "settings": {
+    "editor.formatOnSave": true,
+    "files.associations": {
+      "__bit_reference": "cpp",
+      "__config": "cpp",
+      "__debug": "cpp",
+      "__errc": "cpp",
+      "__functional_base": "cpp",
+      "__hash_table": "cpp",
+      "__locale": "cpp",
+      "__mutex_base": "cpp",
+      "__node_handle": "cpp",
+      "__nullptr": "cpp",
+      "__split_buffer": "cpp",
+      "__string": "cpp",
+      "__threading_support": "cpp",
+      "__tree": "cpp",
+      "__tuple": "cpp",
+      "algorithm": "cpp",
+      "array": "cpp",
+      "atomic": "cpp",
+      "bit": "cpp",
+      "bitset": "cpp",
+      "cctype": "cpp",
+      "chrono": "cpp",
+      "cinttypes": "cpp",
+      "clocale": "cpp",
+      "cmath": "cpp",
+      "codecvt": "cpp",
+      "compare": "cpp",
+      "complex": "cpp",
+      "concepts": "cpp",
+      "condition_variable": "cpp",
+      "csignal": "cpp",
+      "cstdarg": "cpp",
+      "cstddef": "cpp",
+      "cstdint": "cpp",
+      "cstdio": "cpp",
+      "cstdlib": "cpp",
+      "cstring": "cpp",
+      "ctime": "cpp",
+      "cwchar": "cpp",
+      "cwctype": "cpp",
+      "deque": "cpp",
+      "exception": "cpp",
+      "fstream": "cpp",
+      "functional": "cpp",
+      "future": "cpp",
+      "initializer_list": "cpp",
+      "iomanip": "cpp",
+      "ios": "cpp",
+      "iosfwd": "cpp",
+      "iostream": "cpp",
+      "istream": "cpp",
+      "iterator": "cpp",
+      "limits": "cpp",
+      "list": "cpp",
+      "locale": "cpp",
+      "map": "cpp",
+      "memory": "cpp",
+      "mutex": "cpp",
+      "new": "cpp",
+      "numbers": "cpp",
+      "numeric": "cpp",
+      "optional": "cpp",
+      "ostream": "cpp",
+      "queue": "cpp",
+      "random": "cpp",
+      "ratio": "cpp",
+      "semaphore": "cpp",
+      "set": "cpp",
+      "sstream": "cpp",
+      "stack": "cpp",
+      "stdexcept": "cpp",
+      "streambuf": "cpp",
+      "string": "cpp",
+      "string_view": "cpp",
+      "system_error": "cpp",
+      "thread": "cpp",
+      "tuple": "cpp",
+      "type_traits": "cpp",
+      "typeinfo": "cpp",
+      "unordered_map": "cpp",
+      "utility": "cpp",
+      "vector": "cpp",
+      "*.tcc": "cpp",
+      "memory_resource": "cpp",
+      "netfwd": "cpp",
+      "stop_token": "cpp"
+    }
   }
 }
