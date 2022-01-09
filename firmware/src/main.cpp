@@ -7,6 +7,11 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 #include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <sys/types.h>
+#include <dirent.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -15,6 +20,20 @@
 #include "inkplate.hpp"
 
 Inkplate display(DisplayMode::INKPLATE_3BIT);
+
+void readfiles(const std::string &dirname, std::vector<std::string> &output)
+{
+  DIR *dir = opendir(dirname.c_str());
+  struct dirent *ent;
+  while ((ent = readdir(dir)) != nullptr)
+  {
+    if (ent->d_type == DT_REG)
+    {
+      output.push_back(ent->d_name);
+    }
+  }
+  closedir(dir);
+}
 
 void main_task(void *)
 {
@@ -32,12 +51,28 @@ void main_task(void *)
   std::cout << spi_flash_get_chip_size() / (1024 * 1024) << "MB "
             << ((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external") << " flash" << std::endl;
 
-  display.begin();
+  display.begin(true);
   display.clearDisplay();
-  const auto width = display.width() / 8;
-  for (size_t i = 0; i < 8; i++)
+
+  std::vector<std::string> file_names;
+  std::vector<std::string> bmp_images;
+
+  readfiles("/sdcard/", file_names);
+
+  std::copy_if(file_names.begin(), file_names.end(), std::back_inserter(bmp_images), [](std::string s)
+               { return s.substr(s.find_last_of(".") + 1) == "bmp"; });
+
+  if (bmp_images.size() > 0)
   {
-    display.fillRect(width * i, 0, width, display.height(), i);
+    display.drawImage(bmp_images[0].c_str(), 0, 0);
+  }
+  else
+  {
+    const auto width = display.width() / 8;
+    for (size_t i = 0; i < 8; i++)
+    {
+      display.fillRect(width * i, 0, width, display.height(), i);
+    }
   }
 
   display.display();
