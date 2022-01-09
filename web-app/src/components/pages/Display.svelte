@@ -15,6 +15,10 @@
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
 
+  let width = 800;
+  let height = 600;
+  let model = "Inkplate";
+
   let orientation: Orientation;
   let paddingTop = 0;
   let paddingLeft = 0;
@@ -53,15 +57,18 @@
 
   onMount(async () => {
     ctx = canvas.getContext("2d")!;
+    let { display, system } = await api.info();
+    width = display.width;
+    height = display.height;
+    model = system.model;
+
     await initSettings();
   });
 
   $: if (ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const portrait = orientation.startsWith("portrait");
-    const width = 800;
-    const height = 600;
-    const scale = 0.5;
+    const scale = width < 960 ? 0.5 : 0.3;
 
     const rotate = () => {
       ctx.save();
@@ -120,7 +127,7 @@
     ctx.textAlign = "center";
     ctx.fillStyle = inverted ? "#ccc" : "#000";
     ctx.font = "60px sans-serif";
-    ctx.fillText("Inkplate 6", 0, 0);
+    ctx.fillText(model, 0, 0);
     ctx.restore();
   }
 

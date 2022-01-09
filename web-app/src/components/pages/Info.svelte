@@ -24,6 +24,9 @@
     <InfoLabel icon="devices" title="Model">
       {info?.system.model}
     </InfoLabel>
+    <InfoLabel icon="fullscreen" title="Panel Resolution">
+      {info?.display.width}x{info?.display.height}
+    </InfoLabel>
     <InfoLabel icon="settings_ethernet" title="Mac Address">
       {info?.network.mac}
     </InfoLabel>

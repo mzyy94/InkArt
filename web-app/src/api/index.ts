@@ -37,6 +37,10 @@ export interface Info {
     version: string;
     model: string;
   };
+  display: {
+    width: number;
+    height: number;
+  };
   storage: {
     used: number;
     total: number;
@@ -64,7 +68,7 @@ function API<T extends { [key in string]: any }>(path: string) {
     if (value[0] === undefined) {
       return get<T>(path) as any;
     } else {
-      const obj = (value[0] as unknown) as T;
+      const obj = value[0] as unknown as T;
       if (obj?.data?.length == 1) {
         return patch(path, obj) as any;
       }

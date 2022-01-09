@@ -213,6 +213,10 @@ export const handlers = [
           version,
           model,
         },
+        display: {
+          width: 800,
+          height: 600,
+        },
         storage: {
           used,
           total,
