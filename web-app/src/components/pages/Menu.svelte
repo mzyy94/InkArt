@@ -51,7 +51,7 @@
 
 <main>
   <Container>
-    <span slot="title">Welcome monophoto6</span>
+    <span slot="title">InkArt</span>
     <section>
       <List on:change={selectListItem} items={menuItems} class="w-full" />
     </section>
