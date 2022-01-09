@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Button, DatePicker, Snackbar } from "smelte";
+  import { Button, DatePicker, Snackbar, Slider } from "smelte";
   import api from "../../api";
   import Container from "../templates/Container.svelte";
   import TimeInput from "../atoms/TimeInput.svelte";
@@ -18,8 +18,9 @@
   };
 
   async function initSettings() {
-    const { time } = await api.config();
-    date = new Date(time);
+    const config = await api.config();
+    date = new Date(config.time);
+    refresh = config.refresh;
   }
 
   function applySettings() {
@@ -32,7 +33,7 @@
       new Date(defaultDate).getTime() - new Date(modifiedDate).getTime();
     const datetime = new Date(date.getTime() + timeZoneOffset);
 
-    api.config({ time: datetime.toJSON() }).then((res) => {
+    api.config({ time: datetime.toJSON(), refresh }).then((res) => {
       snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
       snackbar.color = res.ok ? "primary" : "error";
       snackbar.show = true;
@@ -49,6 +50,10 @@
 
   let { timeZone } = new Intl.DateTimeFormat("default", {}).resolvedOptions();
   let date: Date = new Date();
+  let refresh = 0;
+  $: step = refresh < 60 ? 1 : 10;
+  $: min = refresh < 60 ? 0 : -160;
+  $: max = refresh < 60 ? 240 : 720;
 
   function onDateChange(e: CustomEvent<Date>) {
     const d = e.detail;
@@ -68,6 +73,11 @@
     />
     <TimeInput bind:value={date} />
     <TimeZoneInput bind:timeZone />
+
+    <fieldset class="my-3">
+      <p class="text-gray-700">Refresh interval: {refresh}min</p>
+      <Slider {min} {max} {step} bind:value={refresh} />
+    </fieldset>
 
     <div class="flex space-x-2 justify-end">
       <Button color="blue" on:click={syncDate}>Sync</Button>

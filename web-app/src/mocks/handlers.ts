@@ -183,14 +183,16 @@ export const handlers = [
     );
   }),
   rest.get("/api/config.json", (_req, res, ctx) => {
+    const refresh = parseInt(sessionStorage.getItem("refresh") || "0", 10);
     const offset = parseInt(sessionStorage.getItem("offset") || "0", 10);
     const time = new Date(Date.now() + offset).toJSON();
-    return res(ctx.status(200), ctx.json<Config>({ time }));
+    return res(ctx.status(200), ctx.json<Config>({ time, refresh }));
   }),
   rest.post<Config>("/api/config.json", (req, res, ctx) => {
     const time = new Date(req.body.time);
     const diff = time.getTime() - Date.now();
     sessionStorage.setItem("offset", diff.toString(10));
+    sessionStorage.setItem("refresh", req.body.refresh.toString(10));
     return res(
       ctx.status(200),
       ctx.json<OperationResult>({ status: "succeeded" })

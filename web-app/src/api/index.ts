@@ -2,6 +2,7 @@ import { get, patch, post } from "./method";
 
 export interface Config {
   time: string;
+  refresh: number;
 }
 
 export interface Display {
