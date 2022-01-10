@@ -12,6 +12,8 @@
 
 #include "webapp.hpp"
 
+#define START_WEBAPP true
+
 static const char *TAG = "main";
 
 #include "inkplate.hpp"
@@ -51,28 +53,38 @@ void main_task(void *)
   display.begin(true);
   display.clearDisplay();
 
-  std::vector<std::string> file_names;
-  std::vector<std::string> bmp_images;
-
-  readfiles("/sdcard/", file_names);
-
-  std::copy_if(file_names.begin(), file_names.end(), std::back_inserter(bmp_images), [](std::string s)
-               { return s.substr(s.find_last_of(".") + 1) == "bmp"; });
-
-  if (bmp_images.size() > 0)
+  if (START_WEBAPP)
   {
-    display.drawImage(bmp_images[0].c_str(), 0, 0);
+    init_ap();
+    init_localdomain();
+
+    start_web_server();
   }
   else
   {
-    const auto width = display.width() / 8;
-    for (size_t i = 0; i < 8; i++)
-    {
-      display.fillRect(width * i, 0, width, display.height(), i);
-    }
-  }
+    std::vector<std::string> file_names;
+    std::vector<std::string> bmp_images;
 
-  display.display();
+    readfiles("/sdcard/", file_names);
+
+    std::copy_if(file_names.begin(), file_names.end(), std::back_inserter(bmp_images), [](std::string s)
+                 { return s.substr(s.find_last_of(".") + 1) == "bmp"; });
+
+    if (bmp_images.size() > 0)
+    {
+      display.drawImage(bmp_images[0].c_str(), 0, 0);
+    }
+    else
+    {
+      const auto width = display.width() / 8;
+      for (size_t i = 0; i < 8; i++)
+      {
+        display.fillRect(width * i, 0, width, display.height(), i);
+      }
+    }
+
+    display.display();
+  }
 
   for (;;)
   {
@@ -88,11 +100,6 @@ extern "C"
   void app_main()
   {
     init_nvs();
-
-    init_ap();
-    init_localdomain();
-
-    start_web_server();
 
     xTaskCreatePinnedToCore(main_task, "main_task", 8192, nullptr, 1, nullptr, 1);
   }
