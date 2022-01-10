@@ -39,7 +39,7 @@
       {
         field: "Image",
         value: (v) =>
-          `<img src="/api/photos/${v.filename}" height="70" alt="${v.filename}">`,
+          `<img src="/api/v1/photos/${v.filename}" height="70" alt="${v.filename}">`,
         class: "w-1/2",
         sortable: false,
         headerRemove: "justify-end",

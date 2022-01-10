@@ -5,7 +5,7 @@ import type {
   PhotoEntry,
   Display,
   Orientation,
-  Config,
+  TimeConfig,
   Info,
   OperationResult,
 } from "../api";
@@ -24,7 +24,7 @@ function handle500ErrorResponse(res: ResponseComposition, ctx: RestContext) {
 }
 
 export const handlers = [
-  rest.post<string>("/api/upload", async (req, res, ctx) => {
+  rest.post<string>("/api/v1/photos", async (req, res, ctx) => {
     if (!req.body) {
       return res(
         ctx.status(400),
@@ -49,7 +49,7 @@ export const handlers = [
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
-  rest.get("/api/photos.json", (_req, res, ctx) => {
+  rest.get("/api/v1/photos", (_req, res, ctx) => {
     return openPhotoDatabase("readonly")
       .then(({ photo, hidden, close }) =>
         Promise.all([photo.getAll(), hidden.getAll()])
@@ -71,7 +71,7 @@ export const handlers = [
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
-  rest.get("/api/photos/:filename", (req, res, ctx) => {
+  rest.get("/api/v1/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readonly")
       .then(({ photo, close }) => photo.get(req.params.filename).finally(close))
       .then(async ({ target: { result: data } }) => {
@@ -94,7 +94,7 @@ export const handlers = [
       })
       .catch(handle500ErrorResponse(res, ctx));
   }),
-  rest.delete("/api/photos/:filename", (req, res, ctx) => {
+  rest.delete("/api/v1/photos/:filename", (req, res, ctx) => {
     return openPhotoDatabase("readwrite").then(({ photo, close }) =>
       photo
         .get(req.params.filename)
@@ -118,7 +118,7 @@ export const handlers = [
         .catch(handle500ErrorResponse(res, ctx))
     );
   }),
-  rest.patch<PhotoEntry>("/api/photos.json", (req, res, ctx) => {
+  rest.patch<PhotoEntry>("/api/v1/photos", (req, res, ctx) => {
     const [{ hidden: hide, filename }] = req.body.data;
     return openPhotoDatabase("readwrite")
       .then(({ photo, hidden, close }) =>
@@ -146,7 +146,7 @@ export const handlers = [
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
-  rest.get("/api/display.json", (_req, res, ctx) => {
+  rest.get("/api/v1/system/display", (_req, res, ctx) => {
     const inverted = sessionStorage.getItem("inverted") == "true";
     const orientation =
       (sessionStorage.getItem("orientation") as Orientation | null) ??
@@ -164,7 +164,7 @@ export const handlers = [
       })
     );
   }),
-  rest.post<Display>("/api/display.json", (req, res, ctx) => {
+  rest.post<Display>("/api/v1/system/display", (req, res, ctx) => {
     const {
       inverted,
       orientation,
@@ -181,13 +181,13 @@ export const handlers = [
       ctx.json<OperationResult>({ status: "succeeded" })
     );
   }),
-  rest.get("/api/config.json", (_req, res, ctx) => {
+  rest.get("/api/v1/system/time", (_req, res, ctx) => {
     const refresh = parseInt(sessionStorage.getItem("refresh") || "0", 10);
     const offset = parseInt(sessionStorage.getItem("offset") || "0", 10);
     const time = new Date(Date.now() + offset).toJSON();
-    return res(ctx.status(200), ctx.json<Config>({ time, refresh }));
+    return res(ctx.status(200), ctx.json<TimeConfig>({ time, refresh }));
   }),
-  rest.post<Config>("/api/config.json", (req, res, ctx) => {
+  rest.post<TimeConfig>("/api/v1/system/time", (req, res, ctx) => {
     const time = new Date(req.body.time);
     const diff = time.getTime() - Date.now();
     sessionStorage.setItem("offset", diff.toString(10));
@@ -197,7 +197,7 @@ export const handlers = [
       ctx.json<OperationResult>({ status: "succeeded" })
     );
   }),
-  rest.get("/api/info.json", (_req, res, ctx) => {
+  rest.get("/api/v1/system/info", (_req, res, ctx) => {
     const version = "1.0";
     const model = "Inkplate 6";
     const mac = "00:11:22:33:44:55";

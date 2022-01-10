@@ -53,7 +53,7 @@
   function deleteFile() {
     const filename = fileToDelete?.filename;
     fileToDelete = null;
-    fetch(`/api/photos/${filename}`, { method: "DELETE" }).then((res) => {
+    fetch(`/api/v1/photos/${filename}`, { method: "DELETE" }).then((res) => {
       if (res.ok) {
         data = data.filter((entry) => entry.filename != filename);
       } else {

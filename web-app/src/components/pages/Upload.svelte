@@ -43,7 +43,7 @@
       reader.readAsDataURL(blob);
     });
 
-    fetch("/api/upload", { method: "POST", body: encodedText })
+    fetch("/api/v1/photos", { method: "POST", body: encodedText })
       .then((res) => {
         snackbar.text = `Upload ${res.ok ? "succeeded" : "failed"}`;
         snackbar.color = res.ok ? "primary" : "error";

@@ -1,6 +1,6 @@
 import { get, patch, post } from "./method";
 
-export interface Config {
+export interface TimeConfig {
   time: string;
   refresh: number;
 }
@@ -77,8 +77,8 @@ function API<T extends { [key in string]: any }>(path: string) {
 }
 
 export default {
-  config: API<Config>("/api/config.json"),
-  display: API<Display>("/api/display.json"),
-  photos: API<PhotoEntry>("/api/photos.json"),
-  info: API<Info>("/api/info.json"),
+  config: API<TimeConfig>("/api/v1/system/time"),
+  display: API<Display>("/api/v1/system/display"),
+  photos: API<PhotoEntry>("/api/v1/photos"),
+  info: API<Info>("/api/v1/system/info"),
 } as const;
