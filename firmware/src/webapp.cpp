@@ -4,10 +4,14 @@
 #include "nvs_flash.h"
 #include "mdns.h"
 #include "lwip/apps/netbiosns.h"
+#include "lwip/inet.h"
+#include "esp_http_server.h"
 #include "esp_netif.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
+
+#include "api.hpp"
 
 static const char *TAG = "webapp";
 
@@ -75,5 +79,32 @@ void init_ap()
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
   ESP_ERROR_CHECK(esp_wifi_start());
 
-  ESP_LOGI(TAG, "SSID:%s password:%s", wifi_config.ap.ssid, wifi_config.ap.password);
+  esp_netif_ip_info_t ip_info;
+  esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
+
+  char ip_addr[16];
+  inet_ntoa_r(ip_info.ip.addr, ip_addr, 16);
+
+  ESP_LOGI(TAG, "IP: %s SSID:%s password:%s", ip_addr, wifi_config.ap.ssid, wifi_config.ap.password);
+}
+
+void start_web_server()
+{
+  httpd_handle_t server = nullptr;
+  httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+  config.max_open_sockets = 7;
+  config.lru_purge_enable = true;
+  config.uri_match_fn = httpd_uri_match_wildcard;
+
+  ESP_LOGI(TAG, "Starting HTTP Server");
+
+  if (httpd_start(&server, &config) != ESP_OK)
+  {
+    ESP_LOGE(TAG, "Start server failed");
+    return;
+  };
+
+  ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_info_get_uri));
+
+  return;
 }

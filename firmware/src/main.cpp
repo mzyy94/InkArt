@@ -92,6 +92,8 @@ extern "C"
     init_ap();
     init_localdomain();
 
+    start_web_server();
+
     xTaskCreatePinnedToCore(main_task, "main_task", 8192, nullptr, 1, nullptr, 1);
   }
 }
