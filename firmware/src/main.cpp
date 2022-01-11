@@ -13,13 +13,10 @@
 #include "esp_sleep.h"
 
 #include "webapp.hpp"
-
-#define START_WEBAPP true
-
-static const char *TAG = "main";
-
 #include "draw.hpp"
 #include "inkplate.hpp"
+
+static const char *TAG = "main";
 
 Inkplate display(DisplayMode::INKPLATE_3BIT);
 
@@ -39,24 +36,13 @@ void readfiles(const std::string &dirname, std::vector<std::string> &output)
 
 void main_task(void *)
 {
-  std::cout << "Hello world!" << std::endl;
-
-  /* Print chip information */
-  esp_chip_info_t chip_info;
-  esp_chip_info(&chip_info);
-  std::cout << "This is ESP32 chip with " << std::dec << +chip_info.cores
-            << " CPU cores, WiFi" << ((chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "")
-            << ((chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "") << ", ";
-
-  std::cout << "silicon revision " << std::dec << +chip_info.revision << ", ";
-
-  std::cout << spi_flash_get_chip_size() / (1024 * 1024) << "MB "
-            << ((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external") << " flash" << std::endl;
+  init_nvs();
 
   display.begin(true);
   display.clearDisplay();
 
-  if (START_WEBAPP)
+  const auto wakeup_reason = esp_sleep_get_wakeup_cause();
+  if (wakeup_reason != ESP_SLEEP_WAKEUP_TIMER)
   {
     char ssid[16], password[16], ip_addr[16];
 
@@ -108,22 +94,16 @@ void main_task(void *)
 
     display.display();
   }
-
   for (;;)
   {
     vTaskDelay(1000000 / portTICK_PERIOD_MS);
   }
-  std::cout << "Restarting now." << std::endl;
-  vTaskDelay(1000 / portTICK_PERIOD_MS);
-  esp_restart();
 }
 
 extern "C"
 {
   void app_main()
   {
-    init_nvs();
-
     xTaskCreatePinnedToCore(main_task, "main_task", 8192, nullptr, 1, nullptr, 1);
   }
 }
