@@ -16,6 +16,7 @@
 
 static const char *TAG = "main";
 
+#include "draw.hpp"
 #include "inkplate.hpp"
 
 Inkplate display(DisplayMode::INKPLATE_3BIT);
@@ -55,10 +56,13 @@ void main_task(void *)
 
   if (START_WEBAPP)
   {
-    init_ap();
+    char ssid[16], password[16], ip_addr[16];
+
+    init_ap(ssid, password, ip_addr);
     init_localdomain();
 
     start_web_server();
+    draw_setup_info(ssid, password, ip_addr);
   }
   else
   {

@@ -54,7 +54,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
   }
 }
 
-void init_ap()
+void init_ap(char *ssid, char *password, char *ip_addr)
 {
   ESP_ERROR_CHECK(esp_netif_init());
   ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -67,10 +67,12 @@ void init_ap()
 
   uint8_t macaddr[6];
   esp_read_mac(macaddr, ESP_MAC_WIFI_SOFTAP);
+  snprintf(ssid, 12, "InkArt%02x%02x", macaddr[2], macaddr[3]);
+  snprintf(password, 12, "iNKaRT%02x%02x", macaddr[4], macaddr[5]);
 
   wifi_config_t wifi_config = {};
-  snprintf(reinterpret_cast<char *>(wifi_config.ap.ssid), 12, "InkArt%02x%02x", macaddr[2], macaddr[3]);
-  snprintf(reinterpret_cast<char *>(wifi_config.ap.password), 12, "iNKaRT%02x%02x", macaddr[4], macaddr[5]);
+  strncpy(reinterpret_cast<char *>(wifi_config.ap.ssid), ssid, 12);
+  strncpy(reinterpret_cast<char *>(wifi_config.ap.password), password, 12);
   wifi_config.ap.channel = 13;
   wifi_config.ap.max_connection = 4;
   wifi_config.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK;
@@ -82,7 +84,6 @@ void init_ap()
   esp_netif_ip_info_t ip_info;
   esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
 
-  char ip_addr[16];
   inet_ntoa_r(ip_info.ip.addr, ip_addr, 16);
 
   ESP_LOGI(TAG, "IP: %s SSID:%s password:%s", ip_addr, wifi_config.ap.ssid, wifi_config.ap.password);
