@@ -5,7 +5,7 @@
 
 #undef PROGMEM
 #define PROGMEM
-#include "fonts/FreeMono12pt7b.h"
+#include "fonts/FreeMonoBold12pt7b.h"
 
 static const char *TAG = "draw";
 
@@ -44,10 +44,10 @@ void draw_setup_info(const char *ssid, const char *password, const char *ip_addr
   draw_qrcode(&qr, offset_x, offset_y, size);
 
   display.setTextSize(1);
-  display.setFont(&FreeMono12pt7b);
+  display.setFont(&FreeMonoBold12pt7b);
 
   display.setCursor(offset_x, offset_y + qr.size * size + 24);
-  display.printf("Setup mode.\n");
+  display.printf("Setup mode. Touch any touchpad to exit.\n");
   display.setCursor(offset_x, display.getCursorY());
   display.printf("SSID: %s Password: %s\n", ssid, password);
   display.setCursor(offset_x, display.getCursorY());
