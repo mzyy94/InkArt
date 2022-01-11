@@ -19,8 +19,9 @@
 static const char *TAG = "main";
 
 Inkplate display(DisplayMode::INKPLATE_3BIT);
+RTC_DATA_ATTR int last_index = -1;
 
-void readfiles(const std::string &dirname, std::vector<std::string> &output)
+void readbmps(const std::string &dirname, std::vector<std::string> &output)
 {
   DIR *dir = opendir(dirname.c_str());
   struct dirent *ent;
@@ -28,7 +29,9 @@ void readfiles(const std::string &dirname, std::vector<std::string> &output)
   {
     if (ent->d_type == DT_REG)
     {
-      output.push_back(ent->d_name);
+      std::string name = ent->d_name;
+      if (name.substr(name.find_last_of(".") + 1) == "bmp")
+        output.push_back(dirname + name);
     }
   }
   closedir(dir);
@@ -71,17 +74,28 @@ void main_task(void *)
   }
   else
   {
-    std::vector<std::string> file_names;
     std::vector<std::string> bmp_images;
 
-    readfiles("/sdcard/", file_names);
-
-    std::copy_if(file_names.begin(), file_names.end(), std::back_inserter(bmp_images), [](std::string s)
-                 { return s.substr(s.find_last_of(".") + 1) == "bmp"; });
+    readbmps("/sdcard/", bmp_images);
 
     if (bmp_images.size() > 0)
     {
-      display.drawImage(bmp_images[0].c_str(), 0, 0);
+      last_index++;
+      ESP_LOGI(TAG, "Search bmp image at index %d in SD", last_index);
+      auto iter = bmp_images.begin();
+      for (size_t i = 0; i < last_index; i++)
+      {
+        iter++;
+        if (iter == bmp_images.end())
+        {
+          iter = bmp_images.begin();
+          last_index = 0;
+          break;
+        }
+      }
+
+      ESP_LOGI(TAG, "Display bmp image: %s", iter->c_str());
+      display.drawImage(iter->c_str(), 0, 0);
     }
     else
     {
@@ -94,10 +108,11 @@ void main_task(void *)
 
     display.display();
   }
-  for (;;)
-  {
-    vTaskDelay(1000000 / portTICK_PERIOD_MS);
-  }
+
+  ESP::delay(1000);
+  ESP_LOGI(TAG, "Entering deep sleep");
+  esp_sleep_enable_timer_wakeup(30 * 60 * 1000000);
+  esp_deep_sleep_start();
 }
 
 extern "C"
