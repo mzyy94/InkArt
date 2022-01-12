@@ -1,3 +1,4 @@
+import { brotliCompressSync } from 'zlib'
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -9,7 +10,7 @@ import css from 'rollup-plugin-css-only';
 import smelte from 'smelte/rollup-plugin-smelte';
 import copy from 'rollup-plugin-copy'
 import replace from '@rollup/plugin-replace';
-import brotli from 'rollup-plugin-brotli';
+import gzip from 'rollup-plugin-gzip'
 import builtins from 'rollup-plugin-node-builtins';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -114,9 +115,10 @@ export default {
 		production && terser(),
 
 		// After that, compress resources using brotli algorithm.
-		production && brotli({
-			test: /\.(js|css)$/,
-			additional: [
+		production && gzip({
+      customCompression: content => brotliCompressSync(Buffer.from(content)),
+      fileName: '.br',
+			additionalFiles: [
 				'public/index.html'
 			],
 		})
