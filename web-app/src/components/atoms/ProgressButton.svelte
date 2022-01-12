@@ -6,7 +6,7 @@
 <Button block on:click disabled={loading}>
   {#if loading}
     <span class="inline-block align-text-bottom">
-      <ProgressCircular size={16} width={2} color="secondary" />
+      <ProgressCircular size={16} width={2} color="gray" />
     </span>
     <slot name="loading">Loading...</slot>
   {:else}

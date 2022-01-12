@@ -172,7 +172,7 @@
 
     <div class="flex space-x-2 justify-end">
       <Button on:click={applySettings}>Apply</Button>
-      <Button color="secondary" on:click={initSettings}>Reset</Button>
+      <Button color="gray" on:click={initSettings}>Reset</Button>
     </div>
 
     <canvas bind:this={canvas} width={500} height={500} />
