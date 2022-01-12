@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "lwip/inet.h"
 #include "nvs_flash.h"
 #include "esp_netif.h"
@@ -100,5 +101,81 @@ httpd_uri_t system_display_get_uri = {
     .uri = "/api/v1/system/display",
     .method = HTTP_GET,
     .handler = system_display_get_handler,
+    .user_ctx = nullptr,
+};
+
+static esp_err_t system_display_post_handler(httpd_req_t *req)
+{
+  char buff[256];
+  if (req->content_len >= sizeof(buff))
+  {
+    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
+    return ESP_FAIL;
+  }
+
+  auto len = httpd_req_recv(req, buff, sizeof(buff));
+  if (len <= 0)
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read content");
+    return ESP_FAIL;
+  }
+
+  buff[len] = '\0';
+  json j;
+  try
+  {
+    j = json::parse(buff);
+  }
+  catch (json::parse_error &e)
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
+    return ESP_FAIL;
+  }
+
+  nvs_handle_t handle;
+  nvs_open("system_settings", NVS_READWRITE, &handle);
+
+  uint8_t val;
+  if (j.contains("inverted"))
+  {
+    val = j["inverted"];
+    nvs_set_u8(handle, "inverted", val);
+  }
+  if (j.contains("orientation"))
+  {
+    std::string orientation = j["orientation"];
+    auto iter = std::find(orientations.begin(), orientations.end(), orientation);
+    val = std::distance(orientations.begin(), iter);
+    nvs_set_u8(handle, "orientation", val);
+  }
+  if (j.contains("padding"))
+  {
+    int16_t val1;
+    val1 = j["padding"]["top"];
+    nvs_set_i16(handle, "padding-top", val1);
+    val1 = j["padding"]["left"];
+    nvs_set_i16(handle, "padding-left", val1);
+    val1 = j["padding"]["right"];
+    nvs_set_i16(handle, "padding-right", val1);
+    val1 = j["padding"]["bottom"];
+    nvs_set_i16(handle, "padding-bottom", val1);
+  }
+  nvs_commit(handle);
+  nvs_close(handle);
+
+  json ok;
+  ok["status"] = "ok";
+  const std::string str = ok.dump(4);
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_sendstr(req, str.c_str());
+
+  return ESP_OK;
+}
+
+httpd_uri_t system_display_post_uri = {
+    .uri = "/api/v1/system/display",
+    .method = HTTP_POST,
+    .handler = system_display_post_handler,
     .user_ctx = nullptr,
 };
