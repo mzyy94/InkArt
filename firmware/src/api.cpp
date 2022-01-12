@@ -175,3 +175,97 @@ httpd_uri_t system_display_post_uri = {
     .handler = system_display_post_handler,
     .user_ctx = nullptr,
 };
+
+static esp_err_t system_time_get_handler(httpd_req_t *req)
+{
+  json j;
+
+  struct timeval tv_now;
+  gettimeofday(&tv_now, nullptr);
+  uint64_t time_ms = tv_now.tv_sec * 1000LL + tv_now.tv_usec / 1000;
+
+  j["time"] = time_ms;
+
+  nvs_handle_t handle;
+  nvs_open("system_settings", NVS_READONLY, &handle);
+
+  uint16_t val = 0;
+  nvs_get_u16(handle, "refresh", &val);
+  j["refresh"] = val;
+
+  nvs_close(handle);
+
+  const std::string str = j.dump(4);
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_sendstr(req, str.c_str());
+
+  return ESP_OK;
+}
+
+httpd_uri_t system_time_get_uri = {
+    .uri = "/api/v1/system/time",
+    .method = HTTP_GET,
+    .handler = system_time_get_handler,
+    .user_ctx = nullptr,
+};
+
+static esp_err_t system_time_post_handler(httpd_req_t *req)
+{
+  char buff[128];
+  if (req->content_len >= sizeof(buff))
+  {
+    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
+    return ESP_FAIL;
+  }
+
+  auto len = httpd_req_recv(req, buff, sizeof(buff));
+  if (len <= 0)
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read content");
+    return ESP_FAIL;
+  }
+
+  buff[len] = '\0';
+  json j = json::parse(buff, nullptr, false);
+  if (j.is_discarded())
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
+    return ESP_FAIL;
+  }
+
+  if (j.contains("time"))
+  {
+    uint64_t time_ms = j["time"];
+    struct timeval tv_now;
+    tv_now.tv_sec = time_ms / 1000;
+    tv_now.tv_usec = (time_ms % 1000) * 1000;
+    settimeofday(&tv_now, nullptr);
+  }
+
+  if (j.contains("refresh"))
+  {
+    uint16_t val = j["refresh"];
+    nvs_handle_t handle;
+    nvs_open("system_settings", NVS_READWRITE, &handle);
+    nvs_set_u16(handle, "refresh", val);
+    nvs_commit(handle);
+    nvs_close(handle);
+  }
+
+  json ok;
+  ok["status"] = "ok";
+  const std::string str = ok.dump(4);
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_sendstr(req, str.c_str());
+
+  return ESP_OK;
+}
+
+httpd_uri_t system_time_post_uri = {
+    .uri = "/api/v1/system/time",
+    .method = HTTP_POST,
+    .handler = system_time_post_handler,
+    .user_ctx = nullptr,
+};
