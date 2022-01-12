@@ -1,17 +1,21 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <fstream>
 #include "lwip/inet.h"
 #include "nvs_flash.h"
 #include "esp_netif.h"
 #include "esp_http_server.h"
 #include "esp_system.h"
+#include "esp_log.h"
 
 #include "files.hpp"
 
 #include "nlohmann/json.hpp"
 
 using nlohmann::json;
+
+static const char *TAG = "api";
 
 static esp_err_t system_info_get_handler(httpd_req_t *req)
 {
@@ -309,5 +313,58 @@ httpd_uri_t photo_list_get_uri = {
     .uri = "/api/v1/photos",
     .method = HTTP_GET,
     .handler = photo_list_get_handler,
+    .user_ctx = nullptr,
+};
+
+static esp_err_t photo_binary_get_handler(httpd_req_t *req)
+{
+  std::string uri = req->uri;
+  const auto filename = uri.substr(uri.find_last_of("/") + 1);
+
+  std::ifstream ifs("/sdcard/." + filename, std::ios::in | std::ios::binary);
+  if (!ifs)
+  {
+    ifs.open("/sdcard/" + filename, std::ios::in | std::ios::binary);
+  }
+
+  if (!ifs)
+  {
+    ESP_LOGE(TAG, "Image not found: %s", filename.c_str());
+    httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Not found.");
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_type(req, "image/bmp");
+
+  char buff[1024];
+  ssize_t read_bytes;
+
+  do
+  {
+    read_bytes = ifs.readsome(buff, sizeof(buff));
+    if (read_bytes == -1)
+    {
+      ESP_LOGE(TAG, "Failed to read image: %s", filename.c_str());
+    }
+    else if (read_bytes > 0)
+    {
+      if (httpd_resp_send_chunk(req, buff, read_bytes) != ESP_OK)
+      {
+        ESP_LOGE(TAG, "File sending failed: %s", filename.c_str());
+        httpd_resp_sendstr_chunk(req, nullptr);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to send file");
+        return ESP_FAIL;
+      }
+    }
+  } while (read_bytes > 0);
+
+  httpd_resp_send_chunk(req, nullptr, 0);
+  return ESP_OK;
+}
+
+httpd_uri_t photo_binary_get_uri = {
+    .uri = "/api/v1/photos/*",
+    .method = HTTP_GET,
+    .handler = photo_binary_get_handler,
     .user_ctx = nullptr,
 };
