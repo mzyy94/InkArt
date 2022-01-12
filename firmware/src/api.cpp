@@ -70,13 +70,13 @@ static esp_err_t system_display_get_handler(httpd_req_t *req)
   nvs_handle_t handle;
   nvs_open("system_settings", NVS_READONLY, &handle);
 
-  uint8_t val;
+  uint8_t val = 0;
   nvs_get_u8(handle, "inverted", &val);
-  j["inverted"] = val;
+  j["inverted"] = bool(val);
   nvs_get_u8(handle, "orientation", &val);
   j["orientation"] = orientations[val];
 
-  int16_t val1;
+  int16_t val1 = 0;
   nvs_get_i16(handle, "padding-top", &val1);
   j["padding"]["top"] = val1;
   nvs_get_i16(handle, "padding-left", &val1);
