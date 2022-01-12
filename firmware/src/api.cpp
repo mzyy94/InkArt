@@ -1,4 +1,7 @@
+#include <string>
+#include <vector>
 #include "lwip/inet.h"
+#include "nvs_flash.h"
 #include "esp_netif.h"
 #include "esp_http_server.h"
 #include "esp_system.h"
@@ -50,5 +53,52 @@ httpd_uri_t system_info_get_uri = {
     .uri = "/api/v1/system/info",
     .method = HTTP_GET,
     .handler = system_info_get_handler,
+    .user_ctx = nullptr,
+};
+
+std::vector<std::string> orientations = {
+    "landscape",
+    "portrait-left",
+    "upside-down",
+    "portrait-right",
+};
+
+static esp_err_t system_display_get_handler(httpd_req_t *req)
+{
+  json j;
+
+  nvs_handle_t handle;
+  nvs_open("system_settings", NVS_READONLY, &handle);
+
+  uint8_t val;
+  nvs_get_u8(handle, "inverted", &val);
+  j["inverted"] = val;
+  nvs_get_u8(handle, "orientation", &val);
+  j["orientation"] = orientations[val];
+
+  int16_t val1;
+  nvs_get_i16(handle, "padding-top", &val1);
+  j["padding"]["top"] = val1;
+  nvs_get_i16(handle, "padding-left", &val1);
+  j["padding"]["left"] = val1;
+  nvs_get_i16(handle, "padding-right", &val1);
+  j["padding"]["right"] = val1;
+  nvs_get_i16(handle, "padding-bottom", &val1);
+  j["padding"]["bottom"] = val1;
+
+  nvs_close(handle);
+
+  const std::string str = j.dump(4);
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_sendstr(req, str.c_str());
+
+  return ESP_OK;
+}
+
+httpd_uri_t system_display_get_uri = {
+    .uri = "/api/v1/system/display",
+    .method = HTTP_GET,
+    .handler = system_display_get_handler,
     .user_ctx = nullptr,
 };

@@ -106,6 +106,7 @@ void start_web_server()
   };
 
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_info_get_uri));
+  ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_display_get_uri));
 
   return;
 }
