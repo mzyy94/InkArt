@@ -106,7 +106,7 @@ httpd_uri_t system_display_get_uri = {
 
 static esp_err_t system_display_post_handler(httpd_req_t *req)
 {
-  char buff[256];
+  char buff[128];
   if (req->content_len >= sizeof(buff))
   {
     httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
@@ -121,12 +121,8 @@ static esp_err_t system_display_post_handler(httpd_req_t *req)
   }
 
   buff[len] = '\0';
-  json j;
-  try
-  {
-    j = json::parse(buff);
-  }
-  catch (json::parse_error &e)
+  json j = json::parse(buff, nullptr, false);
+  if (j.is_discarded())
   {
     httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
     return ESP_FAIL;
