@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <fstream>
 #include "mdns.h"
 #include "lwip/apps/netbiosns.h"
 #include "lwip/inet.h"
@@ -77,6 +78,73 @@ void init_ap(char *ssid, char *password, char *ip_addr)
   ESP_LOGI(TAG, "IP: %s SSID:%s password:%s", ip_addr, wifi_config.ap.ssid, wifi_config.ap.password);
 }
 
+static esp_err_t static_get_handler(httpd_req_t *req)
+{
+  std::string filepath = req->uri;
+  filepath = "/sdcard" + filepath;
+
+  if (req->uri[strlen(req->uri) - 1] == '/')
+  {
+    filepath += "index.html";
+  }
+
+  std::ifstream ifs(filepath + ".gz", std::ios::in | std::ios::binary);
+  if (ifs)
+  {
+    httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
+  }
+  else
+  {
+    ifs.open(filepath, std::ios::in | std::ios::binary);
+  }
+
+  if (!ifs)
+  {
+    ESP_LOGE(TAG, "File not found: %s", filepath.c_str());
+    httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Not found.");
+    return ESP_FAIL;
+  }
+
+  const auto ext = filepath.substr(filepath.find_last_of(".") + 1);
+  if (ext == "html")
+    httpd_resp_set_type(req, "text/html");
+  else if (ext == "js")
+    httpd_resp_set_type(req, "text/javascript");
+  else if (ext == "css")
+    httpd_resp_set_type(req, "text/css");
+  else if (ext == "woff2")
+    httpd_resp_set_type(req, "font/woff2");
+  else if (ext == "png")
+    httpd_resp_set_type(req, "image/png");
+  else
+    httpd_resp_set_type(req, "application/octet-stream");
+
+  char buff[1024];
+  ssize_t read_bytes;
+
+  do
+  {
+    read_bytes = ifs.readsome(buff, sizeof(buff));
+    if (read_bytes == -1)
+    {
+      ESP_LOGE(TAG, "Failed to read file : %s", filepath.c_str());
+    }
+    else if (read_bytes > 0)
+    {
+      if (httpd_resp_send_chunk(req, buff, read_bytes) != ESP_OK)
+      {
+        ESP_LOGE(TAG, "File sending failed: %s", filepath.c_str());
+        httpd_resp_sendstr_chunk(req, nullptr);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to send file");
+        return ESP_FAIL;
+      }
+    }
+  } while (read_bytes > 0);
+
+  httpd_resp_send_chunk(req, nullptr, 0);
+  return ESP_OK;
+}
+
 void start_web_server()
 {
   httpd_handle_t server = nullptr;
@@ -93,8 +161,18 @@ void start_web_server()
     return;
   };
 
+  // Register APIs
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_info_get_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_display_get_uri));
+
+  // Register static file handler
+  httpd_uri_t static_get_uri = {
+      .uri = "/*",
+      .method = HTTP_GET,
+      .handler = static_get_handler,
+      .user_ctx = nullptr,
+  };
+  httpd_register_uri_handler(server, &static_get_uri);
 
   return;
 }
