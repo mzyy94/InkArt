@@ -2,26 +2,25 @@
 #include "esp_netif.h"
 #include "esp_http_server.h"
 #include "esp_system.h"
-#include "cJSON.h"
+#include "nlohmann/json.hpp"
+
+using nlohmann::json;
 
 static esp_err_t system_info_get_handler(httpd_req_t *req)
 {
-  cJSON *system = cJSON_CreateObject();
-  cJSON *display = cJSON_CreateObject();
+  json j;
+  j["system"]["version"] = APP_VERSION;
 
-  cJSON_AddStringToObject(system, "version", APP_VERSION);
 #if defined(INKPLATE_10)
-  cJSON_AddStringToObject(system, "model", "Inkplate 10");
-  cJSON_AddNumberToObject(display, "width", 1200);
-  cJSON_AddNumberToObject(display, "height", 825);
+  j["system"]["model"] = "Inkplate 10";
+  j["display"]["width"] = 1200;
+  j["display"]["height"] = 825;
 #elif defined(INKPLATE_6)
-  cJSON_AddStringToObject(system, "model", "Inkplate 6");
-  cJSON_AddNumberToObject(display, "width", 800);
-  cJSON_AddNumberToObject(display, "height", 600);
+  j["system"]["model"] = "Inkplate 6";
+  j["display"]["width"] = 800;
+  j["display"]["height"] = 600;
 #else
-  cJSON_AddStringToObject(system, "model", "Unknown");
-  cJSON_Delete(display);
-  display = nullptr;
+  j["system"]["model"] = "Unknown";
 #endif
 
   uint8_t macaddr[6];
@@ -31,25 +30,18 @@ static esp_err_t system_info_get_handler(httpd_req_t *req)
   esp_read_mac(macaddr, ESP_MAC_WIFI_SOFTAP);
   esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
 
-  cJSON *network = cJSON_CreateObject();
   snprintf(buff, sizeof(buff), MACSTR, MAC2STR(macaddr));
-  cJSON_AddStringToObject(network, "mac", buff);
+  j["network"]["mac"] = buff;
   inet_ntoa_r(ip_info.ip.addr, buff, sizeof(buff));
-  cJSON_AddStringToObject(network, "ipv4", buff);
+  j["network"]["ipv4"] = buff;
 
-  cJSON *root = cJSON_CreateObject();
-  cJSON_AddItemToObject(root, "system", system);
-  cJSON_AddItemToObject(root, "display", display);
   // FIXME: Add storage usage data
-  cJSON_AddItemToObject(root, "storage", nullptr);
-  cJSON_AddItemToObject(root, "network", network);
-  const auto *sys_info = cJSON_Print(root);
+  j["storage"] = nullptr;
+
+  const std::string str = j.dump(4);
 
   httpd_resp_set_type(req, "application/json");
-  httpd_resp_sendstr(req, sys_info);
-
-  free((void *)sys_info);
-  cJSON_Delete(root);
+  httpd_resp_sendstr(req, str.c_str());
 
   return ESP_OK;
 }
