@@ -316,6 +316,80 @@ httpd_uri_t photo_list_get_uri = {
     .user_ctx = nullptr,
 };
 
+static esp_err_t photo_list_patch_handler(httpd_req_t *req)
+{
+  char buff[128];
+  if (req->content_len >= sizeof(buff))
+  {
+    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
+    return ESP_FAIL;
+  }
+
+  auto len = httpd_req_recv(req, buff, sizeof(buff));
+  if (len <= 0)
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read content");
+    return ESP_FAIL;
+  }
+
+  buff[len] = '\0';
+  json j = json::parse(buff, nullptr, false);
+  if (j.is_discarded())
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
+    return ESP_FAIL;
+  }
+
+  esp_err_t ret = ESP_OK;
+
+  if (j.contains("data") && j["data"].is_array())
+  {
+    for (const auto &ent : j["data"])
+    {
+      bool hidden = ent["hidden"];
+      std::string filename = ent["filename"];
+      std::string old_path, new_path;
+      if (hidden)
+      {
+        old_path = "/sdcard/" + filename;
+        new_path = "/sdcard/." + filename;
+      }
+      else
+      {
+        old_path = "/sdcard/." + filename;
+        new_path = "/sdcard/" + filename;
+      }
+
+      if (rename(old_path.c_str(), new_path.c_str()) != 0)
+      {
+        ret |= ESP_FAIL;
+      }
+    }
+  }
+
+  json res;
+  res["status"] = ret == ESP_OK ? "ok" : "fail";
+  std::string str = res.dump(4);
+  httpd_resp_set_type(req, "application/json");
+  if (ret == ESP_OK)
+  {
+    httpd_resp_sendstr(req, str.c_str());
+  }
+  else
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to change hidden state");
+  }
+
+  return ret;
+}
+
+httpd_uri_t photo_list_patch_uri = {
+    .uri = "/api/v1/photos",
+    .method = HTTP_PATCH,
+    .handler = photo_list_patch_handler,
+    .user_ctx = nullptr,
+};
+
 static esp_err_t photo_binary_get_handler(httpd_req_t *req)
 {
   std::string uri = req->uri;
