@@ -33,7 +33,7 @@
       new Date(defaultDate).getTime() - new Date(modifiedDate).getTime();
     const datetime = new Date(date.getTime() + timeZoneOffset);
 
-    api.config({ time: datetime.toJSON(), refresh }).then((res) => {
+    api.config({ time: datetime.getTime(), refresh }).then((res) => {
       snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
       snackbar.color = res.ok ? "primary" : "error";
       snackbar.show = true;
@@ -62,6 +62,7 @@
 
   function syncDate() {
     date = new Date();
+    applySettings();
   }
 </script>
 

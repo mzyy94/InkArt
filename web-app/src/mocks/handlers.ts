@@ -184,7 +184,7 @@ export const handlers = [
   rest.get("/api/v1/system/time", (_req, res, ctx) => {
     const refresh = parseInt(sessionStorage.getItem("refresh") || "0", 10);
     const offset = parseInt(sessionStorage.getItem("offset") || "0", 10);
-    const time = new Date(Date.now() + offset).toJSON();
+    const time = new Date(Date.now() + offset).getTime();
     return res(ctx.status(200), ctx.json<TimeConfig>({ time, refresh }));
   }),
   rest.post<TimeConfig>("/api/v1/system/time", (req, res, ctx) => {

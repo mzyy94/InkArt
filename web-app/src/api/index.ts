@@ -1,7 +1,7 @@
 import { get, patch, post } from "./method";
 
 export interface TimeConfig {
-  time: string;
+  time: number;
   refresh: number;
 }
 
