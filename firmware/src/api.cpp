@@ -442,3 +442,42 @@ httpd_uri_t photo_binary_get_uri = {
     .handler = photo_binary_get_handler,
     .user_ctx = nullptr,
 };
+
+static esp_err_t photo_binary_delete_handler(httpd_req_t *req)
+{
+  std::string uri = req->uri;
+  const auto filename = uri.substr(uri.find_last_of("/") + 1);
+
+  esp_err_t ret = ESP_OK;
+  auto filepath = "/sdcard/" + filename;
+  if (remove(filepath.c_str()) != 0)
+  {
+    filepath = "/sdcard/." + filename;
+    if (remove(filepath.c_str()) != 0)
+    {
+      ret |= ESP_FAIL;
+    }
+  }
+
+  json res;
+  res["status"] = ret == ESP_OK ? "ok" : "fail";
+  std::string str = res.dump(4);
+  httpd_resp_set_type(req, "application/json");
+  if (ret == ESP_OK)
+  {
+    httpd_resp_sendstr(req, str.c_str());
+  }
+  else
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to change hidden state");
+  }
+
+  return ret;
+}
+
+httpd_uri_t photo_binary_delete_uri = {
+    .uri = "/api/v1/photos/*",
+    .method = HTTP_DELETE,
+    .handler = photo_binary_delete_handler,
+    .user_ctx = nullptr,
+};
