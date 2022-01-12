@@ -11,12 +11,14 @@
 #include "esp_spi_flash.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
+#include "nvs_flash.h"
 
 #include "webapp.hpp"
 #include "draw.hpp"
 #include "inkplate.hpp"
 
 static const char *TAG = "main";
+static const int16_t nvs_version = 1;
 
 Inkplate display(DisplayMode::INKPLATE_3BIT);
 RTC_DATA_ATTR int last_index = -1;
@@ -35,6 +37,25 @@ void readbmps(const std::string &dirname, std::vector<std::string> &output)
     }
   }
   closedir(dir);
+}
+
+void init_nvs()
+{
+  esp_err_t ret = nvs_flash_init();
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+  {
+    ESP_ERROR_CHECK(nvs_flash_erase());
+    ret = nvs_flash_init();
+  }
+  ESP_ERROR_CHECK(ret);
+  nvs_handle_t handle;
+  if (nvs_open("system_settings", NVS_READONLY, &handle) == ESP_ERR_NVS_NOT_FOUND)
+  {
+    ESP_ERROR_CHECK(nvs_open("system_settings", NVS_READWRITE, &handle));
+    nvs_set_i16(handle, "version", nvs_version);
+    nvs_commit(handle);
+  }
+  nvs_close(handle);
 }
 
 void main_task(void *)
