@@ -3,7 +3,6 @@
 #include <vector>
 #include <algorithm>
 #include <sys/types.h>
-#include <dirent.h>
 #include <cstring>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -15,6 +14,7 @@
 
 #include "webapp.hpp"
 #include "draw.hpp"
+#include "files.hpp"
 #include "inkplate.hpp"
 
 static const char *TAG = "main";
@@ -22,22 +22,6 @@ static const int16_t nvs_version = 1;
 
 Inkplate display(DisplayMode::INKPLATE_3BIT);
 RTC_DATA_ATTR int last_index = -1;
-
-void readbmps(const std::string &dirname, std::vector<std::string> &output)
-{
-  DIR *dir = opendir(dirname.c_str());
-  struct dirent *ent;
-  while ((ent = readdir(dir)) != nullptr)
-  {
-    if (ent->d_type == DT_REG)
-    {
-      std::string name = ent->d_name;
-      if (name.substr(name.find_last_of(".") + 1) == "bmp")
-        output.push_back(dirname + name);
-    }
-  }
-  closedir(dir);
-}
 
 void init_nvs()
 {
@@ -116,7 +100,8 @@ void main_task(void *)
       }
 
       ESP_LOGI(TAG, "Display bmp image: %s", iter->c_str());
-      display.drawImage(iter->c_str(), 0, 0);
+      std::string filepath = "/sdcard/" + *iter;
+      display.drawImage(filepath.c_str(), 0, 0);
     }
     else
     {

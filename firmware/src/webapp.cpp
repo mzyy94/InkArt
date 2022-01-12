@@ -167,6 +167,7 @@ void start_web_server()
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_display_post_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_time_get_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_time_post_uri));
+  ESP_ERROR_CHECK(httpd_register_uri_handler(server, &photo_list_get_uri));
 
   // Register static file handler
   httpd_uri_t static_get_uri = {

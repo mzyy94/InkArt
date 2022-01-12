@@ -6,6 +6,9 @@
 #include "esp_netif.h"
 #include "esp_http_server.h"
 #include "esp_system.h"
+
+#include "files.hpp"
+
 #include "nlohmann/json.hpp"
 
 using nlohmann::json;
@@ -267,5 +270,44 @@ httpd_uri_t system_time_post_uri = {
     .uri = "/api/v1/system/time",
     .method = HTTP_POST,
     .handler = system_time_post_handler,
+    .user_ctx = nullptr,
+};
+
+static esp_err_t photo_list_get_handler(httpd_req_t *req)
+{
+  json j;
+  j["data"] = json::array();
+
+  std::vector<std::string> bmp_images;
+  readbmps("/sdcard/", bmp_images);
+
+  for (const auto &img : bmp_images)
+  {
+    json ent;
+    if (img[0] == '.')
+    {
+      ent["filename"] = img.substr(1);
+      ent["hidden"] = true;
+    }
+    else
+    {
+      ent["filename"] = img;
+      ent["hidden"] = false;
+    }
+    j["data"].push_back(ent);
+  }
+
+  const std::string str = j.dump(4);
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_sendstr(req, str.c_str());
+
+  return ESP_OK;
+}
+
+httpd_uri_t photo_list_get_uri = {
+    .uri = "/api/v1/photos",
+    .method = HTTP_GET,
+    .handler = photo_list_get_handler,
     .user_ctx = nullptr,
 };
