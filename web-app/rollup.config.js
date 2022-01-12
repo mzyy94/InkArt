@@ -114,7 +114,12 @@ export default {
 		// instead of npm run dev), minify
 		production && terser(),
 
-		// After that, compress resources using brotli algorithm.
+		// After that, compress resources using gzip and brotli algorithm.
+		production && gzip({
+			additionalFiles: [
+				'public/index.html'
+			],
+		}),
 		production && gzip({
       customCompression: content => brotliCompressSync(Buffer.from(content)),
       fileName: '.br',
