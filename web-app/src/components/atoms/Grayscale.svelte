@@ -226,8 +226,8 @@
 
     static createArrayBuffer(width: number, height: number) {
       let size = width * height;
-      if (width % 4) {
-        size += height * (4 - (width % 4));
+      if (width % 8) {
+        size += height * (8 - (width % 8));
       }
       return new ArrayBuffer(
         size * BmpDataView.bytesPerPixel + BmpDataView.headerSize
@@ -241,7 +241,11 @@
     }
 
     get imageSize() {
-      return this.width * this.height * BmpDataView.bytesPerPixel;
+      let size = width * height;
+      if (width % 8) {
+        size += height * (8 - (width % 8));
+      }
+      return size * BmpDataView.bytesPerPixel;
     }
 
     get fileSize() {
@@ -301,13 +305,15 @@
     }
 
     for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x += 4) {
+      for (let x = 0; x < width; x += 8) {
         const i = y * width + x;
-        const h0 = imageData[i * 4] >> 5;
-        const l0 = imageData[(i + 1) * 4] >> 5;
-        const h1 = imageData[(i + 2) * 4] >> 5;
-        const l1 = imageData[(i + 3) * 4] >> 5;
-        bmp.writeWord((h1 << 12) | (l1 << 8) | (h0 << 4) | l0);
+        let data = 0;
+        for (let j = 0; j < 8; j++) {
+          const pixel = imageData[(i + j) * 4] >> 5;
+          const pos = j % 2 ? j - 1 : j + 1;
+          data |= pixel << (4 * pos);
+        }
+        bmp.writeDWord(data);
       }
     }
 
