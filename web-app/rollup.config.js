@@ -1,4 +1,3 @@
-import { brotliCompressSync } from 'zlib'
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -114,19 +113,12 @@ export default {
 		// instead of npm run dev), minify
 		production && terser(),
 
-		// After that, compress resources using gzip and brotli algorithm.
+		// After that, compress resources using gzip algorithm.
 		production && gzip({
 			additionalFiles: [
 				'public/index.html'
 			],
 		}),
-		production && gzip({
-      customCompression: content => brotliCompressSync(Buffer.from(content)),
-      fileName: '.br',
-			additionalFiles: [
-				'public/index.html'
-			],
-		})
 	],
 	watch: {
 		clearScreen: false
