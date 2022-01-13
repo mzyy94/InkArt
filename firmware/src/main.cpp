@@ -77,47 +77,59 @@ void main_task(void *)
       ESP::delay(300);
     }
   }
+
+  int16_t x, y;
+  uint8_t invert, rotation;
+  uint16_t interval;
+
+  nvs_handle_t handle;
+  nvs_open("system_settings", NVS_READONLY, &handle);
+  nvs_get_u8(handle, "inverted", &invert);
+  nvs_get_u8(handle, "orientation", &rotation);
+  nvs_get_i16(handle, "padding-top", &y);
+  nvs_get_i16(handle, "padding-left", &x);
+  nvs_get_u16(handle, "refresh", &interval);
+  nvs_close(handle);
+
+  std::vector<std::string> bmp_images;
+
+  readbmps("/sdcard/", bmp_images);
+
+  if (bmp_images.size() > 0)
+  {
+    last_index++;
+    ESP_LOGI(TAG, "Search bmp image at index %d in SD", last_index);
+    auto iter = bmp_images.begin();
+    for (size_t i = 0; i < last_index; i++)
+    {
+      iter++;
+      if (iter == bmp_images.end())
+      {
+        iter = bmp_images.begin();
+        last_index = 0;
+        break;
+      }
+    }
+
+    ESP_LOGI(TAG, "Display bmp image: %s", iter->c_str());
+    std::string filepath = "/sdcard/" + *iter;
+    display.setRotation(rotation);
+    display.drawImage(filepath.c_str(), x, y, false, invert);
+  }
   else
   {
-    std::vector<std::string> bmp_images;
-
-    readbmps("/sdcard/", bmp_images);
-
-    if (bmp_images.size() > 0)
+    const auto width = display.width() / 8;
+    for (size_t i = 0; i < 8; i++)
     {
-      last_index++;
-      ESP_LOGI(TAG, "Search bmp image at index %d in SD", last_index);
-      auto iter = bmp_images.begin();
-      for (size_t i = 0; i < last_index; i++)
-      {
-        iter++;
-        if (iter == bmp_images.end())
-        {
-          iter = bmp_images.begin();
-          last_index = 0;
-          break;
-        }
-      }
-
-      ESP_LOGI(TAG, "Display bmp image: %s", iter->c_str());
-      std::string filepath = "/sdcard/" + *iter;
-      display.drawImage(filepath.c_str(), 0, 0);
+      display.fillRect(width * i, 0, width, display.height(), i);
     }
-    else
-    {
-      const auto width = display.width() / 8;
-      for (size_t i = 0; i < 8; i++)
-      {
-        display.fillRect(width * i, 0, width, display.height(), i);
-      }
-    }
-
-    display.display();
   }
+
+  display.display();
 
   ESP::delay(1000);
   ESP_LOGI(TAG, "Entering deep sleep");
-  esp_sleep_enable_timer_wakeup(30 * 60 * 1000000);
+  esp_sleep_enable_timer_wakeup((interval > 0 ? interval : 30) * 60 * 1000000);
   esp_deep_sleep_start();
 }
 
