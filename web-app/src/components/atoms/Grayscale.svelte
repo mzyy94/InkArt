@@ -166,11 +166,13 @@
   onMount(async () => {
     const { display } = await api.info();
     const { padding, orientation } = await api.display();
-    width = display.width - (padding.left + padding.right);
-    height = display.height - (padding.top + padding.bottom);
+    width = display.width;
+    height = display.height;
     if (orientation.startsWith("portrait")) {
       [width, height] = [height, width];
     }
+    width = width - (padding.left + padding.right);
+    height = height - (padding.top + padding.bottom);
     await tick();
     gl = canvas.getContext("webgl", { preserveDrawingBuffer: true })!;
     program = createProgram(gl, vertShader, fragShader);
