@@ -60,19 +60,24 @@ void main_task(void *)
     start_web_server();
     draw_setup_info(ssid, password, ip_addr);
 
-    uint8_t touched;
+    uint8_t touched, count;
     for (;;)
     {
+      count = 0;
       for (uint8_t i = 0; i < 3; i++)
       {
         touched = display.readTouchpad(i);
         if (touched)
         {
-          ESP_LOGI(TAG, "Detect touched touchpad [%d]", i);
-          ESP_LOGI(TAG, "Entering deep sleep");
-          esp_sleep_enable_timer_wakeup(1000000);
-          esp_deep_sleep_start();
+          ESP_LOGD(TAG, "Detect touched touchpad [%d]", i);
+          count++;
         }
+      }
+      if (count >= 3)
+      {
+        ESP_LOGI(TAG, "Entering deep sleep");
+        esp_sleep_enable_timer_wakeup(1000000);
+        esp_deep_sleep_start();
       }
       ESP::delay(300);
     }

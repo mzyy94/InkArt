@@ -47,7 +47,7 @@ void draw_setup_info(const char *ssid, const char *password, const char *ip_addr
   display.setFont(&FreeMonoBold12pt7b);
 
   display.setCursor(offset_x, offset_y + qr.size * size + 24);
-  display.printf("Setup mode. Touch any touchpad to exit.\n");
+  display.printf("Setup mode. Touch all touchpads to exit.\n");
   display.setCursor(offset_x, display.getCursorY());
   display.printf("SSID: %s Password: %s\n", ssid, password);
   display.setCursor(offset_x, display.getCursorY());
