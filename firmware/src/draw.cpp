@@ -51,7 +51,7 @@ void draw_setup_info(const char *ssid, const char *password, const char *ip_addr
   display.setCursor(offset_x, display.getCursorY());
   display.printf("SSID: %s Password: %s\n", ssid, password);
   display.setCursor(offset_x, display.getCursorY());
-  display.printf("WebUI: http://inkplate.local\n");
+  display.printf("WebUI: http://inkart.local\n");
   display.setCursor(offset_x, display.getCursorY());
   display.printf("     : http://%s\n", ip_addr);
 
