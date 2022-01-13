@@ -172,6 +172,7 @@ void start_web_server()
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &photo_list_patch_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &photo_binary_get_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &photo_binary_delete_uri));
+  ESP_ERROR_CHECK(httpd_register_uri_handler(server, &photo_binary_post_uri));
 
   // Register static file handler
   httpd_uri_t static_get_uri = {

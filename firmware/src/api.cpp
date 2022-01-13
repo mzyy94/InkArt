@@ -17,6 +17,55 @@ using nlohmann::json;
 
 static const char *TAG = "api";
 
+static const uint8_t base64table[256] =
+    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3e, 0x3f, 0x3e, 0x3e, 0x3f,
+     0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+     0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
+     0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x00, 0x00, 0x00, 0x00, 0x3f,
+     0x00, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
+     0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33};
+
+#define b64d(i) ((uint32_t)base64table[(uint8_t)i])
+
+ssize_t b64decode(const char *data, const size_t len, char *buff, const size_t buflen)
+{
+  if (len == 0)
+    return 0;
+  if (len % 4 != 0)
+    return -1;
+
+  uint8_t pad1 = data[len - 1] == '=';
+  uint8_t pad2 = pad1 && data[len - 2] != '=';
+  const size_t last = (len - pad1) / 4 << 2;
+  const size_t total = last / 4 * 3 + pad1 + pad2;
+
+  if (buflen < total)
+    return -1;
+
+  char *b = buff;
+  for (size_t i = 0; i < last; i += 4)
+  {
+    uint32_t n = b64d(data[i]) << 18 | b64d(data[i + 1]) << 12 | b64d(data[i + 2]) << 6 | b64d(data[i + 3]);
+    *b++ = n >> 16;
+    *b++ = n >> 8 & 0xFF;
+    *b++ = n & 0xFF;
+  }
+
+  if (pad1)
+  {
+    uint32_t n = b64d(data[last]) << 18 | b64d(data[last + 1]) << 12;
+    *b++ = n >> 16;
+    if (pad2)
+    {
+      n |= b64d(data[last + 2]) << 6;
+      *b++ = n >> 8 & 0xFF;
+    }
+  }
+  return b - buff;
+}
+
 static esp_err_t system_info_get_handler(httpd_req_t *req)
 {
   json j;
@@ -479,5 +528,73 @@ httpd_uri_t photo_binary_delete_uri = {
     .uri = "/api/v1/photos/*",
     .method = HTTP_DELETE,
     .handler = photo_binary_delete_handler,
+    .user_ctx = nullptr,
+};
+
+static esp_err_t photo_binary_post_handler(httpd_req_t *req)
+{
+  if (req->content_len % 4 != 0)
+  {
+    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid content length");
+    return ESP_FAIL;
+  }
+
+  const size_t total_len = req->content_len;
+  size_t cur_len = 0;
+
+  char buff[128];
+  char buff2[96];
+  struct timeval tv_now;
+  gettimeofday(&tv_now, nullptr);
+  snprintf(buff, sizeof(buff), "/sdcard/%ld.bmp", tv_now.tv_sec);
+
+  std::ofstream ofs(buff, std::ios::out | std::ios::binary);
+  if (!ofs)
+  {
+    ESP_LOGE(TAG, "Failed to create new file");
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to create new file");
+    return ESP_FAIL;
+  }
+  ESP_LOGI(TAG, "Open new file: %s", buff);
+
+  while (cur_len < total_len)
+  {
+    auto len = httpd_req_recv(req, buff, sizeof(buff));
+    if (len <= 0)
+    {
+      ESP_LOGE(TAG, "Failed to receive content");
+      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive content");
+      return ESP_FAIL;
+    }
+    auto decoded = b64decode(buff, len, buff2, sizeof(buff2));
+    if (decoded == -1)
+    {
+      ESP_LOGE(TAG, "Failed to decode base64 binary");
+      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to decode base64 binary");
+      return ESP_FAIL;
+    }
+    else if (decoded > 0)
+    {
+      ofs.write(buff2, decoded);
+    }
+    cur_len += len;
+  }
+  ESP_LOGI(TAG, "Create new file completed");
+
+  json res;
+  snprintf(buff, sizeof(buff), "%ld.bmp", tv_now.tv_sec);
+  res["filename"] = buff;
+  res["status"] = "ok";
+  std::string str = res.dump(4);
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_sendstr(req, str.c_str());
+
+  return ESP_OK;
+}
+
+httpd_uri_t photo_binary_post_uri = {
+    .uri = "/api/v1/photos",
+    .method = HTTP_POST,
+    .handler = photo_binary_post_handler,
     .user_ctx = nullptr,
 };
