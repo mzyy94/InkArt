@@ -234,4 +234,10 @@ export const handlers = [
       })
     );
   }),
+  rest.post("/api/v1/system/reboot", (_req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json<OperationResult>({ status: "succeeded" })
+    );
+  }),
 ];

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { push } from "svelte-spa-router";
-  import { List } from "smelte";
+  import { List, Dialog, Button } from "smelte";
   import Container from "../templates/Container.svelte";
 
   const menuItems = [
@@ -39,14 +39,29 @@
       icon: "info",
       subheading: "App version and device information",
     },
+    {
+      id: "power",
+      text: "Power",
+      icon: "power_settings_new",
+      subheading: "Reboot and enter photo display mode",
+    },
   ];
 
-  const selectListItem = (e: { detail: string }) => {
+  let confirmReboot = false;
+  function selectListItem(e: { detail: string }) {
     const menuItem = menuItems.find(({ id }) => id == e.detail);
-    if (menuItem) {
+    if (menuItem?.value) {
       push(menuItem.value);
+    } else if (menuItem?.id == "power") {
+      confirmReboot = true;
     }
-  };
+  }
+
+  function reboot() {
+    fetch("/api/v1/system/reboot", { method: "POST" }).then(() => {
+      confirmReboot = false;
+    });
+  }
 </script>
 
 <main>
@@ -58,5 +73,11 @@
   </Container>
 </main>
 
-<style>
-</style>
+<Dialog value={confirmReboot}>
+  <h5 slot="title">Reboot</h5>
+  <div class="text-gray-700">Do you want to leave setup mode?</div>
+  <div slot="actions">
+    <Button text on:click={() => (confirmReboot = false)}>Cancel</Button>
+    <Button text on:click={reboot} color="error">Reboot</Button>
+  </div>
+</Dialog>
