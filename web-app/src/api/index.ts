@@ -43,8 +43,8 @@ export interface Info {
   storage?: {
     used: number;
     total: number;
-    photos: number;
   };
+  photos: number;
   network: {
     mac: string;
     ipv4: string;

@@ -225,8 +225,8 @@ export const handlers = [
         storage: {
           used,
           total,
-          photos,
         },
+        photos,
         network: {
           mac,
           ipv4,
