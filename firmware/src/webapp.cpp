@@ -2,8 +2,6 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
-#include "mdns.h"
-#include "lwip/apps/netbiosns.h"
 #include "lwip/inet.h"
 #include "esp_http_server.h"
 #include "esp_netif.h"
@@ -14,20 +12,6 @@
 #include "api.hpp"
 
 static const char *TAG = "webapp";
-
-void init_localdomain(void)
-{
-  mdns_init();
-  mdns_hostname_set("inkart");
-  mdns_instance_name_set("InkArt web app");
-
-  mdns_txt_item_t txt_items[] = {{"path", "/"}};
-
-  ESP_ERROR_CHECK(mdns_service_add("ESP32-WebServer", "_http", "_tcp", 80, txt_items, sizeof(txt_items) / sizeof(txt_items[0])));
-
-  netbiosns_init();
-  netbiosns_set_name("inkart");
-}
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {

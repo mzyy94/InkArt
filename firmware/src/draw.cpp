@@ -47,13 +47,15 @@ void draw_setup_info(const char *ssid, const char *password, const char *ip_addr
   display.setFont(&FreeMonoBold12pt7b);
 
   display.setCursor(offset_x, offset_y + qr.size * size + 24);
-  display.printf("Setup mode. Touch all touchpads to exit.\n");
+  display.printf("Setup mode.\n");
   display.setCursor(offset_x, display.getCursorY());
-  display.printf("SSID: %s Password: %s\n", ssid, password);
+  display.printf("Touch all touchpads to exit.\n\n");
   display.setCursor(offset_x, display.getCursorY());
-  display.printf("WebUI: http://inkart.local\n");
+  display.printf("SSID: %s\n", ssid);
   display.setCursor(offset_x, display.getCursorY());
-  display.printf("     : http://%s\n", ip_addr);
+  display.printf("Password: %s\n", password);
+  display.setCursor(offset_x, display.getCursorY());
+  display.printf("WebUI: http://%s\n", ip_addr);
 
   display.display();
   ESP_LOGI(TAG, "Display setup information complete");

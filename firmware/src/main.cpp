@@ -55,9 +55,8 @@ void main_task(void *)
     char ssid[16], password[16], ip_addr[16];
 
     init_ap(ssid, password, ip_addr);
-    init_localdomain();
-
     start_web_server();
+
     draw_setup_info(ssid, password, ip_addr);
 
     uint8_t touched, count;
