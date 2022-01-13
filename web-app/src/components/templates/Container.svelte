@@ -10,6 +10,6 @@
   <Button icon="home" text light flat on:click={toHome} />
   <slot name="title">Title</slot>
 </h1>
-<section class="md:w-2/3 sm:w-auto md:m-auto m-3">
+<section class="md:w-2/3 sm:w-auto md:m-auto m-4 md:mb-4">
   <slot />
 </section>
