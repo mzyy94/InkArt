@@ -29,9 +29,12 @@
 
   let date: Date = new Date();
   let refresh = 0;
-  $: step = refresh < 60 ? 1 : 10;
-  $: min = refresh < 60 ? 0 : -160;
-  $: max = refresh < 60 ? 240 : 720;
+  $: label = `${refresh < 240 ? refresh : refresh / 60}${
+    refresh < 240 ? "min" : "hours"
+  }`;
+  $: step = refresh < 60 ? 1 : refresh < 240 ? 10 : 60;
+  $: min = refresh < 60 ? 0 : refresh < 240 ? -160 : -780;
+  $: max = refresh < 60 ? 240 : refresh < 240 ? 720 : 1464;
 
   function onDateChange(e: CustomEvent<Date>) {
     const d = e.detail;
@@ -51,7 +54,7 @@
     <TimeInput bind:value={date} />
 
     <fieldset class="my-3">
-      <p class="text-gray-700">Refresh interval: {refresh}min</p>
+      <p class="text-gray-700">Refresh interval: {label}</p>
       <Slider {min} {max} {step} bind:value={refresh} />
     </fieldset>
 
