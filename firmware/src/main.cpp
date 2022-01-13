@@ -122,7 +122,7 @@ void main_task(void *)
     ESP_LOGI(TAG, "Display bmp image: %s", iter->c_str());
     std::string filepath = "/sdcard/" + *iter;
     display.setRotation(rotation);
-    display.drawImage(filepath.c_str(), x, y, false, invert);
+    display.drawImage(filepath.c_str(), x, y, true, invert);
   }
   else
   {
