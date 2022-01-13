@@ -58,3 +58,32 @@ void draw_setup_info(const char *ssid, const char *password, const char *ip_addr
   display.display();
   ESP_LOGI(TAG, "Display setup information complete");
 }
+
+void draw_padding_preview(int16_t top, int16_t left, int16_t right, int16_t bottom, uint8_t rotation, bool invert)
+{
+  display.selectDisplayMode(DisplayMode::INKPLATE_1BIT);
+  display.clearDisplay();
+
+  display.setRotation(rotation);
+  uint16_t color = 1;
+  if (invert)
+  {
+    display.fillRect(0, 0, display.width(), display.height(), 1);
+    color = 0;
+  }
+  display.drawRect(left, top, display.width() - (left + right), display.height() - (top + bottom), color);
+
+  display.drawLine(left, top, display.width() - right, display.height() - bottom, color);
+  display.drawLine(left, display.height() - bottom, display.width() - right, top, color);
+
+  display.fillRect(left, top, 15, 4, color);
+  display.fillRect(left, top, 4, 15, color);
+  display.fillRect(left, display.height() - bottom - 4, 15, 4, color);
+  display.fillRect(left, display.height() - bottom - 15, 4, 15, color);
+  display.fillRect(display.width() - right - 4, top, 4, 15, color);
+  display.fillRect(display.width() - right - 15, top, 15, 4, color);
+  display.fillRect(display.width() - right - 4, display.height() - bottom - 15, 4, 15, color);
+  display.fillRect(display.width() - right - 15, display.height() - bottom - 4, 15, 4, color);
+
+  display.display();
+}

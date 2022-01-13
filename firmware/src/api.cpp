@@ -10,6 +10,7 @@
 #include "esp_log.h"
 
 #include "files.hpp"
+#include "draw.hpp"
 
 #include "nlohmann/json.hpp"
 
@@ -229,6 +230,71 @@ httpd_uri_t system_display_post_uri = {
     .uri = "/api/v1/system/display",
     .method = HTTP_POST,
     .handler = system_display_post_handler,
+    .user_ctx = nullptr,
+};
+
+static esp_err_t system_display_preview_post_handler(httpd_req_t *req)
+{
+  char buff[128];
+  if (req->content_len >= sizeof(buff))
+  {
+    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
+    return ESP_FAIL;
+  }
+
+  auto len = httpd_req_recv(req, buff, sizeof(buff));
+  if (len <= 0)
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read content");
+    return ESP_FAIL;
+  }
+
+  buff[len] = '\0';
+  json j = json::parse(buff, nullptr, false);
+  if (j.is_discarded())
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
+    return ESP_FAIL;
+  }
+
+  bool inverted = false;
+  uint8_t rotation = 0;
+  int16_t top = 0, left = 0, right = 0, bottom = 0;
+
+  if (j.contains("inverted"))
+  {
+    inverted = j["inverted"];
+  }
+  if (j.contains("orientation"))
+  {
+    std::string orientation = j["orientation"];
+    auto iter = std::find(orientations.begin(), orientations.end(), orientation);
+    rotation = std::distance(orientations.begin(), iter);
+  }
+  if (j.contains("padding"))
+  {
+    top = j["padding"]["top"];
+    left = j["padding"]["left"];
+    right = j["padding"]["right"];
+    bottom = j["padding"]["bottom"];
+  }
+
+  draw_padding_preview(top, left, right, bottom, rotation, inverted);
+
+  json ok;
+  ok["status"] = "ok";
+  const std::string str = ok.dump(4);
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_sendstr(req, str.c_str());
+
+  return ESP_OK;
+}
+
+httpd_uri_t system_display_preview_post_uri = {
+    .uri = "/api/v1/system/display/preview",
+    .method = HTTP_POST,
+    .handler = system_display_preview_post_handler,
     .user_ctx = nullptr,
 };
 

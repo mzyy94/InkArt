@@ -149,7 +149,7 @@ void start_web_server()
 {
   httpd_handle_t server = nullptr;
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-  config.max_uri_handlers = 12;
+  config.max_uri_handlers = 16;
   config.max_open_sockets = 7;
   config.lru_purge_enable = true;
   config.uri_match_fn = httpd_uri_match_wildcard;
@@ -166,6 +166,7 @@ void start_web_server()
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_info_get_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_display_get_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_display_post_uri));
+  ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_display_preview_post_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_time_get_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &system_time_post_uri));
   ESP_ERROR_CHECK(httpd_register_uri_handler(server, &photo_list_get_uri));
