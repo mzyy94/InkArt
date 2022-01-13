@@ -4,18 +4,6 @@
   import api from "../../api";
   import Container from "../templates/Container.svelte";
   import TimeInput from "../atoms/TimeInput.svelte";
-  import TimeZoneInput from "../atoms/TimeZoneInput.svelte";
-
-  const fullFormat: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: false,
-  };
 
   async function initSettings() {
     const config = await api.config();
@@ -24,16 +12,7 @@
   }
 
   function applySettings() {
-    const defaultDate = Intl.DateTimeFormat("en-US", fullFormat).format(date);
-    const modifiedDate = Intl.DateTimeFormat("en-US", {
-      timeZone,
-      ...fullFormat,
-    }).format(date);
-    const timeZoneOffset =
-      new Date(defaultDate).getTime() - new Date(modifiedDate).getTime();
-    const datetime = new Date(date.getTime() + timeZoneOffset);
-
-    api.config({ time: datetime.getTime(), refresh }).then((res) => {
+    api.config({ time: date.getTime(), refresh }).then((res) => {
       snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
       snackbar.color = res.ok ? "primary" : "error";
       snackbar.show = true;
@@ -48,7 +27,6 @@
     color: "primary",
   };
 
-  let { timeZone } = new Intl.DateTimeFormat("default", {}).resolvedOptions();
   let date: Date = new Date();
   let refresh = 0;
   $: step = refresh < 60 ? 1 : 10;
@@ -68,12 +46,9 @@
 
 <main>
   <Container>
-    <span slot="title">Settings</span><DatePicker
-      value={date}
-      on:change={onDateChange}
-    />
+    <span slot="title">Settings</span>
+    <DatePicker value={date} on:change={onDateChange} />
     <TimeInput bind:value={date} />
-    <TimeZoneInput bind:timeZone />
 
     <fieldset class="my-3">
       <p class="text-gray-700">Refresh interval: {refresh}min</p>

@@ -3,7 +3,7 @@
   import { TextField } from "smelte";
 
   export let value: Date;
-  $: time = value.toLocaleTimeString("en-US", { hour12: false });
+  $: time = value.toLocaleTimeString(undefined, { hour12: false });
 
   let inputError = "";
 
