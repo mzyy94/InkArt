@@ -286,7 +286,7 @@
     // BITMAPINFOHEADER
     bmp.writeDWord(40); // biSize
     bmp.writeLong(width); // biWidth
-    bmp.writeLong(-height >>> 0); // biHeight - negative height
+    bmp.writeLong(height); // biHeight
     bmp.writeWord(1); // biPlanes - 1 plane
     bmp.writeWord(4); // biBitCount - 4-bits (16-Palettes)
     bmp.writeDWord(0); // biCompression - BI_RGB = 0
@@ -304,7 +304,7 @@
       bmp.writeDWord(0x00000000);
     }
 
-    for (let y = 0; y < height; y++) {
+    for (let y = height - 1; y >= 0; y--) {
       for (let x = 0; x < width; x += 8) {
         const i = y * width + x;
         let data = 0;
