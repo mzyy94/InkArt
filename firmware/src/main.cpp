@@ -136,8 +136,8 @@ void main_task(void *)
   display.display();
 
   ESP::delay(1000);
-  ESP_LOGI(TAG, "Entering deep sleep");
-  esp_sleep_enable_timer_wakeup((interval > 0 ? interval : 30) * 60 * 1000000);
+  ESP_LOGI(TAG, "Entering deep sleep. Wake up after %d min.", interval > 0 ? interval : 30);
+  esp_sleep_enable_timer_wakeup((uint64_t)(interval > 0 ? interval : 30) * 60 * 1000000);
   esp_deep_sleep_start();
 }
 
