@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { DataTable } from "smelte";
+  import { DataTable, Image } from "smelte";
   import ActionIcon from "../atoms/ActionIcon.svelte";
   import type { Entry } from "../../api";
 
@@ -38,9 +38,12 @@
       },
       {
         field: "Image",
-        value: (v) =>
-          `<img src="/api/v1/photos/${v.filename}" height="70" alt="${v.filename}">`,
-        class: "w-1/2",
+        component: Image,
+        componentProps: (data) => ({
+          src: `/api/v1/photos/${data.filename}`,
+          alt: data.filename,
+          class: "h-24",
+        }),
         sortable: false,
         headerRemove: "justify-end",
       },
