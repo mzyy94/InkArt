@@ -524,6 +524,7 @@ static esp_err_t photo_binary_get_handler(httpd_req_t *req)
   }
 
   httpd_resp_set_type(req, "image/bmp");
+  httpd_resp_set_hdr(req, "Cache-Control", "public, max-age=31536000, immutable");
 
   char buff[1024];
   ssize_t read_bytes;
