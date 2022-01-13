@@ -19,5 +19,5 @@
   ({toByteString(used)}/{toByteString(total)})
 </InfoLabel>
 <div class="mx-3 mb-3 bg-gray-400 rounded overflow-hidden">
-  <ProgressLinear progress={usage * 100} />
+  <ProgressLinear progress={isNaN(usage) ? 0.01 : usage * 100} />
 </div>

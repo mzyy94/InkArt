@@ -40,7 +40,7 @@ export interface Info {
     width: number;
     height: number;
   };
-  storage: {
+  storage?: {
     used: number;
     total: number;
     photos: number;
