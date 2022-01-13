@@ -181,6 +181,12 @@ export const handlers = [
       ctx.json<OperationResult>({ status: "succeeded" })
     );
   }),
+  rest.post<Display>("/api/v1/system/display/preview", (_req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json<OperationResult>({ status: "succeeded" })
+    );
+  }),
   rest.get("/api/v1/system/time", (_req, res, ctx) => {
     const refresh = parseInt(sessionStorage.getItem("refresh") || "0", 10);
     const offset = parseInt(sessionStorage.getItem("offset") || "0", 10);

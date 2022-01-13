@@ -79,6 +79,7 @@ function API<T extends { [key in string]: any }>(path: string) {
 export default {
   config: API<TimeConfig>("/api/v1/system/time"),
   display: API<Display>("/api/v1/system/display"),
+  preview: API<Display>("/api/v1/system/display/preview"),
   photos: API<PhotoEntry>("/api/v1/photos"),
   info: API<Info>("/api/v1/system/info"),
 } as const;

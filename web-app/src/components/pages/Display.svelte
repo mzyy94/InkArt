@@ -55,6 +55,27 @@
       });
   }
 
+  function previewSettings() {
+    api
+      .preview({
+        inverted,
+        orientation,
+        padding: {
+          top: paddingTop,
+          left: paddingLeft,
+          right: paddingRight,
+          bottom: paddingBottom,
+        },
+      })
+      .then((res) => {
+        if (!res.ok) {
+          snackbar.text = "Preview settings failed";
+          snackbar.color = "error";
+          snackbar.show = true;
+        }
+      });
+  }
+
   onMount(async () => {
     ctx = canvas.getContext("2d")!;
     let { display, system } = await api.info();
@@ -171,6 +192,7 @@
     </fieldset>
 
     <div class="flex space-x-2 justify-end">
+      <Button color="error" on:click={previewSettings}>Preview</Button>
       <Button on:click={applySettings}>Apply</Button>
       <Button color="gray" on:click={initSettings}>Reset</Button>
     </div>
