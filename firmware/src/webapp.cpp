@@ -96,13 +96,13 @@ static esp_err_t static_get_handler(httpd_req_t *req)
   else
   {
     ifs.open(filepath, std::ios::in | std::ios::binary);
-  }
-
-  if (!ifs)
-  {
-    ESP_LOGE(TAG, "File not found: %s", filepath.c_str());
-    httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Not found.");
-    return ESP_FAIL;
+    if (!ifs)
+    {
+      ESP_LOGE(TAG, "File not found: %s", filepath.c_str());
+      httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Not found.");
+      return ESP_FAIL;
+    }
+    httpd_resp_set_hdr(req, "Cache-Control", "public, max-age=604800");
   }
 
   const auto ext = filepath.substr(filepath.find_last_of(".") + 1);
