@@ -92,20 +92,23 @@ void main_task(void *)
   nvs_close(handle);
 
   std::vector<std::string> bmp_images;
+  std::vector<std::string> available;
 
   readbmps("/sdcard/", bmp_images);
+  std::copy_if(bmp_images.begin(), bmp_images.end(), std::back_inserter(available), [](std::string bmp)
+               { return bmp[0] != '.'; });
 
-  if (bmp_images.size() > 0)
+  if (available.size() > 0)
   {
     last_index++;
     ESP_LOGI(TAG, "Search bmp image at index %d in SD", last_index);
-    auto iter = bmp_images.begin();
+    auto iter = available.begin();
     for (size_t i = 0; i < last_index; i++)
     {
       iter++;
-      if (iter == bmp_images.end())
+      if (iter == available.end())
       {
-        iter = bmp_images.begin();
+        iter = available.begin();
         last_index = 0;
         break;
       }
