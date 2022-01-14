@@ -69,6 +69,33 @@ ssize_t b64decode(const char *data, const size_t len, char *buff, const size_t b
   return b - buff;
 }
 
+esp_err_t parse_json(httpd_req_t *req, json &j)
+{
+  char buff[128];
+  if (req->content_len >= sizeof(buff))
+  {
+    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
+    return ESP_FAIL;
+  }
+
+  auto len = httpd_req_recv(req, buff, sizeof(buff));
+  if (len <= 0)
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read content");
+    return ESP_FAIL;
+  }
+
+  buff[len] = '\0';
+  j = json::parse(buff, nullptr, false);
+  if (j.is_discarded())
+  {
+    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
+    return ESP_FAIL;
+  }
+
+  return ESP_OK;
+}
+
 static esp_err_t system_info_get_handler(httpd_req_t *req)
 {
   json j;
@@ -179,26 +206,11 @@ httpd_uri_t system_display_get_uri = {
 
 static esp_err_t system_display_post_handler(httpd_req_t *req)
 {
-  char buff[128];
-  if (req->content_len >= sizeof(buff))
+  json j;
+  auto ret = parse_json(req, j);
+  if (ret != ESP_OK)
   {
-    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
-    return ESP_FAIL;
-  }
-
-  auto len = httpd_req_recv(req, buff, sizeof(buff));
-  if (len <= 0)
-  {
-    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read content");
-    return ESP_FAIL;
-  }
-
-  buff[len] = '\0';
-  json j = json::parse(buff, nullptr, false);
-  if (j.is_discarded())
-  {
-    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
-    return ESP_FAIL;
+    return ret;
   }
 
   nvs_handle_t handle;
@@ -251,26 +263,11 @@ httpd_uri_t system_display_post_uri = {
 
 static esp_err_t system_display_preview_post_handler(httpd_req_t *req)
 {
-  char buff[128];
-  if (req->content_len >= sizeof(buff))
+  json j;
+  auto ret = parse_json(req, j);
+  if (ret != ESP_OK)
   {
-    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
-    return ESP_FAIL;
-  }
-
-  auto len = httpd_req_recv(req, buff, sizeof(buff));
-  if (len <= 0)
-  {
-    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read content");
-    return ESP_FAIL;
-  }
-
-  buff[len] = '\0';
-  json j = json::parse(buff, nullptr, false);
-  if (j.is_discarded())
-  {
-    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
-    return ESP_FAIL;
+    return ret;
   }
 
   bool inverted = false;
@@ -350,26 +347,11 @@ httpd_uri_t system_time_get_uri = {
 
 static esp_err_t system_time_post_handler(httpd_req_t *req)
 {
-  char buff[128];
-  if (req->content_len >= sizeof(buff))
+  json j;
+  auto ret = parse_json(req, j);
+  if (ret != ESP_OK)
   {
-    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
-    return ESP_FAIL;
-  }
-
-  auto len = httpd_req_recv(req, buff, sizeof(buff));
-  if (len <= 0)
-  {
-    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read content");
-    return ESP_FAIL;
-  }
-
-  buff[len] = '\0';
-  json j = json::parse(buff, nullptr, false);
-  if (j.is_discarded())
-  {
-    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
-    return ESP_FAIL;
+    return ret;
   }
 
   if (j.contains("time"))
@@ -449,29 +431,12 @@ httpd_uri_t photo_list_get_uri = {
 
 static esp_err_t photo_list_patch_handler(httpd_req_t *req)
 {
-  char buff[128];
-  if (req->content_len >= sizeof(buff))
+  json j;
+  auto ret = parse_json(req, j);
+  if (ret != ESP_OK)
   {
-    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Content too long");
-    return ESP_FAIL;
+    return ret;
   }
-
-  auto len = httpd_req_recv(req, buff, sizeof(buff));
-  if (len <= 0)
-  {
-    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read content");
-    return ESP_FAIL;
-  }
-
-  buff[len] = '\0';
-  json j = json::parse(buff, nullptr, false);
-  if (j.is_discarded())
-  {
-    httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to parse content");
-    return ESP_FAIL;
-  }
-
-  esp_err_t ret = ESP_OK;
 
   if (j.contains("data") && j["data"].is_array())
   {
