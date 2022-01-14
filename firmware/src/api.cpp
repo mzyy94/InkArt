@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include "ff.h"
 #include "lwip/inet.h"
 #include "nvs_flash.h"
 #include "esp_netif.h"
@@ -96,8 +97,18 @@ static esp_err_t system_info_get_handler(httpd_req_t *req)
   inet_ntoa_r(ip_info.ip.addr, buff, sizeof(buff));
   j["network"]["ipv4"] = buff;
 
-  // FIXME: Add storage usage data
-  j["storage"] = nullptr;
+  FATFS *fs;
+  DWORD free_clst;
+  if (f_getfree("0:", &free_clst, &fs) == FR_OK)
+  {
+    uint64_t total_clst = fs->n_fatent - 2;
+    j["storage"]["used"] = ((uint64_t)fs->csize * (total_clst - free_clst)) * fs->ssize;
+    j["storage"]["total"] = ((uint64_t)fs->csize * total_clst) * fs->ssize;
+  }
+  else
+  {
+    j["storage"] = nullptr;
+  }
 
   const std::string str = j.dump(4);
 
