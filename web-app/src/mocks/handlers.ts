@@ -148,6 +148,7 @@ export const handlers = [
   }),
   rest.get("/api/v1/system/display", (_req, res, ctx) => {
     const invert = sessionStorage.getItem("invert") == "true";
+    const dithering = sessionStorage.getItem("dithering") == "true";
     const orientation =
       (sessionStorage.getItem("orientation") as Orientation | null) ??
       "landscape";
@@ -159,6 +160,7 @@ export const handlers = [
       ctx.status(200),
       ctx.json<Display>({
         invert,
+        dithering,
         orientation,
         padding: { top, left, right, bottom },
       })

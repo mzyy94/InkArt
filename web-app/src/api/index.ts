@@ -7,6 +7,7 @@ export interface TimeConfig {
 
 export interface Display {
   invert: boolean;
+  dithering: boolean;
   orientation: Orientation;
   padding: {
     top: number;

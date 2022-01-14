@@ -25,10 +25,12 @@
   let paddingRight = 0;
   let paddingBottom = 0;
   let invert = false;
+  let dithering = false;
 
   async function initSettings() {
     const display = await api.display();
     invert = display.invert;
+    dithering = display.dithering;
     orientation = display.orientation;
     paddingTop = display.padding.top;
     paddingLeft = display.padding.left;
@@ -40,6 +42,7 @@
     api
       .display({
         invert,
+        dithering,
         orientation,
         padding: {
           top: paddingTop,
@@ -162,7 +165,13 @@
 <main>
   <Container>
     <span slot="title">Display Control</span>
-    <Switch label="Invert black/white" bind:value={invert} />
+    <fieldset class="my-3">
+      <Switch label="Invert black/white" bind:value={invert} />
+    </fieldset>
+
+    <fieldset class="my-3">
+      <Switch label="Dithering" bind:value={dithering} />
+    </fieldset>
 
     <Select
       label="Orientation"
