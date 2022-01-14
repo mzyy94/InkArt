@@ -172,8 +172,8 @@ static esp_err_t system_display_get_handler(httpd_req_t *req)
   nvs_open("system_settings", NVS_READONLY, &handle);
 
   uint8_t val = 0;
-  nvs_get_u8(handle, "inverted", &val);
-  j["inverted"] = bool(val);
+  nvs_get_u8(handle, "invert", &val);
+  j["invert"] = bool(val);
   nvs_get_u8(handle, "orientation", &val);
   j["orientation"] = orientations[val];
 
@@ -217,10 +217,10 @@ static esp_err_t system_display_post_handler(httpd_req_t *req)
   nvs_open("system_settings", NVS_READWRITE, &handle);
 
   uint8_t val;
-  if (j.contains("inverted"))
+  if (j.contains("invert"))
   {
-    val = j["inverted"];
-    nvs_set_u8(handle, "inverted", val);
+    val = j["invert"];
+    nvs_set_u8(handle, "invert", val);
   }
   if (j.contains("orientation"))
   {
@@ -270,13 +270,13 @@ static esp_err_t system_display_preview_post_handler(httpd_req_t *req)
     return ret;
   }
 
-  bool inverted = false;
+  bool invert = false;
   uint8_t rotation = 0;
   int16_t top = 0, left = 0, right = 0, bottom = 0;
 
-  if (j.contains("inverted"))
+  if (j.contains("invert"))
   {
-    inverted = j["inverted"];
+    invert = j["invert"];
   }
   if (j.contains("orientation"))
   {
@@ -292,7 +292,7 @@ static esp_err_t system_display_preview_post_handler(httpd_req_t *req)
     bottom = j["padding"]["bottom"];
   }
 
-  draw_padding_preview(top, left, right, bottom, rotation, inverted);
+  draw_padding_preview(top, left, right, bottom, rotation, invert);
 
   json ok;
   ok["status"] = "ok";

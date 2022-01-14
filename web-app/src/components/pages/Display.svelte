@@ -24,11 +24,11 @@
   let paddingLeft = 0;
   let paddingRight = 0;
   let paddingBottom = 0;
-  let inverted = false;
+  let invert = false;
 
   async function initSettings() {
     const display = await api.display();
-    inverted = display.inverted;
+    invert = display.invert;
     orientation = display.orientation;
     paddingTop = display.padding.top;
     paddingLeft = display.padding.left;
@@ -39,7 +39,7 @@
   function applySettings() {
     api
       .display({
-        inverted,
+        invert,
         orientation,
         padding: {
           top: paddingTop,
@@ -58,7 +58,7 @@
   function previewSettings() {
     api
       .preview({
-        inverted,
+        invert,
         orientation,
         padding: {
           top: paddingTop,
@@ -135,7 +135,7 @@
     ctx.save();
     ctx.translate(center.x, center.y);
     ctx.scale(scale, scale);
-    ctx.fillStyle = inverted ? "#444" : "#aaa";
+    ctx.fillStyle = invert ? "#444" : "#aaa";
     ctx.fillRect(
       -((portrait ? height : width) / 2 - paddingLeft),
       -((portrait ? width : height) / 2 - paddingTop),
@@ -146,7 +146,7 @@
 
     rotate();
     ctx.textAlign = "center";
-    ctx.fillStyle = inverted ? "#ccc" : "#000";
+    ctx.fillStyle = invert ? "#ccc" : "#000";
     ctx.font = "60px sans-serif";
     ctx.fillText(model, 0, 0);
     ctx.restore();
@@ -162,7 +162,7 @@
 <main>
   <Container>
     <span slot="title">Display Control</span>
-    <Switch label="Invert black/white" bind:value={inverted} />
+    <Switch label="Invert black/white" bind:value={invert} />
 
     <Select
       label="Orientation"

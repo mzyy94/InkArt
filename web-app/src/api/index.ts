@@ -6,7 +6,7 @@ export interface TimeConfig {
 }
 
 export interface Display {
-  inverted: boolean;
+  invert: boolean;
   orientation: Orientation;
   padding: {
     top: number;

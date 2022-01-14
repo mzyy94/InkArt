@@ -147,7 +147,7 @@ export const handlers = [
       .catch(handle500ErrorResponse(res, ctx));
   }),
   rest.get("/api/v1/system/display", (_req, res, ctx) => {
-    const inverted = sessionStorage.getItem("inverted") == "true";
+    const invert = sessionStorage.getItem("invert") == "true";
     const orientation =
       (sessionStorage.getItem("orientation") as Orientation | null) ??
       "landscape";
@@ -158,7 +158,7 @@ export const handlers = [
     return res(
       ctx.status(200),
       ctx.json<Display>({
-        inverted,
+        invert,
         orientation,
         padding: { top, left, right, bottom },
       })
@@ -166,11 +166,11 @@ export const handlers = [
   }),
   rest.post<Display>("/api/v1/system/display", (req, res, ctx) => {
     const {
-      inverted,
+      invert,
       orientation,
       padding: { top, left, right, bottom },
     } = req.body;
-    sessionStorage.setItem("inverted", inverted.toString());
+    sessionStorage.setItem("invert", invert.toString());
     sessionStorage.setItem("orientation", orientation);
     sessionStorage.setItem("paddingTop", top.toString(10));
     sessionStorage.setItem("paddingLeft", left.toString(10));
