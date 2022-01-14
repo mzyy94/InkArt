@@ -9,6 +9,7 @@
 #include "esp_http_server.h"
 #include "esp_system.h"
 #include "esp_log.h"
+#include "esp_sleep.h"
 
 #include "files.hpp"
 #include "draw.hpp"
@@ -678,5 +679,27 @@ httpd_uri_t photo_binary_post_uri = {
     .uri = "/api/v1/photos",
     .method = HTTP_POST,
     .handler = photo_binary_post_handler,
+    .user_ctx = nullptr,
+};
+
+static esp_err_t system_reboot_post_handler(httpd_req_t *req)
+{
+  json res;
+  res["status"] = "ok";
+  std::string str = res.dump(4);
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_sendstr(req, str.c_str());
+
+  ESP::delay(1000);
+  esp_sleep_enable_timer_wakeup(1000000);
+  esp_deep_sleep_start();
+
+  return ESP_OK;
+}
+
+httpd_uri_t system_reboot_post_uri = {
+    .uri = "/api/v1/system/reboot",
+    .method = HTTP_POST,
+    .handler = system_reboot_post_handler,
     .user_ctx = nullptr,
 };
