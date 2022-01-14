@@ -110,6 +110,10 @@ static esp_err_t system_info_get_handler(httpd_req_t *req)
     j["storage"] = nullptr;
   }
 
+  std::vector<std::string> bmps;
+  readbmps("/sdcard/", bmps);
+  j["photos"] = bmps.size();
+
   const std::string str = j.dump(4);
 
   httpd_resp_set_type(req, "application/json");
