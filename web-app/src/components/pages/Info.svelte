@@ -34,7 +34,7 @@
       {info?.network.ipv4}
     </InfoLabel>
     <InfoLabel icon="photo" title="Number of Photos">
-      {new Intl.NumberFormat("en-US").format(info?.photos ?? 0)}
+      {new Intl.NumberFormat(undefined).format(info?.photos ?? 0)}
     </InfoLabel>
     <UsageBar
       used={info?.storage?.used ?? 0}

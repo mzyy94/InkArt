@@ -7,15 +7,18 @@
   $: usage = used / total;
 
   function toByteString(bytes: number) {
-    const labels = ["B", "KB", "MB", "GB", "TB"];
+    const units = ["byte", "kilobyte", "megabyte", "gigabyte", "terabyte"];
     const exponent = (Math.log2(bytes) / 10) | 0;
     const value = bytes / Math.pow(1024, exponent);
-    return Intl.NumberFormat("en-US").format(value) + labels[exponent];
+    return new Intl.NumberFormat(undefined, {
+      style: "unit",
+      unit: units[exponent],
+    }).format(value);
   }
 </script>
 
 <InfoLabel icon="sd_card" title="SD Card Usage">
-  {new Intl.NumberFormat("en-US", { style: "percent" }).format(usage)}
+  {new Intl.NumberFormat(undefined, { style: "percent" }).format(usage)}
   ({toByteString(used)}/{toByteString(total)})
 </InfoLabel>
 <div class="mx-3 mb-3 bg-gray-400 rounded overflow-hidden">
