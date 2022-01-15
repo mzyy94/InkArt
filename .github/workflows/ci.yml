@@ -1,0 +1,89 @@
+name: PlatformIO CI
+
+on: [push]
+
+jobs:
+  build-firmware:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: firmware
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Cache PlatformIO
+        uses: actions/cache@v2
+        with:
+          path: ~/.platformio
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade platformio
+      - name: Run PlatformIO
+        run: pio run -e inkplate-10 -e inkplate-6
+      - uses: actions/upload-artifact@v2
+        with:
+          name: inkart-6
+          path: |
+            firmware/.pio/build/inkplate-6/firmware.elf
+            firmware/.pio/build/inkplate-6/firmware.bin
+      - uses: actions/upload-artifact@v2
+        with:
+          name: inkart-10
+          path: |
+            firmware/.pio/build/inkplate-10/firmware.elf
+            firmware/.pio/build/inkplate-10/firmware.bin
+
+  build-webapp:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web-app
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "npm"
+          cache-dependency-path: web-app/package-lock.json
+      - name: Install packages
+        run: npm install
+      - name: Run build
+        run: npm run build
+      - uses: actions/upload-artifact@v2
+        with:
+          name: webapp
+          path: web-app/public/
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build-firmware, build-webapp]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v2
+      - name: Display downloaded files
+        run: ls -R
+      - name: Package release files
+        run: |
+          mv inkart-6/firmware.bin inkart-6.bin
+          mv inkart-10/firmware.bin inkart-10.bin
+          find webapp -regextype egrep -regex ".*\.(html|js|map|css)" -delete
+          zip -r webapp.zip webapp
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            inkart-6.bin
+            inkart-10.bin
+            webapp.zip
