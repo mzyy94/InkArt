@@ -65,7 +65,7 @@ void init_ap(char *ssid, char *password, char *ip_addr)
 static esp_err_t static_get_handler(httpd_req_t *req)
 {
   std::string filepath = req->uri;
-  filepath = "/sdcard" + filepath;
+  filepath = "/sdcard/webapp" + filepath;
 
   if (req->uri[strlen(req->uri) - 1] == '/')
   {
