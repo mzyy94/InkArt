@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { push } from "svelte-spa-router";
   import { List, Dialog, Button } from "smelte";
   import Container from "../templates/Container.svelte";
+  import api from "../../api";
 
   const menuItems = [
     {
@@ -46,6 +48,21 @@
       subheading: "Reboot and enter photo display mode",
     },
   ];
+
+  onMount(() => {
+    if (!("initialized" in window)) {
+      //@ts-expect-error
+      window["initialized"] = true;
+      api.config().then(({ time, refresh }) => {
+        if (new Date(time).getFullYear() < 2020) {
+          // Sync time
+          setTimeout(() => {
+            api.config({ time: Date.now(), refresh });
+          }, 100);
+        }
+      });
+    }
+  });
 
   let confirmReboot = false;
   function selectListItem(e: { detail: string }) {
