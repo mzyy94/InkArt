@@ -10,7 +10,9 @@
   "extensions": {
     "recommendations": [
       "svelte.svelte-vscode",
-      "platformio.platformio-ide"
+      "platformio.platformio-ide",
+      "ms-vscode.cpptools",
+      "esbenp.prettier-vscode"
     ]
   },
   "launch": {
@@ -138,6 +140,12 @@
       "memory_resource": "cpp",
       "netfwd": "cpp",
       "stop_token": "cpp"
-    }
+    },
+    "[c]": {
+      "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "svelte.enable-ts-plugin": true,
+    "svelte.ask-to-enable-ts-plugin": false
   }
 }
