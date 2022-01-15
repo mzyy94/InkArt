@@ -174,6 +174,8 @@ static esp_err_t system_display_get_handler(httpd_req_t *req)
   uint8_t val = 0;
   nvs_get_u8(handle, "invert", &val);
   j["invert"] = bool(val);
+  nvs_get_u8(handle, "dithering", &val);
+  j["dithering"] = bool(val);
   nvs_get_u8(handle, "orientation", &val);
   j["orientation"] = orientations[val];
 
@@ -221,6 +223,11 @@ static esp_err_t system_display_post_handler(httpd_req_t *req)
   {
     val = j["invert"];
     nvs_set_u8(handle, "invert", val);
+  }
+  if (j.contains("dithering"))
+  {
+    val = j["dithering"];
+    nvs_set_u8(handle, "dithering", val);
   }
   if (j.contains("orientation"))
   {

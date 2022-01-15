@@ -83,12 +83,13 @@ void main_task(void *)
   }
 
   int16_t x, y;
-  uint8_t invert, rotation;
+  uint8_t invert, rotation, dithering;
   uint16_t interval;
 
   nvs_handle_t handle;
   nvs_open("system_settings", NVS_READONLY, &handle);
   nvs_get_u8(handle, "invert", &invert);
+  nvs_get_u8(handle, "dithering", &dithering);
   nvs_get_u8(handle, "orientation", &rotation);
   nvs_get_i16(handle, "padding-top", &y);
   nvs_get_i16(handle, "padding-left", &x);
@@ -121,7 +122,7 @@ void main_task(void *)
     ESP_LOGI(TAG, "Display bmp image: %s", iter->c_str());
     std::string filepath = "/sdcard/" + *iter;
     display.setRotation(rotation);
-    display.drawImage(filepath.c_str(), x, y, true, invert);
+    display.drawImage(filepath.c_str(), x, y, dithering, invert);
   }
   else
   {
