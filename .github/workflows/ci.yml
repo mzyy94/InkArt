@@ -1,6 +1,14 @@
 name: PlatformIO CI
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - ".vscode/**"
+      - "docs/**"
+      - "**.md"
+      - .gitattributes
+      - .gitignore
+      - InkArt.code-workspace
 
 jobs:
   build-firmware:
