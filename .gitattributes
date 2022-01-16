@@ -1,0 +1,4 @@
+docs/** linguist-documentation
+firmware/include/** linguist-vendored
+web-app/public/mockServiceWorker.js linguist-generated
+web-app/rollup.config.js -linguist-detectable
