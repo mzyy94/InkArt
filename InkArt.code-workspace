@@ -144,6 +144,9 @@
     "[c]": {
       "editor.defaultFormatter": "ms-vscode.cpptools"
     },
+    "[svelte]": {
+      "editor.defaultFormatter": "svelte.svelte-vscode"
+    },
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "svelte.enable-ts-plugin": true,
     "svelte.ask-to-enable-ts-plugin": false
