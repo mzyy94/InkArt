@@ -75,10 +75,21 @@
 
     <fieldset class="my-3">
       <p class="text-gray-700">Brightness: {brightness.toFixed(2)}</p>
-      <Slider min={0} max={3} default={1} step={0.05} bind:value={brightness} />
+      <Slider
+        min={0}
+        max={3}
+        default={1}
+        step={0.05}
+        disabled={!active}
+        bind:value={brightness}
+      />
     </fieldset>
 
-    <ProgressButton on:click={uploadImage} loading={uploading}>
+    <ProgressButton
+      on:click={uploadImage}
+      disabled={!active}
+      loading={uploading}
+    >
       Upload
       <span slot="loading">Uploading...</span>
     </ProgressButton>
