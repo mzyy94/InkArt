@@ -7,9 +7,9 @@
   import ProgressButton from "../atoms/ProgressButton.svelte";
 
   const modes = [
+    { value: "cover", text: "Cover" },
     { value: "fit", text: "Fit" },
     { value: "fill", text: "Fill" },
-    { value: "cover", text: "Cover" },
     { value: "none", text: "none" },
   ];
 
