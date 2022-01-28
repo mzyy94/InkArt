@@ -119,6 +119,14 @@ export default {
 				'public/index.html'
 			],
 		}),
+
+		// Finally, copy production built files to ./dist dir.
+		production && copy({
+			targets: [
+				{ src: ['public/index.html.gz', 'public/favicon.png'], dest: 'dist/' },
+				{ src: ['public/build/*.gz', 'public/build/*.woff2'], dest: 'dist/build' }
+			]
+		}),
 	],
 	watch: {
 		clearScreen: false

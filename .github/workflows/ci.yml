@@ -71,7 +71,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: webapp
-          path: web-app/public/
+          path: web-app/dist/
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -86,7 +86,6 @@ jobs:
         run: |
           mv inkart-6/firmware.bin inkart-6.bin
           mv inkart-10/firmware.bin inkart-10.bin
-          find webapp -regextype egrep -regex ".*\.(html|js|map|css)" -delete
           zip -r webapp.zip webapp
       - name: Release
         uses: softprops/action-gh-release@v1
