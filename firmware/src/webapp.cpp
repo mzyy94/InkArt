@@ -159,6 +159,7 @@ static esp_err_t static_get_handler(httpd_req_t *req)
 
 void start_web_server()
 {
+  esp_err_t ret;
   httpd_handle_t server = nullptr;
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.max_uri_handlers = 16;
@@ -167,16 +168,18 @@ void start_web_server()
   config.uri_match_fn = httpd_uri_match_wildcard;
 
   ESP_LOGI(TAG, "Initializing SPIFFS");
-  if (mount_spiffs() != ESP_OK)
+  ret = mount_spiffs();
+  if (ret != ESP_OK)
   {
-    ESP_LOGE(TAG, "Failed to initialize SPIFFS");
+    ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
     return;
   }
 
   ESP_LOGI(TAG, "Starting HTTP Server");
-  if (httpd_start(&server, &config) != ESP_OK)
+  ret = httpd_start(&server, &config);
+  if (ret != ESP_OK)
   {
-    ESP_LOGE(TAG, "Start server failed");
+    ESP_LOGE(TAG, "Start server failed (%s)", esp_err_to_name(ret));
     return;
   };
 
@@ -201,7 +204,7 @@ void start_web_server()
       .handler = static_get_handler,
       .user_ctx = nullptr,
   };
-  httpd_register_uri_handler(server, &static_get_uri);
+  ESP_ERROR_CHECK(httpd_register_uri_handler(server, &static_get_uri));
 
   return;
 }
