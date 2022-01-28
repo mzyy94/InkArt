@@ -14,6 +14,7 @@
 
   uniform sampler2D texture;
   varying vec2 vTexCoord;
+  uniform float level;
 
   // ITU-R Rec BT.601
   const vec3 filter = vec3(0.299, 0.587, 0.114);
@@ -22,6 +23,9 @@
   void main() {
       vec4 color = texture2D(texture, vTexCoord);
       float gray = dot(color.rgb, filter);
+      if (level != 0.0) {
+        gray *= level;
+      }
       gl_FragColor = vec4(floor(gray * vec3(depth)) / vec3(depth), 1.0);
   }`;
 
@@ -108,6 +112,7 @@
   export let offsetX = 0;
   export let offsetY = 0;
   export let active = false;
+  export let brightness = 1.0;
   export let algorithm = "default";
 
   let width = 0;
@@ -218,6 +223,17 @@
   };
 
   $: drawImage(mode, offsetX, offsetY);
+
+  function updateBrightness(level: number) {
+    if (!gl || !program) {
+      return;
+    }
+    const levelLocation = gl.getUniformLocation(program, "level");
+    gl.uniform1f(levelLocation, level);
+    drawImage(mode, offsetX, offsetY);
+  }
+
+  $: updateBrightness(brightness);
 
   class BmpDataView extends DataView {
     private pos = 0;

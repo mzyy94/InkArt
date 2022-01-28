@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Select, Snackbar } from "smelte";
+  import { Select, Snackbar, Slider } from "smelte";
   import Container from "../templates/Container.svelte";
   import ImageLoader from "../atoms/ImageLoader.svelte";
   import Grayscale from "../atoms/Grayscale.svelte";
@@ -18,6 +18,7 @@
 
   const img = new Image();
   let active = false;
+  let brightness = 1.0;
 
   let snackbar = {
     show: false,
@@ -67,9 +68,15 @@
         {mode}
         {offsetX}
         {offsetY}
+        {brightness}
         bind:active
       />
     </Move>
+
+    <fieldset class="my-3">
+      <p class="text-gray-700">Brightness: {brightness.toFixed(2)}</p>
+      <Slider min={0} max={3} default={1} step={0.05} bind:value={brightness} />
+    </fieldset>
 
     <ProgressButton on:click={uploadImage} loading={uploading}>
       Upload
