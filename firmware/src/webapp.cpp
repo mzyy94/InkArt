@@ -8,10 +8,38 @@
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_spiffs.h"
 
 #include "api.hpp"
 
 static const char *TAG = "webapp";
+
+#define SPIFFS_ROOT "/spiffs"
+
+esp_err_t mount_spiffs()
+{
+  esp_vfs_spiffs_conf_t conf = {
+      .base_path = SPIFFS_ROOT,
+      .partition_label = nullptr,
+      .max_files = 5,
+      .format_if_mount_failed = false,
+  };
+
+  esp_err_t ret = esp_vfs_spiffs_register(&conf);
+
+  if (ret != ESP_OK)
+  {
+    return ret;
+  }
+
+  size_t total = 0, used = 0;
+  ret = esp_spiffs_info(conf.partition_label, &total, &used);
+  if (ret == ESP_OK)
+  {
+    ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+  }
+  return ret;
+}
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
@@ -65,7 +93,7 @@ void init_ap(char *ssid, char *password, char *ip_addr)
 static esp_err_t static_get_handler(httpd_req_t *req)
 {
   std::string filepath = req->uri;
-  filepath = "/sdcard/webapp" + filepath;
+  filepath = SPIFFS_ROOT + filepath;
 
   if (req->uri[strlen(req->uri) - 1] == '/')
   {
@@ -138,8 +166,14 @@ void start_web_server()
   config.lru_purge_enable = true;
   config.uri_match_fn = httpd_uri_match_wildcard;
 
-  ESP_LOGI(TAG, "Starting HTTP Server");
+  ESP_LOGI(TAG, "Initializing SPIFFS");
+  if (mount_spiffs() != ESP_OK)
+  {
+    ESP_LOGE(TAG, "Failed to initialize SPIFFS");
+    return;
+  }
 
+  ESP_LOGI(TAG, "Starting HTTP Server");
   if (httpd_start(&server, &config) != ESP_OK)
   {
     ESP_LOGE(TAG, "Start server failed");
