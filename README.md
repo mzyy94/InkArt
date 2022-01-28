@@ -58,14 +58,16 @@ npm install
 npm run build
 ```
 
-The build artifacts are output to **web-app/public**
+The build artifacts are output to **web-app/dist**
 
 ## Setup
 
-Place the web app artifacts on the microSD card. First, format the microSD card with FAT32.
-Copy the artifact **web-app/public** directory to the top of the microSD card, and rename the copied **public** directory to **webapp**. Then, insert the microSD card into Inkplate.
+First, burn web-app to Inkplate. Connect Inkplate to your PC and run the following command.
 
-Next, burn the built firmware to Inkplate. Connect Inkplate to your PC and run the following command.
+- Inkplate 6: `pio run -e inkplate-6 -t uploadfs`
+- Inkplate 10: `pio run -e inkplate-10 -t uploadfs`
+
+Next, burn the built firmware to Inkplate.
 
 - Inkplate 6: `pio run -e inkplate-6 -t upload`
 - Inkplate 10: `pio run -e inkplate-10 -t upload`
