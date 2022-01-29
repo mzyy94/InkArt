@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { Card, Button, Image } from "smelte";
   import type { Entry } from "../../api";
 
   const dispatch = createEventDispatcher();
@@ -13,43 +12,42 @@
     dispatch("delete", { data });
   }
 
-  const replace = { flex: "inline-flex" };
   export let data: Entry;
 </script>
 
-<article class="m-6">
-  <Card.Card class={data.hidden ? "bg-gray-200" : ""}>
-    <div slot="title">
-      <Card.Title title={data.filename} />
-    </div>
-    <div slot="media">
-      <Image
-        class={`w-full duration-200 ease-in ${data.hidden ? "opacity-60" : ""}`}
-        src={`/api/v1/photos/${data.filename}`}
-        alt={data.filename}
-      />
-    </div>
-
-    <div slot="actions">
-      <div class="p-2">
-        <Button
-          icon={data.hidden ? "image" : "hide_image"}
-          on:click={hideFile}
-          text
-          {replace}
-        >
-          {data.hidden ? "Show" : "Hide"}
-        </Button>
-        <Button
-          color="error"
-          icon="delete"
-          on:click={deleteFile}
-          text
-          {replace}
-        >
-          Delete
-        </Button>
-      </div>
-    </div>
-  </Card.Card>
+<article>
+  <header>
+    {data.filename}
+  </header>
+  <img src={`/api/v1/photos/${data.filename}`} alt={data.filename} />
+  <footer>
+    <button class:secondary={!data.hidden} on:click={hideFile}>
+      <i class="material-icons">{data.hidden ? "image" : "hide_image"}</i>
+      {data.hidden ? "Show" : "Hide"}
+    </button>
+    <button class="contrast" on:click={deleteFile}>
+      <i class="material-icons">delete</i>
+      Delete
+    </button>
+  </footer>
 </article>
+
+<style>
+  i {
+    vertical-align: top;
+  }
+  article {
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  header {
+    padding: 1em;
+  }
+  footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    column-gap: 10px;
+    padding: 24px;
+  }
+</style>
