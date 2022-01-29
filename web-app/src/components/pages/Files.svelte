@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Tab, Tabs, Button, Dialog } from "smelte";
   import api from "../../api";
   import type { Entry } from "../../api";
   import Container from "../templates/Container.svelte";
@@ -8,7 +7,7 @@
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
   import Snackbar from "../atoms/Snackbar.svelte";
 
-  let mode = "grid";
+  let list = false;
 
   let data: Entry[] = [];
   let loading = true;
@@ -75,49 +74,53 @@
 <main>
   <Container>
     <span slot="title">File Management</span>
+    <nav>
+      <span><i class="material-icons">grid_view</i>Grid</span>
+      <input type="checkbox" bind:checked={list} role="switch" />
+      <span><i class="material-icons">list</i>List</span>
+    </nav>
     <section>
-      <Tabs
-        bind:selected={mode}
-        color={"black"}
-        notSelectedColor="gray"
-        indicator={false}
-        items={[
-          { id: "grid", text: "grid", icon: "grid_view" },
-          { id: "list", text: "list", icon: "list" },
-        ]}
-      >
-        <div slot="content">
-          <Tab id="grid" selected={mode}>
-            <PhotoGrid
-              bind:data
-              bind:loading
-              on:hide={hideFile}
-              on:delete={confirmDelete}
-            />
-          </Tab>
-          <Tab id="list" selected={mode}>
-            <PhotoList
-              bind:data
-              bind:loading
-              on:hide={hideFile}
-              on:delete={confirmDelete}
-            />
-          </Tab>
-        </div>
-      </Tabs>
+      {#if list}
+        <PhotoList
+          bind:data
+          bind:loading
+          on:hide={hideFile}
+          on:delete={confirmDelete}
+        />
+      {:else}
+        <PhotoGrid
+          bind:data
+          bind:loading
+          on:hide={hideFile}
+          on:delete={confirmDelete}
+        />
+      {/if}
     </section>
   </Container>
 </main>
 
-<Dialog value={fileToDelete != null}>
-  <h5 slot="title">Delete file?</h5>
-  <div class="text-gray-700">Are you sure you want to delete file?</div>
-  <div slot="actions">
-    <Button text on:click={() => (fileToDelete = null)}>Cancel</Button>
-    <Button text on:click={deleteFile} color="error">Delete</Button>
-  </div>
-</Dialog>
+<dialog open={fileToDelete != null}>
+  <article>
+    <header>Delete file?</header>
+    <div>Are you sure you want to delete file?</div>
+    <footer>
+      <button class="secondary" on:click={() => (fileToDelete = null)}>
+        Cancel
+      </button>
+      <button class="contrast" on:click={deleteFile}>Delete</button>
+    </footer>
+  </article>
+</dialog>
 
 <Snackbar error={snackbar.error} bind:open={snackbar.show}>
   <div>{snackbar.text}</div>
 </Snackbar>
+
+<style>
+  i {
+    vertical-align: top;
+  }
+  nav {
+    margin-bottom: 2em;
+  }
+</style>
