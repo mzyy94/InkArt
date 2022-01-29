@@ -1,19 +1,17 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Button, DatePicker, Slider } from "smelte";
   import api from "../../api";
   import Container from "../templates/Container.svelte";
-  import TimeInput from "../atoms/TimeInput.svelte";
   import Snackbar from "../atoms/Snackbar.svelte";
 
   async function initSettings() {
     const config = await api.config();
-    date = new Date(config.time);
+    now = new Date(config.time);
     refresh = config.refresh;
   }
 
   function applySettings() {
-    api.config({ time: date.getTime(), refresh }).then((res) => {
+    api.config({ time: now.getTime(), refresh }).then((res) => {
       snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
       snackbar.error = !res.ok;
       snackbar.show = true;
@@ -28,7 +26,10 @@
     error: false,
   };
 
-  let date: Date = new Date();
+  let now: Date = new Date();
+  $: shift = new Date(+now - now.getTimezoneOffset() * 60000);
+  $: date = shift.toISOString().split(/[T\.]/)[0];
+  $: time = shift.toISOString().split(/[T\.]/)[1];
   let refresh = 0;
   $: label = `${refresh < 240 ? refresh : refresh / 60}${
     refresh < 240 ? "min" : "hours"
@@ -37,13 +38,19 @@
   $: min = refresh < 60 ? 0 : refresh < 240 ? -160 : -780;
   $: max = refresh < 60 ? 240 : refresh < 240 ? 720 : 1464;
 
-  function onDateChange(e: CustomEvent<Date>) {
-    const d = e.detail;
-    date.setFullYear(d.getFullYear(), d.getMonth(), d.getDate());
+  function onDateChange(e: Event & { currentTarget: HTMLInputElement }) {
+    if (e.currentTarget.type == "date") {
+      const [yyyy, mm, dd] = e.currentTarget.value.split("-");
+      now.setFullYear(+yyyy, +mm - 1, +dd);
+    } else {
+      const [hh, mm, ss] = e.currentTarget.value.split(":");
+      now.setHours(+hh, +mm, ss ? +ss : undefined);
+    }
+    console.log(e.currentTarget.type, e.currentTarget.value, now);
   }
 
   function syncDate() {
-    date = new Date();
+    now = new Date();
     applySettings();
   }
 </script>
@@ -51,18 +58,18 @@
 <main>
   <Container>
     <span slot="title">Settings</span>
-    <DatePicker value={date} on:change={onDateChange} />
-    <TimeInput bind:value={date} />
+    <input type="date" value={date} on:change={onDateChange} />
+    <input type="time" value={time} on:change={onDateChange} step="1" />
 
-    <fieldset class="my-3">
-      <p class="text-gray-700">Refresh interval: {label}</p>
-      <Slider {min} {max} {step} bind:value={refresh} />
+    <fieldset>
+      <p>Refresh interval: {label}</p>
+      <input type="range" {min} {max} {step} bind:value={refresh} />
     </fieldset>
 
-    <div class="flex space-x-2 justify-end">
-      <Button color="error" on:click={syncDate}>Sync</Button>
-      <Button on:click={applySettings}>Apply</Button>
-      <Button color="gray" on:click={initSettings}>Reset</Button>
+    <div>
+      <button class="contrast" on:click={syncDate}>Sync</button>
+      <button on:click={applySettings}>Apply</button>
+      <button class="secondary" on:click={initSettings}>Reset</button>
     </div>
   </Container>
 </main>
