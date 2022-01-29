@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Tab, Tabs, Button, Dialog, Snackbar } from "smelte";
+  import { Tab, Tabs, Button, Dialog } from "smelte";
   import api from "../../api";
   import type { Entry } from "../../api";
   import Container from "../templates/Container.svelte";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
+  import Snackbar from "../atoms/Snackbar.svelte";
 
   let mode = "grid";
 
@@ -38,7 +39,7 @@
           );
         } else {
           snackbar.text = "Hide file failed";
-          snackbar.color = "error";
+          snackbar.error = true;
           snackbar.show = true;
         }
       });
@@ -58,7 +59,7 @@
         data = data.filter((entry) => entry.filename != filename);
       } else {
         snackbar.text = "Delete file failed";
-        snackbar.color = "error";
+        snackbar.error = true;
         snackbar.show = true;
       }
     });
@@ -67,7 +68,7 @@
   let snackbar = {
     show: false,
     text: "",
-    color: "primary",
+    error: false,
   };
 </script>
 
@@ -117,6 +118,6 @@
   </div>
 </Dialog>
 
-<Snackbar color={snackbar.color} bind:value={snackbar.show}>
+<Snackbar error={snackbar.error} bind:open={snackbar.show}>
   <div>{snackbar.text}</div>
 </Snackbar>

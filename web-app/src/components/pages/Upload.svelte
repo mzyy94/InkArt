@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { Select, Snackbar, Slider } from "smelte";
+  import { Select, Slider } from "smelte";
   import Container from "../templates/Container.svelte";
   import ImageLoader from "../atoms/ImageLoader.svelte";
   import Grayscale from "../atoms/Grayscale.svelte";
   import Move from "../atoms/Move.svelte";
   import ProgressButton from "../atoms/ProgressButton.svelte";
+  import Snackbar from "../atoms/Snackbar.svelte";
 
   const modes = [
     { value: "cover", text: "Cover" },
@@ -23,7 +24,7 @@
   let snackbar = {
     show: false,
     text: "",
-    color: "primary",
+    error: false,
   };
 
   let grayscale: Grayscale;
@@ -47,7 +48,7 @@
     fetch("/api/v1/photos", { method: "POST", body: encodedText })
       .then((res) => {
         snackbar.text = `Upload ${res.ok ? "succeeded" : "failed"}`;
-        snackbar.color = res.ok ? "primary" : "error";
+        snackbar.error = !res.ok;
         snackbar.show = true;
       })
       .finally(() => {
@@ -96,6 +97,6 @@
   </Container>
 </main>
 
-<Snackbar color={snackbar.color} bind:value={snackbar.show}>
+<Snackbar error={snackbar.error} bind:open={snackbar.show}>
   <div>{snackbar.text}</div>
 </Snackbar>

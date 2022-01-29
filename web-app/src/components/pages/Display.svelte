@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Button, Select, Slider, Snackbar, Switch } from "smelte";
+  import { Button, Select, Slider, Switch } from "smelte";
   import api from "../../api";
   import type { Orientation } from "../../api";
   import Container from "../templates/Container.svelte";
+  import Snackbar from "../atoms/Snackbar.svelte";
 
   const orientations: Array<{ value: Orientation; text: string }> = [
     { value: "landscape", text: "Landscape" },
@@ -53,7 +54,7 @@
       })
       .then((res) => {
         snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
-        snackbar.color = res.ok ? "primary" : "error";
+        snackbar.error = !res.ok;
         snackbar.show = true;
       });
   }
@@ -73,7 +74,7 @@
       .then((res) => {
         if (!res.ok) {
           snackbar.text = "Preview settings failed";
-          snackbar.color = "error";
+          snackbar.error = true;
           snackbar.show = true;
         }
       });
@@ -158,7 +159,7 @@
   let snackbar = {
     show: false,
     text: "",
-    color: "primary",
+    error: false,
   };
 </script>
 
@@ -208,7 +209,7 @@
 
     <canvas bind:this={canvas} width={500} height={500} />
 
-    <Snackbar color={snackbar.color} bind:value={snackbar.show}>
+    <Snackbar error={snackbar.error} bind:open={snackbar.show}>
       <div>{snackbar.text}</div>
     </Snackbar>
   </Container>

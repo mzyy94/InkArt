@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Button, DatePicker, Snackbar, Slider } from "smelte";
+  import { Button, DatePicker, Slider } from "smelte";
   import api from "../../api";
   import Container from "../templates/Container.svelte";
   import TimeInput from "../atoms/TimeInput.svelte";
+  import Snackbar from "../atoms/Snackbar.svelte";
 
   async function initSettings() {
     const config = await api.config();
@@ -14,7 +15,7 @@
   function applySettings() {
     api.config({ time: date.getTime(), refresh }).then((res) => {
       snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
-      snackbar.color = res.ok ? "primary" : "error";
+      snackbar.error = !res.ok;
       snackbar.show = true;
     });
   }
@@ -24,7 +25,7 @@
   let snackbar = {
     show: false,
     text: "",
-    color: "primary",
+    error: false,
   };
 
   let date: Date = new Date();
@@ -66,6 +67,6 @@
   </Container>
 </main>
 
-<Snackbar color={snackbar.color} bind:value={snackbar.show}>
+<Snackbar error={snackbar.error} bind:open={snackbar.show}>
   <div>{snackbar.text}</div>
 </Snackbar>
