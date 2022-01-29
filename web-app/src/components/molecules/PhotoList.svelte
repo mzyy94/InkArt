@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { useLazyImage as lazyImage } from "svelte-lazy-image";
   import type { Entry } from "../../api";
 
   const dispatch = createEventDispatcher();
@@ -37,8 +38,9 @@
           </td>
           <td>
             <img
-              src={`/api/v1/photos/${entry.filename}`}
+              data-src={`/api/v1/photos/${entry.filename}`}
               alt={entry.filename}
+              use:lazyImage
             />
           </td>
           <td>
@@ -55,5 +57,8 @@
 <style>
   i {
     cursor: pointer;
+  }
+  tbody > tr td {
+    height: 15vh;
   }
 </style>
