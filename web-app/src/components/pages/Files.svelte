@@ -75,9 +75,15 @@
   <Container>
     <span slot="title">File Management</span>
     <nav>
-      <span><i class="material-icons">grid_view</i>Grid</span>
+      <label>
+        <input type="radio" name="view" bind:group={list} value={false} />
+        <i class="material-icons">grid_view</i>Grid
+      </label>
       <input type="checkbox" bind:checked={list} role="switch" />
-      <span><i class="material-icons">list</i>List</span>
+      <label>
+        <input type="radio" name="view" bind:group={list} value={true} />
+        <i class="material-icons">list</i>List
+      </label>
     </nav>
     <section>
       {#if list}
@@ -122,5 +128,11 @@
   }
   nav {
     margin-bottom: 2em;
+  }
+  nav input[type="radio"] {
+    display: none;
+  }
+  nav label {
+    cursor: pointer;
   }
 </style>
