@@ -31,6 +31,7 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
+    "@picocss/pico": "^1.4.4",
     "material-icons": "^1.10.5",
     "msw": "^0.36.3",
     "smelte": "^1.1.8",
