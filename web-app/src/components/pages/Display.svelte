@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Button, Select, Slider, Switch } from "smelte";
   import api from "../../api";
   import type { Orientation } from "../../api";
   import Container from "../templates/Container.svelte";
@@ -166,45 +165,50 @@
 <main>
   <Container>
     <span slot="title">Display Control</span>
-    <fieldset class="my-3">
-      <Switch label="Invert black/white" bind:value={invert} />
+    <fieldset>
+      <label>
+        <input type="checkbox" role="switch" bind:checked={invert} />
+        Invert black/white
+      </label>
     </fieldset>
 
-    <fieldset class="my-3">
-      <Switch label="Dithering" bind:value={dithering} />
+    <fieldset>
+      <label>
+        <input type="checkbox" role="switch" bind:checked={dithering} />
+        Dithering
+      </label>
     </fieldset>
 
-    <Select
-      label="Orientation"
-      name="orientation"
-      bind:value={orientation}
-      items={orientations}
-    />
+    <select bind:value={orientation}>
+      {#each orientations as { value, text }}
+        <option {value}>{text}</option>
+      {/each}
+    </select>
 
-    <fieldset class="my-3">
-      <p class="text-gray-700">Top: {paddingTop}pixel</p>
-      <Slider min={0} max={200} bind:value={paddingTop} />
+    <fieldset>
+      <p>Top: {paddingTop}pixel</p>
+      <input type="range" min={0} max={200} bind:value={paddingTop} />
     </fieldset>
 
-    <fieldset class="my-3">
-      <p class="text-gray-700">Left: {paddingLeft}pixel</p>
-      <Slider min={0} max={200} bind:value={paddingLeft} />
+    <fieldset>
+      <p>Left: {paddingLeft}pixel</p>
+      <input type="range" min={0} max={200} bind:value={paddingLeft} />
     </fieldset>
 
-    <fieldset class="my-3">
-      <p class="text-gray-700">Right: {paddingRight}pixel</p>
-      <Slider min={0} max={200} bind:value={paddingRight} />
+    <fieldset>
+      <p>Right: {paddingRight}pixel</p>
+      <input type="range" min={0} max={200} bind:value={paddingRight} />
     </fieldset>
 
-    <fieldset class="my-3">
-      <p class="text-gray-700">Bottom: {paddingBottom}pixel</p>
-      <Slider min={0} max={200} bind:value={paddingBottom} />
+    <fieldset>
+      <p>Bottom: {paddingBottom}pixel</p>
+      <input type="range" min={0} max={200} bind:value={paddingBottom} />
     </fieldset>
 
-    <div class="flex space-x-2 justify-end">
-      <Button color="error" on:click={previewSettings}>Preview</Button>
-      <Button on:click={applySettings}>Apply</Button>
-      <Button color="gray" on:click={initSettings}>Reset</Button>
+    <div>
+      <button class="contrast" on:click={previewSettings}>Preview</button>
+      <button on:click={applySettings}>Apply</button>
+      <button class="secondary" on:click={initSettings}>Reset</button>
     </div>
 
     <canvas bind:this={canvas} width={500} height={500} />
