@@ -28,6 +28,8 @@
   };
 
   let grayscale: Grayscale;
+  let width = 0;
+  let height = 0;
   let uploading = false;
 
   async function uploadImage() {
@@ -62,6 +64,7 @@
     <span slot="title">Upload Photo</span>
     <ImageLoader {img} />
     <Select {label} items={modes} bind:value={mode} />
+    <span>Image size: {width}x{height}</span>
     <Move let:offsetX let:offsetY reset={mode} {active}>
       <Grayscale
         bind:this={grayscale}
@@ -70,6 +73,8 @@
         {offsetX}
         {offsetY}
         {brightness}
+        bind:width
+        bind:height
         bind:active
       />
     </Move>
