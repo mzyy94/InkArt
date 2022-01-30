@@ -6,6 +6,7 @@
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
   import Snackbar from "../atoms/Snackbar.svelte";
+  import { open } from "../../actions/dialog";
 
   let list = false;
 
@@ -105,7 +106,7 @@
   </Container>
 </main>
 
-<dialog open={fileToDelete != null}>
+<dialog use:open={fileToDelete != null}>
   <article>
     <header>Delete file?</header>
     <div>Are you sure you want to delete file?</div>

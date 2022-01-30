@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Container from "../templates/Container.svelte";
   import api from "../../api";
+  import { open } from "../../actions/dialog";
 
   const menuItems = [
     {
@@ -92,7 +93,7 @@
   </Container>
 </main>
 
-<dialog open={confirmReboot}>
+<dialog use:open={confirmReboot}>
   <article>
     <header>Reboot</header>
     <p>Do you want to leave setup mode?</p>
