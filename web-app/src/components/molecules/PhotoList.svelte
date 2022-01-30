@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { useLazyImage as lazyImage } from "svelte-lazy-image";
   import type { Entry } from "../../api";
+  import Image from "../atoms/Image.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -37,11 +37,7 @@
             </i>
           </td>
           <td>
-            <img
-              data-src={`/api/v1/photos/${entry.filename}`}
-              alt={entry.filename}
-              use:lazyImage
-            />
+            <Image src={`/api/v1/photos/${entry.filename}`} />
           </td>
           <td>
             <i class="material-icons" on:click={() => deleteFile(entry)}>
