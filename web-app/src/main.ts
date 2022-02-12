@@ -1,4 +1,4 @@
-import "smelte/src/tailwind.css";
+import "@picocss/pico";
 import "material-icons/iconfont/material-icons.css";
 
 import Router from "svelte-spa-router";

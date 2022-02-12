@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { ProgressLinear } from "smelte";
   import InfoLabel from "../atoms/InfoLabel.svelte";
 
   export let used: number;
@@ -21,6 +20,4 @@
   {new Intl.NumberFormat(undefined, { style: "percent" }).format(usage)}
   ({toByteString(used)}/{toByteString(total)})
 </InfoLabel>
-<div class="mx-3 mb-3 bg-gray-400 rounded overflow-hidden">
-  <ProgressLinear progress={isNaN(usage) ? 0.01 : usage * 100} />
-</div>
+<progress value={isNaN(usage) ? 0.01 : usage} />

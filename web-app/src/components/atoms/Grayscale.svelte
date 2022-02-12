@@ -115,8 +115,8 @@
   export let brightness = 1.0;
   export let algorithm = "default";
 
-  let width = 0;
-  let height = 0;
+  export let width = 0;
+  export let height = 0;
 
   function resizeImageRect(
     img: HTMLImageElement,
@@ -350,7 +350,6 @@
 </script>
 
 {#if width > 0 && height > 0}
-  <span>Image size: {width}x{height}</span>
   <canvas bind:this={canvas} {width} {height} />
 {/if}
 

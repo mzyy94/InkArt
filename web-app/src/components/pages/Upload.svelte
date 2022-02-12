@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { Select, Snackbar, Slider } from "smelte";
   import Container from "../templates/Container.svelte";
   import ImageLoader from "../atoms/ImageLoader.svelte";
   import Grayscale from "../atoms/Grayscale.svelte";
   import Move from "../atoms/Move.svelte";
-  import ProgressButton from "../atoms/ProgressButton.svelte";
+  import Snackbar from "../atoms/Snackbar.svelte";
 
   const modes = [
     { value: "cover", text: "Cover" },
@@ -23,10 +22,12 @@
   let snackbar = {
     show: false,
     text: "",
-    color: "primary",
+    error: false,
   };
 
   let grayscale: Grayscale;
+  let width = 0;
+  let height = 0;
   let uploading = false;
 
   async function uploadImage() {
@@ -47,7 +48,7 @@
     fetch("/api/v1/photos", { method: "POST", body: encodedText })
       .then((res) => {
         snackbar.text = `Upload ${res.ok ? "succeeded" : "failed"}`;
-        snackbar.color = res.ok ? "primary" : "error";
+        snackbar.error = !res.ok;
         snackbar.show = true;
       })
       .finally(() => {
@@ -60,7 +61,13 @@
   <Container>
     <span slot="title">Upload Photo</span>
     <ImageLoader {img} />
-    <Select {label} items={modes} bind:value={mode} />
+    <p>{label}</p>
+    <select bind:value={mode}>
+      {#each modes as { value, text }}
+        <option {value}>{text}</option>
+      {/each}
+    </select>
+    <span>Image size: {width}x{height}</span>
     <Move let:offsetX let:offsetY reset={mode} {active}>
       <Grayscale
         bind:this={grayscale}
@@ -69,33 +76,30 @@
         {offsetX}
         {offsetY}
         {brightness}
+        bind:width
+        bind:height
         bind:active
       />
     </Move>
 
-    <fieldset class="my-3">
-      <p class="text-gray-700">Brightness: {brightness.toFixed(2)}</p>
-      <Slider
+    <fieldset>
+      <p>Brightness: {brightness.toFixed(2)}</p>
+      <input
+        type="range"
         min={0}
         max={3}
-        default={1}
         step={0.05}
         disabled={!active}
         bind:value={brightness}
       />
     </fieldset>
 
-    <ProgressButton
-      on:click={uploadImage}
-      disabled={!active}
-      loading={uploading}
-    >
-      Upload
-      <span slot="loading">Uploading...</span>
-    </ProgressButton>
+    <button on:click={uploadImage} disabled={!active} aria-busy={uploading}>
+      {uploading ? "Uploading..." : "Upload"}
+    </button>
   </Container>
 </main>
 
-<Snackbar color={snackbar.color} bind:value={snackbar.show}>
+<Snackbar error={snackbar.error} bind:open={snackbar.show}>
   <div>{snackbar.text}</div>
 </Snackbar>

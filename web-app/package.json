@@ -31,11 +31,11 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
+    "@picocss/pico": "^1.4.4",
     "material-icons": "^1.10.5",
     "msw": "^0.36.3",
-    "smelte": "^1.1.8",
-    "svelte-spa-router": "^3.2.0",
-    "svelte-waypoint": "^0.1.4"
+    "svelte-lazy-image": "^0.5.0",
+    "svelte-spa-router": "^3.2.0"
   },
   "msw": {
     "workerDirectory": "public"

@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Tab, Tabs, Button, Dialog, Snackbar } from "smelte";
   import api from "../../api";
   import type { Entry } from "../../api";
   import Container from "../templates/Container.svelte";
   import PhotoList from "../molecules/PhotoList.svelte";
   import PhotoGrid from "../molecules/PhotoGrid.svelte";
+  import Snackbar from "../atoms/Snackbar.svelte";
+  import { open } from "../../actions/dialog";
 
-  let mode = "grid";
+  let list = false;
 
   let data: Entry[] = [];
   let loading = true;
@@ -38,7 +39,7 @@
           );
         } else {
           snackbar.text = "Hide file failed";
-          snackbar.color = "error";
+          snackbar.error = true;
           snackbar.show = true;
         }
       });
@@ -58,7 +59,7 @@
         data = data.filter((entry) => entry.filename != filename);
       } else {
         snackbar.text = "Delete file failed";
-        snackbar.color = "error";
+        snackbar.error = true;
         snackbar.show = true;
       }
     });
@@ -67,56 +68,72 @@
   let snackbar = {
     show: false,
     text: "",
-    color: "primary",
+    error: false,
   };
 </script>
 
 <main>
   <Container>
     <span slot="title">File Management</span>
+    <nav>
+      <label>
+        <input type="radio" name="view" bind:group={list} value={false} />
+        <i class="material-icons">grid_view</i>Grid
+      </label>
+      <input type="checkbox" bind:checked={list} role="switch" />
+      <label>
+        <input type="radio" name="view" bind:group={list} value={true} />
+        <i class="material-icons">list</i>List
+      </label>
+    </nav>
     <section>
-      <Tabs
-        bind:selected={mode}
-        color={"black"}
-        notSelectedColor="gray"
-        indicator={false}
-        items={[
-          { id: "grid", text: "grid", icon: "grid_view" },
-          { id: "list", text: "list", icon: "list" },
-        ]}
-      >
-        <div slot="content">
-          <Tab id="grid" selected={mode}>
-            <PhotoGrid
-              bind:data
-              bind:loading
-              on:hide={hideFile}
-              on:delete={confirmDelete}
-            />
-          </Tab>
-          <Tab id="list" selected={mode}>
-            <PhotoList
-              bind:data
-              bind:loading
-              on:hide={hideFile}
-              on:delete={confirmDelete}
-            />
-          </Tab>
-        </div>
-      </Tabs>
+      {#if list}
+        <PhotoList
+          bind:data
+          bind:loading
+          on:hide={hideFile}
+          on:delete={confirmDelete}
+        />
+      {:else}
+        <PhotoGrid
+          bind:data
+          bind:loading
+          on:hide={hideFile}
+          on:delete={confirmDelete}
+        />
+      {/if}
     </section>
   </Container>
 </main>
 
-<Dialog value={fileToDelete != null}>
-  <h5 slot="title">Delete file?</h5>
-  <div class="text-gray-700">Are you sure you want to delete file?</div>
-  <div slot="actions">
-    <Button text on:click={() => (fileToDelete = null)}>Cancel</Button>
-    <Button text on:click={deleteFile} color="error">Delete</Button>
-  </div>
-</Dialog>
+<dialog use:open={fileToDelete != null}>
+  <article>
+    <header>Delete file?</header>
+    <div>Are you sure you want to delete file?</div>
+    <footer>
+      <button class="secondary" on:click={() => (fileToDelete = null)}>
+        Cancel
+      </button>
+      <button class="contrast" on:click={deleteFile}>Delete</button>
+    </footer>
+  </article>
+</dialog>
 
-<Snackbar color={snackbar.color} bind:value={snackbar.show}>
+<Snackbar error={snackbar.error} bind:open={snackbar.show}>
   <div>{snackbar.text}</div>
 </Snackbar>
+
+<style>
+  i {
+    vertical-align: top;
+  }
+  nav {
+    margin-bottom: 2em;
+  }
+  nav input[type="radio"] {
+    display: none;
+  }
+  nav label {
+    cursor: pointer;
+  }
+</style>

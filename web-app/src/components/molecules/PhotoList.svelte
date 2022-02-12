@@ -1,8 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { DataTable, Image } from "smelte";
-  import ActionIcon from "../atoms/ActionIcon.svelte";
   import type { Entry } from "../../api";
+  import Image from "../atoms/Image.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -19,46 +18,43 @@
 </script>
 
 <section class="mt-3">
-  <DataTable
-    class="w-full"
-    editable={false}
-    {data}
-    {loading}
-    columns={[
-      { label: "Name", field: "filename" },
-      {
-        field: "Visibility",
-        remove: "text-right",
-        add: "text-center",
-        component: ActionIcon,
-        componentProps: (data) => ({
-          icon: data.hidden ? "visibility_off" : "visibility",
-          callback: () => hideFile(data),
-        }),
-      },
-      {
-        field: "Image",
-        component: Image,
-        componentProps: (data) => ({
-          src: `/api/v1/photos/${data.filename}`,
-          alt: data.filename,
-          class: "h-24",
-        }),
-        sortable: false,
-        headerRemove: "justify-end",
-      },
-      {
-        field: "Delete",
-        remove: "text-right",
-        add: "text-center",
-        component: ActionIcon,
-        componentProps: (data) => ({
-          icon: "delete",
-          class: "text-error-500",
-          callback: () => deleteFile(data),
-        }),
-        sortable: false,
-      },
-    ]}
-  />
+  <table aria-busy={loading}>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Visibility</th>
+        <th>Image</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {#each data as entry}
+        <tr>
+          <td>{entry.filename}</td>
+          <td>
+            <i class="material-icons" on:click={() => hideFile(entry)}>
+              {entry.hidden ? "visibility_off" : "visibility"}
+            </i>
+          </td>
+          <td>
+            <Image src={`/api/v1/photos/${entry.filename}`} />
+          </td>
+          <td>
+            <i class="material-icons" on:click={() => deleteFile(entry)}>
+              delete
+            </i>
+          </td>
+        </tr>
+      {/each}
+    </tbody>
+  </table>
 </section>
+
+<style>
+  i {
+    cursor: pointer;
+  }
+  tbody > tr td {
+    height: 15vh;
+  }
+</style>
