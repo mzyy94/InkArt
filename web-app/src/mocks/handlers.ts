@@ -208,14 +208,19 @@ export const handlers = [
   rest.get("/api/v1/system/time", (_req, res, ctx) => {
     const refresh = parseInt(sessionStorage.getItem("refresh") || "0", 10);
     const offset = parseInt(sessionStorage.getItem("offset") || "0", 10);
+    const shuffle = sessionStorage.getItem("shuffle") == "true";
     const time = new Date(Date.now() + offset).getTime();
-    return res(ctx.status(200), ctx.json<TimeConfig>({ time, refresh }));
+    return res(
+      ctx.status(200),
+      ctx.json<TimeConfig>({ time, refresh, shuffle })
+    );
   }),
   rest.post<TimeConfig>("/api/v1/system/time", (req, res, ctx) => {
     const time = new Date(req.body.time);
     const diff = time.getTime() - Date.now();
     sessionStorage.setItem("offset", diff.toString(10));
     sessionStorage.setItem("refresh", req.body.refresh.toString(10));
+    sessionStorage.setItem("shuffle", req.body.shuffle.toString());
     return res(
       ctx.status(200),
       ctx.json<OperationResult>({ status: "succeeded" })

@@ -83,7 +83,7 @@ void main_task(void *)
   }
 
   int16_t x, y;
-  uint8_t invert, rotation, dithering;
+  uint8_t invert, rotation, dithering, shuffle;
   uint16_t interval;
 
   nvs_handle_t handle;
@@ -94,6 +94,7 @@ void main_task(void *)
   nvs_get_i16(handle, "padding-top", &y);
   nvs_get_i16(handle, "padding-left", &x);
   nvs_get_u16(handle, "refresh", &interval);
+  nvs_get_u8(handle, "shuffle", &shuffle);
   nvs_close(handle);
 
   std::vector<std::string> bmp_images;
@@ -105,7 +106,14 @@ void main_task(void *)
 
   if (available.size() > 0)
   {
-    last_index++;
+    if (shuffle)
+    {
+      last_index = esp_random() % available.size();
+    }
+    else
+    {
+      last_index++;
+    }
     ESP_LOGI(TAG, "Search bmp image at index %d in SD", last_index);
     auto iter = available.begin();
     for (size_t i = 0; i < last_index; i++)

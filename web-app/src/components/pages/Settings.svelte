@@ -8,14 +8,17 @@
     const config = await api.config();
     now = new Date(config.time);
     refresh = config.refresh;
+    order = config.shuffle ? "shuffle" : "normal";
   }
 
   function applySettings() {
-    api.config({ time: now.getTime(), refresh }).then((res) => {
-      snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
-      snackbar.error = !res.ok;
-      snackbar.show = true;
-    });
+    api
+      .config({ time: now.getTime(), refresh, shuffle: order == "shuffle" })
+      .then((res) => {
+        snackbar.text = `Update settings ${res.ok ? "succeeded" : "failed"}`;
+        snackbar.error = !res.ok;
+        snackbar.show = true;
+      });
   }
 
   onMount(initSettings);
@@ -53,6 +56,12 @@
     now = new Date();
     applySettings();
   }
+
+  const pattern = [
+    { value: "normal", text: "Normal" },
+    { value: "shuffle", text: "Shuffle" },
+  ];
+  let order = pattern[0].value;
 </script>
 
 <main>
@@ -62,8 +71,17 @@
     <input type="time" value={time} on:change={onDateChange} step="1" />
 
     <fieldset>
-      <p>Refresh interval: {label}</p>
+      <legend>Refresh interval: {label}</legend>
       <input type="range" {min} {max} {step} bind:value={refresh} />
+    </fieldset>
+
+    <fieldset>
+      <legend>Display order</legend>
+      <select bind:value={order}>
+        {#each pattern as { value, text }}
+          <option {value}>{text}</option>
+        {/each}
+      </select>
     </fieldset>
 
     <div>

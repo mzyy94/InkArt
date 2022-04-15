@@ -3,6 +3,7 @@ import { get, patch, post } from "./method";
 export interface TimeConfig {
   time: number;
   refresh: number;
+  shuffle: boolean;
 }
 
 export interface Display {
