@@ -335,6 +335,10 @@ static esp_err_t system_time_get_handler(httpd_req_t *req)
   nvs_get_u16(handle, "refresh", &val);
   j["refresh"] = val;
 
+  uint8_t val2 = 0;
+  nvs_get_u8(handle, "shuffle", &val2);
+  j["shuffle"] = val2;
+
   nvs_close(handle);
 
   const std::string str = j.dump(4);
@@ -370,12 +374,20 @@ static esp_err_t system_time_post_handler(httpd_req_t *req)
     settimeofday(&tv_now, nullptr);
   }
 
-  if (j.contains("refresh"))
+  if (j.contains("refresh") || j.contains("shuffle"))
   {
-    uint16_t val = j["refresh"];
     nvs_handle_t handle;
     nvs_open("system_settings", NVS_READWRITE, &handle);
-    nvs_set_u16(handle, "refresh", val);
+    if (j.contains("refresh"))
+    {
+      uint16_t val = j["refresh"];
+      nvs_set_u16(handle, "refresh", val);
+    }
+    if (j.contains("shuffle"))
+    {
+      uint8_t val = j["shuffle"];
+      nvs_set_u8(handle, "shuffle", val);
+    }
     nvs_commit(handle);
     nvs_close(handle);
   }
