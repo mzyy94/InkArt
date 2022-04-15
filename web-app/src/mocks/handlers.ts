@@ -146,6 +146,22 @@ export const handlers = [
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
+  rest.post<string>("/api/v1/photos/preview", async (req, res, ctx) => {
+    if (!req.body) {
+      return res(
+        ctx.status(400),
+        ctx.json<OperationResult>({
+          status: "failed",
+          detail: "file not found",
+        })
+      );
+    }
+    return res(
+      ctx.delay(3000),
+      ctx.status(200),
+      ctx.json<OperationResult>({ status: "succeeded" })
+    );
+  }),
   rest.get("/api/v1/system/display", (_req, res, ctx) => {
     const invert = sessionStorage.getItem("invert") == "true";
     const dithering = sessionStorage.getItem("dithering") == "true";

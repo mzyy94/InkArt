@@ -654,6 +654,79 @@ httpd_uri_t photo_binary_post_uri = {
     .user_ctx = nullptr,
 };
 
+#include "inkplate.hpp"
+extern Inkplate display;
+
+static esp_err_t photo_preview_binary_post_handler(httpd_req_t *req)
+{
+  if (req->content_len % 4 != 0)
+  {
+    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid content length");
+    return ESP_FAIL;
+  }
+
+  int16_t x, y;
+  uint8_t invert, rotation, dithering;
+
+  nvs_handle_t handle;
+  nvs_open("system_settings", NVS_READONLY, &handle);
+  nvs_get_u8(handle, "invert", &invert);
+  nvs_get_u8(handle, "dithering", &dithering);
+  nvs_get_u8(handle, "orientation", &rotation);
+  nvs_get_i16(handle, "padding-top", &y);
+  nvs_get_i16(handle, "padding-left", &x);
+  nvs_close(handle);
+
+  const size_t total_len = req->content_len;
+  size_t cur_len = 0;
+
+  char buff[128];
+  char *buf = (char *)malloc(total_len * 3 / 4);
+
+  while (cur_len < total_len)
+  {
+    auto len = httpd_req_recv(req, buff, sizeof(buff));
+    if (len <= 0)
+    {
+      ESP_LOGE(TAG, "Failed to receive content");
+      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive content");
+      return ESP_FAIL;
+    }
+    auto buff2 = buf + (cur_len * 3 / 4);
+    auto decoded = b64decode(buff, len, buff2, len * 3 / 4);
+    if (decoded == -1)
+    {
+      ESP_LOGE(TAG, "Failed to decode base64 binary");
+      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to decode base64 binary");
+      return ESP_FAIL;
+    }
+    cur_len += len;
+  }
+
+  display.selectDisplayMode(DisplayMode::INKPLATE_3BIT);
+  display.setRotation(rotation);
+  display.drawBitmapFromBuffer((uint8_t *)buf, x, y, dithering, invert);
+  display.display();
+
+  free(buf);
+  ESP_LOGI(TAG, "Preview file completed");
+
+  json res;
+  res["status"] = "ok";
+  std::string str = res.dump(4);
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_sendstr(req, str.c_str());
+
+  return ESP_OK;
+}
+
+httpd_uri_t photo_preview_binary_post_uri = {
+    .uri = "/api/v1/photos/preview",
+    .method = HTTP_POST,
+    .handler = photo_preview_binary_post_handler,
+    .user_ctx = nullptr,
+};
+
 static esp_err_t system_reboot_post_handler(httpd_req_t *req)
 {
   json res;
