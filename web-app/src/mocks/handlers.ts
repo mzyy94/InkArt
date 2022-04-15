@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { rest, type DefaultRequestBody } from "msw";
 import type { ResponseComposition, RestContext } from "msw";
 import { openPhotoDatabase } from "./db";
 import type {
@@ -71,53 +71,61 @@ export const handlers = [
       )
       .catch(handle500ErrorResponse(res, ctx));
   }),
-  rest.get("/api/v1/photos/:filename", (req, res, ctx) => {
-    return openPhotoDatabase("readonly")
-      .then(({ photo, close }) => photo.get(req.params.filename).finally(close))
-      .then(async ({ target: { result: data } }) => {
-        if (!data) {
-          return res(ctx.status(404), ctx.body(""));
-        }
-        const file = data as File;
-        const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-          const fr = new FileReader();
-          fr.onload = () => resolve(fr.result as ArrayBuffer);
-          fr.onerror = () => reject(fr.error);
-          fr.readAsArrayBuffer(file);
-        });
-        return res(
-          ctx.status(200),
-          ctx.set("Content-Length", buffer.byteLength.toString()),
-          ctx.set("Content-Type", "image/bmp"),
-          ctx.body(buffer)
-        );
-      })
-      .catch(handle500ErrorResponse(res, ctx));
-  }),
-  rest.delete("/api/v1/photos/:filename", (req, res, ctx) => {
-    return openPhotoDatabase("readwrite").then(({ photo, close }) =>
-      photo
-        .get(req.params.filename)
-        .then(({ target: { result: data } }) => {
+  rest.get<DefaultRequestBody, { filename: string }>(
+    "/api/v1/photos/:filename",
+    (req, res, ctx) => {
+      return openPhotoDatabase("readonly")
+        .then(({ photo, close }) =>
+          photo.get(req.params.filename).finally(close)
+        )
+        .then(async ({ target: { result: data } }) => {
           if (!data) {
-            return res(
-              ctx.status(404),
-              ctx.json<OperationResult>({ status: "failed" })
-            );
+            return res(ctx.status(404), ctx.body(""));
           }
-          return photo
-            .delete(req.params.filename)
-            .finally(close)
-            .then(() =>
-              res(
-                ctx.status(200),
-                ctx.json<OperationResult>({ status: "succeeded" })
-              )
-            );
+          const file = data as File;
+          const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+            const fr = new FileReader();
+            fr.onload = () => resolve(fr.result as ArrayBuffer);
+            fr.onerror = () => reject(fr.error);
+            fr.readAsArrayBuffer(file);
+          });
+          return res(
+            ctx.status(200),
+            ctx.set("Content-Length", buffer.byteLength.toString()),
+            ctx.set("Content-Type", "image/bmp"),
+            ctx.body(buffer)
+          );
         })
-        .catch(handle500ErrorResponse(res, ctx))
-    );
-  }),
+        .catch(handle500ErrorResponse(res, ctx));
+    }
+  ),
+  rest.delete<DefaultRequestBody, { filename: string }>(
+    "/api/v1/photos/:filename",
+    (req, res, ctx) => {
+      return openPhotoDatabase("readwrite").then(({ photo, close }) =>
+        photo
+          .get(req.params.filename)
+          .then(({ target: { result: data } }) => {
+            if (!data) {
+              return res(
+                ctx.status(404),
+                ctx.json<OperationResult>({ status: "failed" })
+              );
+            }
+            return photo
+              .delete(req.params.filename)
+              .finally(close)
+              .then(() =>
+                res(
+                  ctx.status(200),
+                  ctx.json<OperationResult>({ status: "succeeded" })
+                )
+              );
+          })
+          .catch(handle500ErrorResponse(res, ctx))
+      );
+    }
+  ),
   rest.patch<PhotoEntry>("/api/v1/photos", (req, res, ctx) => {
     const [{ hidden: hide, filename }] = req.body.data;
     return openPhotoDatabase("readwrite")

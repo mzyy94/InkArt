@@ -36,6 +36,7 @@ if (process.env.NODE_ENV === "development") {
   ctx.fillText("Demo", 30, 30);
   const dataUrl = canvas.toDataURL();
   document.body.style.backgroundImage = `url('${dataUrl}')`;
+  document.body.style.backgroundRepeat = "repeat";
 }
 
 const app = new Router({
