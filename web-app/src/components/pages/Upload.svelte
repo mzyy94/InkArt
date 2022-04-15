@@ -29,9 +29,9 @@
   let width = 0;
   let height = 0;
   let uploading = false;
+  let previewing = false;
 
-  async function uploadImage() {
-    uploading = true;
+  async function getBase64EncodedImage() {
     const bmp = grayscale.getBmpArrayBuffer();
     const blob = new Blob([bmp], { type: "image/bmp" });
     const encodedText = await new Promise<string>((resolve, reject) => {
@@ -44,6 +44,12 @@
       reader.onerror = () => reject(reader.error);
       reader.readAsDataURL(blob);
     });
+    return encodedText;
+  }
+
+  async function uploadImage() {
+    uploading = true;
+    const encodedText = await getBase64EncodedImage();
 
     fetch("/api/v1/photos", { method: "POST", body: encodedText })
       .then((res) => {
@@ -54,6 +60,18 @@
       .finally(() => {
         uploading = false;
       });
+  }
+
+  async function previewImage() {
+    previewing = true;
+    const encodedText = await getBase64EncodedImage();
+
+    fetch("/api/v1/photos/preview", {
+      method: "POST",
+      body: encodedText,
+    }).finally(() => {
+      previewing = false;
+    });
   }
 </script>
 
@@ -94,7 +112,19 @@
       />
     </fieldset>
 
-    <button on:click={uploadImage} disabled={!active} aria-busy={uploading}>
+    <button
+      class="secondary"
+      on:click={previewImage}
+      disabled={!active || uploading}
+      aria-busy={previewing}
+    >
+      {previewing ? "Loading..." : "Preview"}
+    </button>
+    <button
+      on:click={uploadImage}
+      disabled={!active || previewing}
+      aria-busy={uploading}
+    >
       {uploading ? "Uploading..." : "Upload"}
     </button>
   </Container>
